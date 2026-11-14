@@ -1,0 +1,87 @@
+# lib/nucleo/archivo.lg: ficheros con descriptor (POSIX open/read/write/lseek/close).
+# Nativos en src/runtime/std/archivo.c.
+#
+# Un descriptor es un entero >= 0. Los fallos devuelven -1 y archivo_error() explica por qué.
+#
+# API (descriptores):
+#   archivo_abrir(ruta: str, modo: str) -> int
+#       modo "r" lectura; "w" escritura (trunca o crea); "a" añadir; "rw" lectura y escritura (crea).
+#       Devuelve el descriptor o -1.
+#   archivo_leer(fd: int, maximo: int) -> str
+#       Hasta `maximo` bytes desde la posición actual (máx. 1 MiB por llamada). "" al final o si falla.
+#   archivo_leer_linea(fd: int) -> str
+#       Siguiente línea sin "\n" ni "\r" previo. Al final devuelve "": comprueba con archivo_fin.
+#   archivo_escribir(fd: int, texto: str) -> int
+#       Escribe todo el texto. Bytes escritos, o -1.
+#   archivo_fin(fd: int) -> bool
+#       true si la posición está al final (solo para ficheros regulares).
+#   archivo_posicion(fd: int) -> int          posición actual en bytes, o -1
+#   archivo_ir(fd: int, pos: int) -> int      mueve el cursor a pos; nueva posición, o -1
+#   archivo_cerrar(fd: int) -> bool
+#
+# API (ficheros enteros y consultas):
+#   archivo_existe(ruta: str) -> bool
+#   archivo_tamano(ruta: str) -> int          bytes, o -1
+#   archivo_borrar(ruta: str) -> bool
+#   archivo_leer_todo(ruta: str) -> str       contenido completo; "" si falla (comprueba con archivo_existe)
+#   archivo_escribir_todo(ruta: str, texto: str) -> bool
+#   archivo_error() -> str                    texto del último error (errno), p. ej. "No such file or directory"
+#
+# Uso: import archivo
+
+extern "C" fn lg_std_archivo_abrir(ruta: str, modo: str) -> int
+extern "C" fn lg_std_archivo_cerrar(fd: int) -> int
+extern "C" fn lg_std_archivo_leer(fd: int, maximo: int) -> str
+extern "C" fn lg_std_archivo_leer_linea(fd: int) -> str
+extern "C" fn lg_std_archivo_escribir(fd: int, texto: str) -> int
+extern "C" fn lg_std_archivo_fin(fd: int) -> int
+extern "C" fn lg_std_archivo_posicion(fd: int) -> int
+extern "C" fn lg_std_archivo_ir(fd: int, pos: int) -> int
+extern "C" fn lg_std_archivo_existe(ruta: str) -> int
+extern "C" fn lg_std_archivo_tamano(ruta: str) -> int
+extern "C" fn lg_std_archivo_borrar(ruta: str) -> int
+extern "C" fn lg_std_archivo_error() -> str
+extern "C" fn lg_std_archivo_leer_todo(ruta: str) -> str
+extern "C" fn lg_std_archivo_escribir_todo(ruta: str, texto: str) -> int
+
+fn archivo_abrir(ruta: str, modo: str) -> int:
+    return lg_std_archivo_abrir(ruta, modo)
+
+fn archivo_cerrar(fd: int) -> bool:
+    return lg_std_archivo_cerrar(fd) == 0
+
+fn archivo_leer(fd: int, maximo: int) -> str:
+    return lg_std_archivo_leer(fd, maximo)
+
+fn archivo_leer_linea(fd: int) -> str:
+    return lg_std_archivo_leer_linea(fd)
+
+fn archivo_escribir(fd: int, texto: str) -> int:
+    return lg_std_archivo_escribir(fd, texto)
+
+fn archivo_fin(fd: int) -> bool:
+    return lg_std_archivo_fin(fd) == 1
+
+fn archivo_posicion(fd: int) -> int:
+    return lg_std_archivo_posicion(fd)
+
+fn archivo_ir(fd: int, pos: int) -> int:
+    return lg_std_archivo_ir(fd, pos)
+
+fn archivo_existe(ruta: str) -> bool:
+    return lg_std_archivo_existe(ruta) == 1
+
+fn archivo_tamano(ruta: str) -> int:
+    return lg_std_archivo_tamano(ruta)
+
+fn archivo_borrar(ruta: str) -> bool:
+    return lg_std_archivo_borrar(ruta) == 0
+
+fn archivo_leer_todo(ruta: str) -> str:
+    return lg_std_archivo_leer_todo(ruta)
+
+fn archivo_escribir_todo(ruta: str, texto: str) -> bool:
+    return lg_std_archivo_escribir_todo(ruta, texto) == 0
+
+fn archivo_error() -> str:
+    return lg_std_archivo_error()

@@ -1,0 +1,19 @@
+import archivo
+
+f = archivo_abrir("lib_archivo_tmp.txt", "w")
+print("abierto", f >= 0)
+print("escritos", archivo_escribir(f, "uno\ndós\r\ntres"))
+archivo_cerrar(f)
+print("tamano", archivo_tamano("lib_archivo_tmp.txt"))
+r = archivo_abrir("lib_archivo_tmp.txt", "r")
+mut n = 0
+while not archivo_fin(r):
+    print(n, "[" + archivo_leer_linea(r) + "]")
+    n = n + 1
+archivo_ir(r, 0)
+print("primeros", archivo_leer(r, 3))
+print("posicion", archivo_posicion(r))
+archivo_cerrar(r)
+print("inexistente", archivo_abrir("no_existe_archivo.txt", "r"), archivo_error())
+print("todo", archivo_leer_todo("lib_archivo_tmp.txt") == "uno\ndós\r\ntres")
+print("borrar", archivo_borrar("lib_archivo_tmp.txt"), archivo_existe("lib_archivo_tmp.txt"))

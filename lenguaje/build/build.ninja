@@ -99,6 +99,16 @@ build CMakeFiles/lg_runtime.dir/src/runtime/std/README.c.o: C_COMPILER__lg_runti
   OBJECT_FILE_DIR = CMakeFiles/lg_runtime.dir/src/runtime/std
   TARGET_SUPPORT_DIR = CMakeFiles/lg_runtime.dir
 
+build CMakeFiles/lg_runtime.dir/src/runtime/std/archivo.c.o: C_COMPILER__lg_runtime_unscanned_RelWithDebInfo /Users/david/Desktop/nasa/lenguaje/src/runtime/std/archivo.c || cmake_object_order_depends_target_lg_runtime
+  CONFIG = RelWithDebInfo
+  DEFINES = -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+  DEP_FILE = CMakeFiles/lg_runtime.dir/src/runtime/std/archivo.c.o.d
+  FLAGS = -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fPIC -Wall -Wextra
+  INCLUDES = -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime
+  OBJECT_DIR = CMakeFiles/lg_runtime.dir
+  OBJECT_FILE_DIR = CMakeFiles/lg_runtime.dir/src/runtime/std
+  TARGET_SUPPORT_DIR = CMakeFiles/lg_runtime.dir
+
 build CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o: C_COMPILER__lg_runtime_unscanned_RelWithDebInfo /Users/david/Desktop/nasa/lenguaje/src/runtime/std/cadena.c || cmake_object_order_depends_target_lg_runtime
   CONFIG = RelWithDebInfo
   DEFINES = -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
@@ -187,7 +197,7 @@ build CMakeFiles/lg_runtime.dir/src/runtime/std/tcp.c.o: C_COMPILER__lg_runtime_
 #############################################
 # Link the static library lib/liblg_runtime.a
 
-build lib/liblg_runtime.a: C_STATIC_LIBRARY_LINKER__lg_runtime_RelWithDebInfo CMakeFiles/lg_runtime.dir/src/runtime/lg_rt.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/README.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/datos.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/hilos.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/json.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/nucleo.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/proceso.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/red.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/tcp.c.o
+build lib/liblg_runtime.a: C_STATIC_LIBRARY_LINKER__lg_runtime_RelWithDebInfo CMakeFiles/lg_runtime.dir/src/runtime/lg_rt.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/README.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/archivo.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/datos.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/hilos.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/json.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/nucleo.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/proceso.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/red.c.o CMakeFiles/lg_runtime.dir/src/runtime/std/tcp.c.o
   ARCH_FLAGS = -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
   CONFIG = RelWithDebInfo
   LANGUAGE_COMPILE_FLAGS = -O2 -g -DNDEBUG
@@ -202,7 +212,7 @@ build lib/liblg_runtime.a: C_STATIC_LIBRARY_LINKER__lg_runtime_RelWithDebInfo CM
 #############################################
 # Utility command for lg_runtime_wasm
 
-build lg_runtime_wasm: phony CMakeFiles/lg_runtime_wasm wasm-runtime/liblg_runtime_wasm32.a wasm-runtime/runtime_lg_rt.o wasm-runtime/std_README.o wasm-runtime/std_cadena.o wasm-runtime/std_datos.o wasm-runtime/std_hilos.o wasm-runtime/std_json.o wasm-runtime/std_nucleo.o wasm-runtime/std_proceso.o wasm-runtime/std_red.o wasm-runtime/std_tcp.o wasm-runtime/wasm_builtins_wasm.o
+build lg_runtime_wasm: phony CMakeFiles/lg_runtime_wasm wasm-runtime/liblg_runtime_wasm32.a wasm-runtime/runtime_lg_rt.o wasm-runtime/std_README.o wasm-runtime/std_archivo.o wasm-runtime/std_cadena.o wasm-runtime/std_datos.o wasm-runtime/std_hilos.o wasm-runtime/std_json.o wasm-runtime/std_nucleo.o wasm-runtime/std_proceso.o wasm-runtime/std_red.o wasm-runtime/std_tcp.o wasm-runtime/wasm_builtins_wasm.o
 
 # =============================================================================
 # Object build statements for STATIC_LIBRARY target lg_core
@@ -456,8 +466,8 @@ build CMakeFiles/lg_runtime_wasm | ${cmake_ninja_workdir}CMakeFiles/lg_runtime_w
 #############################################
 # Custom command for wasm-runtime/liblg_runtime_wasm32.a
 
-build wasm-runtime/liblg_runtime_wasm32.a | ${cmake_ninja_workdir}wasm-runtime/liblg_runtime_wasm32.a: CUSTOM_COMMAND wasm-runtime/runtime_lg_rt.o wasm-runtime/std_README.o wasm-runtime/std_cadena.o wasm-runtime/std_datos.o wasm-runtime/std_hilos.o wasm-runtime/std_json.o wasm-runtime/std_nucleo.o wasm-runtime/std_proceso.o wasm-runtime/std_red.o wasm-runtime/std_tcp.o wasm-runtime/wasm_builtins_wasm.o
-  COMMAND = cd /Users/david/Desktop/nasa/lenguaje/build && /opt/homebrew/bin/cmake -E rm -f /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/liblg_runtime_wasm32.a && /opt/homebrew/Cellar/llvm/23.1.5_1/bin/llvm-ar rcs /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/liblg_runtime_wasm32.a /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/runtime_lg_rt.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_README.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_cadena.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_datos.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_hilos.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_json.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_nucleo.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_proceso.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_red.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_tcp.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/wasm_builtins_wasm.o
+build wasm-runtime/liblg_runtime_wasm32.a | ${cmake_ninja_workdir}wasm-runtime/liblg_runtime_wasm32.a: CUSTOM_COMMAND wasm-runtime/runtime_lg_rt.o wasm-runtime/std_README.o wasm-runtime/std_archivo.o wasm-runtime/std_cadena.o wasm-runtime/std_datos.o wasm-runtime/std_hilos.o wasm-runtime/std_json.o wasm-runtime/std_nucleo.o wasm-runtime/std_proceso.o wasm-runtime/std_red.o wasm-runtime/std_tcp.o wasm-runtime/wasm_builtins_wasm.o
+  COMMAND = cd /Users/david/Desktop/nasa/lenguaje/build && /opt/homebrew/bin/cmake -E rm -f /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/liblg_runtime_wasm32.a && /opt/homebrew/Cellar/llvm/23.1.5_1/bin/llvm-ar rcs /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/liblg_runtime_wasm32.a /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/runtime_lg_rt.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_README.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_archivo.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_cadena.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_datos.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_hilos.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_json.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_nucleo.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_proceso.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_red.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_tcp.o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/wasm_builtins_wasm.o
   DESC = Archivando liblg_runtime_wasm32.a
   restat = 1
 
@@ -477,6 +487,15 @@ build wasm-runtime/runtime_lg_rt.o | ${cmake_ninja_workdir}wasm-runtime/runtime_
 build wasm-runtime/std_README.o | ${cmake_ninja_workdir}wasm-runtime/std_README.o: CUSTOM_COMMAND /Users/david/Desktop/nasa/lenguaje/src/runtime/std/README.c
   COMMAND = cd /Users/david/Desktop/nasa/lenguaje/build && /opt/homebrew/Cellar/llvm/23.1.5_1/bin/clang --target=wasm32-wasip1 --sysroot=/opt/homebrew/share/wasi-sysroot -D_WASI_EMULATED_SIGNAL -O2 -Wall -Wextra -I/Users/david/Desktop/nasa/lenguaje/src/runtime -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/README.c -o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_README.o
   DESC = Compilando runtime wasm32: README.c
+  restat = 1
+
+
+#############################################
+# Custom command for wasm-runtime/std_archivo.o
+
+build wasm-runtime/std_archivo.o | ${cmake_ninja_workdir}wasm-runtime/std_archivo.o: CUSTOM_COMMAND /Users/david/Desktop/nasa/lenguaje/src/runtime/std/archivo.c
+  COMMAND = cd /Users/david/Desktop/nasa/lenguaje/build && /opt/homebrew/Cellar/llvm/23.1.5_1/bin/clang --target=wasm32-wasip1 --sysroot=/opt/homebrew/share/wasi-sysroot -D_WASI_EMULATED_SIGNAL -O2 -Wall -Wextra -I/Users/david/Desktop/nasa/lenguaje/src/runtime -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/archivo.c -o /Users/david/Desktop/nasa/lenguaje/build/wasm-runtime/std_archivo.o
+  DESC = Compilando runtime wasm32: archivo.c
   restat = 1
 
 

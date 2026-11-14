@@ -3,6 +3,9 @@
 #   shell_ejecutar(linea: str) -> str   ejecuta una línea (puede llevar tuberías "|")
 #   shell_ejecutar_script(nombre) -> str compila scripts/NOMBRE con lgc y lo ejecuta
 #
+# Las órdenes y los sistemas se aceptan con su nombre interno o con el nombre de cualquier idioma
+# (ver traducciones.json, claves cmd.*, sys.* y tema.*).
+#
 # Protocolo con un script (por FIFO, run/in y run/out):
 #   script -> servidor:  "@CMD orden" cuando llama a nave_ejecutar
 #   servidor -> script:  la respuesta, línea a línea, seguida de "@FIN"
@@ -17,12 +20,30 @@ import datos
 import manual
 import sim
 import misiones
+import i18n
 
 mut en_script = false
 mut ruta_lgc = "../lenguaje/build/bin/lgc"
 mut ruta_lib = "lib"
 mut ruta_nucleo = "../lenguaje/lib/nucleo"
 mut ruta_stdlib = "../lenguaje/stdlib"
+
+fn shell_ordenes() -> List[str]:
+    return ["ayuda", "man", "man-code", "estado", "sensores", "valor", "diagnostico", "reparar", "encender", "apagar", "ajustar", "mision", "misiones", "iniciar", "esperar", "ls", "cat", "editar", "ejecutar", "echo", "pwd", "whoami", "limpiar", "idioma"]
+
+fn shell_sistemas() -> List[str]:
+    return ["reactor", "refrigeracion", "energia", "oxigeno", "comunicaciones", "co2", "hidrogeno"]
+
+# Id interno de una orden escrita en cualquier idioma ("status" -> "estado").
+fn shell_orden(palabra: str) -> str:
+    return i18n_canonico("cmd.", shell_ordenes(), palabra)
+
+# Id interno de un sistema ("oxígeno" -> "oxigeno"). "" si no existe.
+fn shell_sistema(palabra: str) -> str:
+    id = i18n_canonico("sys.", shell_sistemas(), palabra)
+    if sim_existe(id):
+        return id
+    return ""
 
 fn shell_palabras(s: str) -> List[str]:
     mut out: List[str] = []
@@ -59,87 +80,104 @@ fn shell_nombre_valido(n: str) -> bool:
 
 # ---------- órdenes de la nave ----------
 
+# Sin relleno de columnas: len cuenta bytes y las tildes o el japonés descuadrarían la tabla.
 fn shell_linea_sistema(s: Sistema) -> str:
-    return shell_relleno(s.nombre, 17) + shell_relleno(str(s.valor), 6) + shell_relleno("[" + str(s.minimo) + "-" + str(s.maximo) + "]", 12) + sim_estado(s)
+    return sim_nombre(s) + ": " + str(s.valor) + "  [" + str(s.minimo) + "-" + str(s.maximo) + "]  " + sim_estado(s)
 
 fn shell_estado(args: List[str]) -> str:
     if len(args) == 0:
-        mut lineas: List[str] = [shell_relleno("SISTEMA", 17) + shell_relleno("VALOR", 6) + shell_relleno("RANGO", 12) + "ESTADO"]
+        mut lineas: List[str] = [tr("col.sistema") + " · " + tr("col.valor") + " · " + tr("col.rango") + " · " + tr("col.estado")]
         todos = sim_lista()
         for i in 0..len(todos):
             lineas.append(shell_linea_sistema(todos[i]))
         return texto_unir(lineas, "\n")
-    if not sim_existe(args[0]):
-        return "sistema desconocido: " + args[0]
-    s = sim_s(args[0])
-    mut estado_txt = ", apagado"
+    id = shell_sistema(args[0])
+    if id == "":
+        return trc("msg.sistema_desconocido", [args[0]])
+    s = sim_s(id)
+    mut estado_txt = tr("msg.apagado")
     if s.activo:
-        estado_txt = ", activo"
-    return shell_linea_sistema(s) + "\n  objetivo " + str(s.objetivo) + estado_txt
+        estado_txt = tr("msg.activo")
+    return shell_linea_sistema(s) + "\n" + trc("msg.objetivo", [str(s.objetivo), estado_txt])
 
 fn shell_valor(args: List[str]) -> str:
-    if len(args) == 0 or not sim_existe(args[0]):
-        return "error"
-    return str(sim_s(args[0]).valor)
+    mut id = ""
+    if len(args) > 0:
+        id = shell_sistema(args[0])
+    if id == "":
+        return tr("msg.error")
+    return str(sim_s(id).valor)
 
 fn shell_diagnostico(args: List[str]) -> str:
-    if len(args) == 0 or not sim_existe(args[0]):
-        return "uso: diagnostico SISTEMA"
-    mut s = sim_s(args[0])
+    mut id = ""
+    if len(args) > 0:
+        id = shell_sistema(args[0])
+    if id == "":
+        return trc("msg.uso_sistema", [tr("cmd.diagnostico")])
+    mut s = sim_s(id)
     s.diagnosticado = true
     if s.averia == "":
-        return s.nombre + ": sin averías detectadas."
-    return "Diagnóstico de " + s.nombre + ": AVERIA: " + s.averia + ". Deriva " + str(s.deriva) + " por segundo.\nRepárala con: reparar " + s.nombre
+        return trc("msg.sin_averias", [sim_nombre(s)])
+    return trc("msg.diagnostico", [sim_nombre(s), tr(s.averia), str(s.deriva), tr("cmd.reparar")])
 
 fn shell_reparar(args: List[str]) -> str:
-    if len(args) == 0 or not sim_existe(args[0]):
-        return "uso: reparar SISTEMA"
-    mut s = sim_s(args[0])
+    mut id = ""
+    if len(args) > 0:
+        id = shell_sistema(args[0])
+    if id == "":
+        return trc("msg.uso_sistema", [tr("cmd.reparar")])
+    mut s = sim_s(id)
     if s.averia == "":
-        return s.nombre + " ya está operativo."
+        return trc("msg.ya_operativo", [sim_nombre(s)])
     if not s.diagnosticado:
-        return "primero diagnostica el sistema: diagnostico " + s.nombre
+        return trc("msg.primero_diag", [tr("cmd.diagnostico"), sim_nombre(s)])
     s.averia = ""
     s.deriva = 0
     s.diagnosticado = false
-    return s.nombre + " reparado."
+    return trc("msg.reparado", [sim_nombre(s)])
 
 fn shell_activar(args: List[str], activo: bool) -> str:
-    if len(args) == 0 or not sim_existe(args[0]):
-        return "uso: encender|apagar SISTEMA"
-    mut s = sim_s(args[0])
+    mut id = ""
+    if len(args) > 0:
+        id = shell_sistema(args[0])
+    if id == "":
+        return trc("msg.uso_activar", [tr("cmd.encender"), tr("cmd.apagar")])
+    mut s = sim_s(id)
     s.activo = activo
     if activo:
-        return s.nombre + " encendido."
-    return s.nombre + " apagado."
+        return trc("msg.encendido", [sim_nombre(s)])
+    return trc("msg.apagado_sis", [sim_nombre(s)])
 
 fn shell_ajustar(args: List[str]) -> str:
-    if len(args) < 2 or not sim_existe(args[0]) or not shell_es_entero(args[1]):
-        return "uso: ajustar SISTEMA VALOR"
-    mut s = sim_s(args[0])
+    mut id = ""
+    if len(args) > 0:
+        id = shell_sistema(args[0])
+    if len(args) < 2 or id == "" or not shell_es_entero(args[1]):
+        return trc("msg.uso_ajustar", [tr("cmd.ajustar")])
+    mut s = sim_s(id)
     if s.nombre != "refrigeracion" and s.nombre != "oxigeno" and s.nombre != "comunicaciones":
-        return s.nombre + " no es un sistema regulado."
+        return trc("msg.no_regulado", [sim_nombre(s)])
     s.objetivo = int(args[1])
     if s.objetivo < s.minimo:
         s.objetivo = s.minimo
     if s.objetivo > s.maximo:
         s.objetivo = s.maximo
-    return s.nombre + ": objetivo " + str(s.objetivo) + "."
+    return trc("msg.objetivo_fijado", [sim_nombre(s), str(s.objetivo)])
 
 fn shell_iniciar(args: List[str]) -> str:
     if len(args) == 0 or not shell_es_entero(args[0]):
-        return "uso: iniciar N (ver 'misiones')"
+        return trc("msg.uso_iniciar", [tr("cmd.iniciar"), tr("cmd.misiones")])
     return mision_iniciar(int(args[0]))
 
 fn shell_esperar(args: List[str]) -> str:
     if len(args) == 0 or not shell_es_entero(args[0]):
-        return "uso: esperar SEGUNDOS (1 a 60)"
+        return trc("msg.uso_esperar", [tr("cmd.esperar")])
     s = int(args[0])
     if s < 1 or s > 60:
-        return "esperar: entre 1 y 60 segundos"
+        return trc("msg.esperar_rango", [tr("cmd.esperar")])
     tiempo_dormir_ms(s * 1000)
     mision_avanzar()
-    return "esperados " + str(s) + " s."
+    return trc("msg.esperados", [str(s)])
 
 # ---------- ficheros del juego ----------
 
@@ -152,16 +190,11 @@ fn shell_ls() -> str:
 
 fn shell_cat(args: List[str]) -> str:
     if len(args) == 0 or not shell_nombre_valido(args[0]):
-        return "uso: cat FICHERO.lg"
+        return trc("msg.uso_fichero", [tr("cmd.cat")])
     ruta = "scripts/" + args[0]
     if not shell_existe(ruta):
-        return "no existe: " + args[0]
+        return trc("msg.no_existe", [args[0]])
     return leer_texto(ruta)
-
-fn shell_grep_linea(linea: str, args: List[str]) -> bool:
-    if len(args) == 0:
-        return true
-    return texto_contiene(linea, args[0])
 
 # ---------- tuberías ----------
 
@@ -178,19 +211,19 @@ fn shell_filtrar(orden: str, entrada: str) -> str:
             if len(args) > 0 and texto_contiene(l, args[0]):
                 out.append(l)
         return texto_unir(out, "\n")
-    if p[0] == "contar":
+    if p[0] == "contar" or p[0] == "count" or p[0] == "compter":
         if entrada == "":
             return "0"
         return str(len(texto_dividir(entrada, "\n")))
-    if p[0] == "mayus":
+    if p[0] == "mayus" or p[0] == "upper" or p[0] == "majuscules":
         return texto_a_mayusculas(entrada)
-    return "tubería: orden no soportada '" + p[0] + "'"
+    return trc("msg.tuberia", [p[0]])
 
 fn shell_una(linea: str) -> str:
     p = shell_palabras(linea)
     if len(p) == 0:
         return ""
-    orden = p[0]
+    orden = shell_orden(p[0])
     mut args: List[str] = []
     for i in 1..len(p):
         args.append(p[i])
@@ -199,7 +232,7 @@ fn shell_una(linea: str) -> str:
     if orden == "man":
         if len(args) == 0:
             return manual_comandos()
-        return manual_comando(args[0])
+        return manual_comando(shell_orden(args[0]))
     if orden == "man-code":
         if len(args) == 0:
             return manual_temas()
@@ -234,20 +267,26 @@ fn shell_una(linea: str) -> str:
         mut nombre_ed = "FICHERO.lg"
         if len(args) > 0:
             nombre_ed = args[0]
-        return "el editor se abre desde la terminal web: editar " + nombre_ed
+        return trc("msg.editor_web", [tr("cmd.editar"), nombre_ed])
     if orden == "ejecutar":
         if len(args) == 0:
-            return "uso: ejecutar FICHERO.lg"
+            return trc("msg.uso_fichero", [tr("cmd.ejecutar")])
         return shell_ejecutar_script(args[0])
     if orden == "echo":
         return texto_unir(args, " ")
     if orden == "pwd":
-        return "/nave"
+        return tr("msg.pwd")
     if orden == "whoami":
-        return "tripulante"
+        return tr("msg.whoami")
     if orden == "limpiar":
         return ""
-    return orden + ": orden no encontrada. Prueba 'ayuda'."
+    if orden == "idioma":
+        if len(args) == 0:
+            return trc("msg.idioma_uso", [tr("cmd.idioma")])
+        if i18n_cambiar(args[0]):
+            return trc("msg.idioma_cambiado", [args[0]])
+        return trc("msg.idioma_no", [args[0], i18n_disponibles()])
+    return trc("msg.comando_no", [p[0], tr("cmd.ayuda")])
 
 # Ejecuta una línea completa, con tuberías (orden | grep X | contar).
 fn shell_ejecutar(linea: str) -> str:
@@ -265,20 +304,20 @@ fn shell_ejecutar(linea: str) -> str:
 
 fn shell_ejecutar_script(nombre: str) -> str:
     if en_script:
-        return "un script no puede ejecutar otro script"
+        return tr("msg.anidado")
     if not shell_nombre_valido(nombre):
-        return "nombre no válido: " + nombre + " (usa letras, números, _ y -, terminado en .lg)"
+        return trc("msg.nombre_invalido", [nombre])
     if not shell_existe("scripts/" + nombre):
-        return "no existe: scripts/" + nombre + " (créalo con 'editar " + nombre + "')"
+        return trc("msg.no_existe", ["scripts/" + nombre]) + " " + trc("msg.crear_antes", [tr("cmd.editar"), nombre])
     proceso_ejecutar("mkdir -p run && rm -f run/in run/out && mkfifo run/in run/out")
     orden_compilar = ruta_lgc + " scripts/" + nombre + " -I " + ruta_lib + " -I " + ruta_nucleo + " -I " + ruta_stdlib + " -o run/prog > run/compile.txt 2>&1"
     if proceso_ejecutar(orden_compilar) != 0:
-        return "error al compilar " + nombre + ":\n" + leer_texto("run/compile.txt")
+        return trc("msg.error_compilar", [nombre, leer_texto("run/compile.txt")])
     proceso_ejecutar("(perl -e 'alarm 60; exec @ARGV' ./run/prog < run/in > run/out 2>&1 &)")
     en_script = true
     w = proceso_abrir("run/in", "w")
     r = proceso_abrir("run/out", "r")
-    mut salida = "[" + nombre + " en ejecución]\n"
+    mut salida = trc("msg.en_ejecucion", [nombre]) + "\n"
     while not proceso_fin(r):
         l = proceso_leer_linea(r)
         if texto_empieza_por(l, "@CMD "):
@@ -290,4 +329,4 @@ fn shell_ejecutar_script(nombre: str) -> str:
     proceso_cerrar(w)
     proceso_cerrar(r)
     en_script = false
-    return salida + "[" + nombre + " terminado]"
+    return salida + trc("msg.terminado", [nombre])

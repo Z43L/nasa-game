@@ -1,0 +1,144 @@
+# lib/datos/traduccion.lg: traducciones a varios idiomas leídas de un fichero JSON.
+#
+# FORMATO DEL JSON: un bloque por idioma, con las claves de texto. Las claves anidadas se aplanan con
+# puntos, así que "menu": {"archivo": "Archivo"} equivale a la clave "menu.archivo".
+#
+#   {
+#     "es": { "saludo": "Hola", "menu": { "archivo": "Archivo" }, "bienvenida": "Hola, {0}" },
+#     "en": { "saludo": "Hello", "menu": { "archivo": "File" }, "bienvenida": "Hello, {0}" }
+#   }
+#
+# API
+#   traduccion_nueva() -> Traducciones                       vacía; idioma y respaldo "es"
+#   traduccion_cargar(t, ruta: str) -> str                   lee un fichero JSON y añade sus idiomas; "" si va bien
+#   traduccion_cargar_texto(t, json: str) -> str             igual, desde un texto JSON; "" si va bien
+#   traduccion_idioma(t, codigo: str) -> bool                cambia el idioma activo; false si no hay textos en él
+#   traduccion_respaldo(t, codigo: str)                      idioma de respaldo para claves que falten
+#   traduccion_idioma_actual(t) -> str
+#   traduccion_idiomas(t) -> List[str]                       idiomas cargados, en orden de aparición
+#   traduccion_claves(t) -> List[str]                        todas las claves conocidas
+#   traduccion_tiene(t, clave: str) -> bool                  existe en el idioma activo o en el de respaldo
+#   traduccion_t(t, clave: str) -> str                       texto en el idioma activo; si falta, el de respaldo;
+#                                                            si tampoco, "[clave]"
+#   traduccion_con(t, clave: str, args: List[str]) -> str    como traduccion_t, sustituyendo {0}, {1}, ...
+#   traduccion_faltantes(t, codigo: str) -> List[str]        claves sin texto en ese idioma
+#
+# Un error de carga (JSON no válido, valor que no es texto...) se devuelve como mensaje y no modifica
+# las claves ya cargadas del mismo bloque.
+#
+# Uso: import traduccion   (con -I lib/datos -I lib/nucleo; importa json y archivo)
+
+import json
+import archivo
+import texto
+
+struct Traducciones:
+    idioma: str
+    respaldo: str
+    idiomas: List[str]
+    claves: List[str]
+    textos: Dict[str, str]
+
+fn traduccion_nueva() -> Traducciones:
+    return Traducciones(idioma: "es", respaldo: "es", idiomas: [], claves: [], textos: {})
+
+fn traduccion_clave_interna(idioma: str, clave: str) -> str:
+    return idioma + "/" + clave
+
+# Guarda un texto (y registra idioma y clave si son nuevos).
+fn traduccion_guardar(t: Traducciones, idioma: str, clave: str, valor: str):
+    mut u = t
+    if not traduccion_contiene(u.idiomas, idioma):
+        u.idiomas.append(idioma)
+    if not traduccion_contiene(u.claves, clave):
+        u.claves.append(clave)
+    u.textos[traduccion_clave_interna(idioma, clave)] = valor
+
+fn traduccion_contiene(l: List[str], s: str) -> bool:
+    for i in 0..len(l):
+        if l[i] == s:
+            return true
+    return false
+
+# Añade las claves de un objeto JSON (ya dentro de un idioma). prefijo: "" en la raíz del idioma.
+fn traduccion_volcar(t: Traducciones, idioma: str, prefijo: str, v: JsonValor) -> str:
+    for i in 0..len(v.claves):
+        mut clave = v.claves[i]
+        if prefijo != "":
+            clave = prefijo + "." + clave
+        hijo = v.valores[i]
+        if hijo.etiqueta == 3:
+            traduccion_guardar(t, idioma, clave, hijo.texto)
+        elif hijo.etiqueta == 5:
+            err = traduccion_volcar(t, idioma, clave, hijo)
+            if err != "":
+                return err
+        else:
+            return "la clave '" + clave + "' de '" + idioma + "' debe ser texto u objeto"
+    return ""
+
+fn traduccion_cargar_texto(t: Traducciones, contenido: str) -> str:
+    v = json_parsear(contenido)
+    if json_es_error(v):
+        return "JSON no válido: " + json_texto(v)
+    if v.etiqueta != 5:
+        return "el JSON raíz debe ser un objeto con un bloque por idioma"
+    for i in 0..len(v.claves):
+        bloque = v.valores[i]
+        if bloque.etiqueta != 5:
+            return "el idioma '" + v.claves[i] + "' debe ser un objeto"
+        err = traduccion_volcar(t, v.claves[i], "", bloque)
+        if err != "":
+            return err
+    return ""
+
+fn traduccion_cargar(t: Traducciones, ruta: str) -> str:
+    if not archivo_existe(ruta):
+        return "no existe el fichero de traducciones: " + ruta
+    contenido = archivo_leer_todo(ruta)
+    if contenido == "":
+        return "el fichero de traducciones está vacío: " + ruta
+    return traduccion_cargar_texto(t, contenido)
+
+fn traduccion_idioma(t: Traducciones, codigo: str) -> bool:
+    mut u = t
+    u.idioma = codigo
+    return traduccion_contiene(u.idiomas, codigo)
+
+fn traduccion_respaldo(t: Traducciones, codigo: str):
+    mut u = t
+    u.respaldo = codigo
+
+fn traduccion_idioma_actual(t: Traducciones) -> str:
+    return t.idioma
+
+fn traduccion_idiomas(t: Traducciones) -> List[str]:
+    return t.idiomas
+
+fn traduccion_claves(t: Traducciones) -> List[str]:
+    return t.claves
+
+fn traduccion_tiene(t: Traducciones, clave: str) -> bool:
+    return t.textos.tiene(traduccion_clave_interna(t.idioma, clave)) or t.textos.tiene(traduccion_clave_interna(t.respaldo, clave))
+
+fn traduccion_t(t: Traducciones, clave: str) -> str:
+    k = traduccion_clave_interna(t.idioma, clave)
+    if t.textos.tiene(k):
+        return t.textos[k]
+    k2 = traduccion_clave_interna(t.respaldo, clave)
+    if t.textos.tiene(k2):
+        return t.textos[k2]
+    return "[" + clave + "]"
+
+fn traduccion_con(t: Traducciones, clave: str, args: List[str]) -> str:
+    mut s = traduccion_t(t, clave)
+    for i in 0..len(args):
+        s = texto_reemplazar(s, "{" + str(i) + "}", args[i])
+    return s
+
+fn traduccion_faltantes(t: Traducciones, codigo: str) -> List[str]:
+    mut falta: List[str] = []
+    for i in 0..len(t.claves):
+        if not t.textos.tiene(traduccion_clave_interna(codigo, t.claves[i])):
+            falta.append(t.claves[i])
+    return falta

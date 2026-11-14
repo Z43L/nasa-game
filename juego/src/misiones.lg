@@ -13,6 +13,7 @@
 
 import tiempo
 import sim
+import i18n
 
 struct Mision:
     titulo: str
@@ -22,10 +23,10 @@ struct Mision:
 
 fn misiones_lista() -> List[Mision]:
     mut l: List[Mision] = []
-    l.append(Mision(titulo: "Refrigeración de emergencia", briefing: "El reactor se calienta: la bomba de refrigerante está obstruida. Diagnostica 'refrigeracion' y repárala. Objetivo: reactor por debajo de 480 C con refrigeración sana.", limite_s: 120, racha_necesaria: 1))
-    l.append(Mision(titulo: "Fuga de oxígeno", briefing: "La presión de oxígeno cae. Localiza la avería en 'oxigeno' y repárala. Objetivo: presión de al menos 95 kPa con el sistema sano.", limite_s: 90, racha_necesaria: 1))
-    l.append(Mision(titulo: "Batería agotándose", briefing: "El reactor no recarga la batería. Diagnostica 'reactor', repáralo y mantén la energía por encima de 30%. Consejo: apagar 'comunicaciones' reduce el consumo.", limite_s: 150, racha_necesaria: 1))
-    l.append(Mision(titulo: "Piloto automático", briefing: "Las comunicaciones pierden señal y no puedes vigilarlas a mano. Escribe un script con 'editar' y ejecútalo con 'ejecutar'. Objetivo: todos los sistemas sanos durante 15 segundos seguidos.", limite_s: 180, racha_necesaria: 15))
+    l.append(Mision(titulo: "mision.1.titulo", briefing: "mision.1.briefing", limite_s: 120, racha_necesaria: 1))
+    l.append(Mision(titulo: "mision.2.titulo", briefing: "mision.2.briefing", limite_s: 90, racha_necesaria: 1))
+    l.append(Mision(titulo: "mision.3.titulo", briefing: "mision.3.briefing", limite_s: 150, racha_necesaria: 1))
+    l.append(Mision(titulo: "mision.4.titulo", briefing: "mision.4.briefing", limite_s: 180, racha_necesaria: 15))
     return l
 
 mut lista_misiones: List[Mision] = misiones_lista()
@@ -103,11 +104,11 @@ fn mision_segundo():
     if racha_s >= lista_misiones[actual].racha_necesaria:
         mision_completar()
     elif rea.valor > rea.maximo:
-        mision_fallar("el reactor se ha fundido por sobrecalentamiento")
+        mision_fallar("fallo.reactor")
     elif ene.valor <= 0:
-        mision_fallar("apagón total: la energía se ha agotado")
+        mision_fallar("fallo.energia")
     elif transcurrido_s >= lista_misiones[actual].limite_s:
-        mision_fallar("tiempo agotado")
+        mision_fallar("fallo.tiempo")
 
 # Avanza el reloj real: un paso por cada segundo transcurrido (como mucho 300 por llamada).
 fn mision_avanzar():
@@ -126,24 +127,24 @@ fn mision_preparar(i: int):
     if i == 0:
         mut rea0 = sim_s("reactor")
         rea0.valor = 500
-        sim_averiar("refrigeracion", "bomba de refrigerante obstruida", 0)
+        sim_averiar("refrigeracion", "av.bomba", 0)
     elif i == 1:
-        sim_averiar("oxigeno", "fuga en la válvula principal", -4)
+        sim_averiar("oxigeno", "av.fuga", -4)
     elif i == 2:
-        sim_averiar("reactor", "inyector de combustible atascado", 0)
+        sim_averiar("reactor", "av.inyector", 0)
         mut ene = sim_s("energia")
         ene.valor = 60
     elif i == 3:
-        sim_averiar("comunicaciones", "antena desalineada", -3)
+        sim_averiar("comunicaciones", "av.antena", -3)
 
 fn mision_iniciar(n: int) -> str:
     if estado == 1:
-        return "ya hay una misión en curso: " + lista_misiones[actual].titulo
+        return trc("mision.ya_en_curso", [tr(lista_misiones[actual].titulo)])
     i = n - 1
     if i < 0 or i >= len(lista_misiones):
-        return "no existe la misión " + str(n) + " (hay " + str(len(lista_misiones)) + ")"
+        return trc("mision.no_existe", [str(n), str(len(lista_misiones))])
     if i > completadas:
-        return "misión bloqueada: completa antes la " + str(completadas + 1)
+        return trc("mision.bloqueada_msg", [str(completadas + 1)])
     mision_preparar(i)
     actual = i
     estado = 1
@@ -152,28 +153,28 @@ fn mision_iniciar(n: int) -> str:
     motivo_fin = ""
     resto_ms = 0
     ultimo_ms = tiempo_monotonico_ms()
-    return "Misión " + str(n) + ": " + lista_misiones[i].titulo + "\n" + lista_misiones[i].briefing + "\nTiempo límite: " + str(lista_misiones[i].limite_s) + " s."
+    return trc("mision.iniciada", [str(n), tr(lista_misiones[i].titulo), tr(lista_misiones[i].briefing), trc("mision.limite", [str(lista_misiones[i].limite_s)])])
 
 fn mision_info() -> str:
     if actual < 0:
-        return "No hay ninguna misión iniciada. Usa 'misiones' para ver la lista e 'iniciar N' para empezar."
+        return trc("mision.sin_mision", [tr("cmd.misiones"), tr("cmd.iniciar")])
     m = lista_misiones[actual]
-    cabecera = "Misión " + str(actual + 1) + ": " + m.titulo
+    cabecera = trc("mision.cabecera", [str(actual + 1), tr(m.titulo)])
     if estado == 1:
-        return cabecera + "\nEn curso. Tiempo restante: " + str(mision_restante_s()) + " s de " + str(m.limite_s) + ".\nObjetivo: " + m.briefing
+        return cabecera + "\n" + trc("mision.curso", [str(mision_restante_s()), str(m.limite_s)]) + "\n" + trc("mision.objetivo", [tr(m.briefing)])
     if estado == 2:
-        return cabecera + "\nCOMPLETADA con " + str(puntos) + " puntos."
-    return cabecera + "\nFALLIDA: " + motivo_fin
+        return cabecera + "\n" + trc("mision.completada", [str(puntos)])
+    return cabecera + "\n" + trc("mision.fallida", [tr(motivo_fin)])
 
 fn mision_listar() -> str:
     mut partes: List[str] = []
     for i in 0..len(lista_misiones):
-        mut e = "bloqueada"
+        mut e = tr("mision.estado.bloqueada")
         if i < completadas:
-            e = "completada"
+            e = tr("mision.estado.completada")
         elif i == completadas and not (estado == 1 and actual == i):
-            e = "disponible"
+            e = tr("mision.estado.disponible")
         if estado == 1 and actual == i:
-            e = "en curso"
-        partes.append(str(i + 1) + ". " + lista_misiones[i].titulo + " [" + e + "], límite " + str(lista_misiones[i].limite_s) + " s")
+            e = tr("mision.estado.en_curso")
+        partes.append(trc("mision.linea", [str(i + 1), tr(lista_misiones[i].titulo), e, str(lista_misiones[i].limite_s)]))
     return texto_unir(partes, "\n")
