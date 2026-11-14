@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formulario con estado (WebAssembly)</title>
+  <style>
+    :root { color-scheme: light dark; --fondo: #fff; --texto: #111; --borde: #888; }
+    :root[data-theme="dark"] { --fondo: #111; --texto: #eee; --borde: #aaa; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fondo: #111; --texto: #eee; --borde: #aaa; } }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: var(--fondo); color: var(--texto); }
+    input { font-size: 1rem; padding: 8px; border: 1px solid var(--borde); border-radius: 6px; background: transparent; color: var(--texto); }
+    button { font-size: 1rem; padding: 8px 16px; margin-left: 6px; border-radius: 8px; border: 1px solid var(--borde); background: transparent; color: var(--texto); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="app"><p>Cargando…</p></div>
+  <script src="../../../lib/ui/puente.js"></script>
+  <script src="../../../lib/app/app_puente.js"></script>
+  <script>
+    AppPuente.montar({ wasm: 'app_formulario.wasm', contenedor: document.getElementById('app') })
+      .then((app) => { window.app = app; })
+      .catch((e) => { document.getElementById('app').textContent = 'Error: ' + e.message; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+# lib/app: el nombre de clase es estable (mismo estilo, mismo nombre) y distinto para estilos distintos.
+# Se generan 500 estilos aleatorios con semilla fija; cada nombre debe corresponder a un solo contenido.
+import estilo
+import aleatorio
+import cadena
+
+fn al_azar(n: int) -> str:
+    if n == 0:
+        return ""
+    return str(aleatorio_entero(0, 3)) + "px"
+
+fn estilo_aleatorio() -> Estilo:
+    mut e = estilo_nuevo()
+    e.relleno = al_azar(aleatorio_entero(0, 1))
+    e.margen = al_azar(aleatorio_entero(0, 2))
+    e.color = ["red", "blue", "#fff", ""][aleatorio_entero(0, 3)]
+    e.radio = al_azar(aleatorio_entero(0, 1))
+    e.direccion = ["fila", "columna", ""][aleatorio_entero(0, 2)]
+    e.centrar = aleatorio_entero(0, 1) == 1
+    return e
+
+aleatorio_sembrar(42)
+mut por_nombre: Dict[str, str] = {}
+mut colisiones = 0
+mut contenidos_distintos = 0
+mut vistos: Dict[str, bool] = {}
+mut nombres: List[str] = []
+for i in 0..500:
+    e = estilo_aleatorio()
+    n = estilo_clase(e)
+    c = estilo_css("x", e)
+    if por_nombre.tiene(n):
+        if por_nombre[n] != c:
+            colisiones = colisiones + 1
+    else:
+        por_nombre[n] = c
+    if vistos.tiene(c) == false:
+        vistos[c] = true
+        contenidos_distintos = contenidos_distintos + 1
+
+print("colisiones: " + str(colisiones))
+print("contenidos distintos: " + str(contenidos_distintos))
+print("nombres distintos = contenidos distintos: " + str(len(por_nombre) == contenidos_distintos))
+print("estilo igual, mismo nombre: " + str(estilo_clase(estilo_nuevo()) == estilo_clase(estilo_nuevo())))
+print("nombre con prefijo e: " + str(buscar(estilo_clase(estilo_nuevo()), "e") == 0))

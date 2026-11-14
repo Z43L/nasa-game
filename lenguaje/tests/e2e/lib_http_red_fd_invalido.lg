@@ -1,0 +1,6 @@
+import lib_http_mod/http
+
+p = http_leer_peticion(-1)
+print(p.valida)
+print(p.error)
+print(http_responder(-1, http_respuesta_texto(200, "x")))

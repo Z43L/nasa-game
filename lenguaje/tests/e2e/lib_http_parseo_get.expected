@@ -1,0 +1,12 @@
+true
+GET
+/inicio?q=1
+HTTP/1.1
+0
+3
+Host = ejemplo.com
+ejemplo.com
+text/html
+true
+true
+true

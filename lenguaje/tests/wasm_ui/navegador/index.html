@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contador en Lenguaje (WebAssembly)</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: #fff; color: #111; }
+    @media (prefers-color-scheme: dark) { body { background: #111; color: #eee; } }
+    main { max-width: 480px; margin: 40px auto; text-align: center; }
+    #texto { font-size: 1.6rem; margin: 24px 0; }
+    button { font-size: 1.1rem; padding: 10px 22px; border-radius: 8px; border: 1px solid #888; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Contador</h1>
+    <p id="texto">Cargando…</p>
+    <button id="pulsar" disabled>Pulsar</button>
+  </main>
+  <script src="../../../lib/ui/puente.js"></script>
+  <script>
+    (async () => {
+      const boton = document.getElementById('pulsar');
+      const texto = document.getElementById('texto');
+      // La cuenta vive en JS: las funciones de Lenguaje no leen variables globales.
+      let cuenta = 0n;
+      const p = await LgPuente.cargar('contador.wasm');
+      p.iniciar();
+      const pinta = () => { texto.textContent = p.texto('contador_texto', cuenta); };
+      pinta();
+      boton.disabled = false;
+      boton.addEventListener('click', () => {
+        cuenta = p.llamar('contador_pulsar', cuenta);
+        pinta();
+      });
+    })().catch((e) => { document.getElementById('texto').textContent = 'Error: ' + e.message; });
+  </script>
+</body>
+</html>

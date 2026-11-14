@@ -1,0 +1,4 @@
+fn a() -> int:
+    fn b() -> int:
+        return 1
+    return b()

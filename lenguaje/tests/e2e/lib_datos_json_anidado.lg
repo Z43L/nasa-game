@@ -1,0 +1,12 @@
+import lib_datos_modulos/json
+
+v = json_parsear("{ \"nombre\": \"Ana\", \"edad\": 31, \"datos\": { \"activo\": true, \"etiquetas\": [\"a\", \"b\"] } }")
+print(json_serializar(v))
+print(json_texto(json_obtener(v, "nombre")))
+d = json_obtener(v, "datos")
+print(json_booleano(json_obtener(d, "activo")))
+print(json_texto(json_elemento(json_obtener(d, "etiquetas"), 1)))
+print(json_numero(json_obtener(v, "edad")))
+print(json_longitud(d), json_longitud(json_obtener(d, "etiquetas")))
+print(json_tipo(json_obtener(v, "falta")))
+print(json_texto(json_obtener(v, "falta")))

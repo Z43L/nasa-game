@@ -1,0 +1,7 @@
+fn cuadrados(n: int) -> List[int]:
+    mut r: List[int] = []
+    for i in 0..n:
+        r.append(i * i)
+    return r
+
+print(cuadrados(4))

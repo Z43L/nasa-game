@@ -1,0 +1,16 @@
+fn antes() -> int:
+    return y
+
+print(antes())
+
+mut y = 5
+
+mut x = 7
+
+fn ver() -> int:
+    return x
+
+print(ver())
+x = 9
+print(ver())
+print(y)

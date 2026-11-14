@@ -1,0 +1,58 @@
+# lib/web/middleware.lg: utilidades que el usuario compone a mano en su bucle.
+#
+# No hay funciones como valor a nivel principal, así que un "middleware" es una función que
+# transforma la Respuesta o registra la Solicitud. Ejemplo:
+#   r = web_seguridad(web_cors(web_respuesta_json(200, "{}")))
+#
+# API:
+#   web_cors(r: Respuesta) -> Respuesta
+#       Access-Control-Allow-Origin: *, Allow-Methods (GET, POST, PUT, DELETE, OPTIONS)
+#       y Allow-Headers (Content-Type, Authorization).
+#   web_seguridad(r: Respuesta) -> Respuesta
+#       X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Cache-Control: no-store.
+#   web_registro(metodo: str, ruta: str, estado: int) -> str
+#       Línea de log "METODO RUTA ESTADO". Devuelve el texto; no lo imprime (lo decide el usuario).
+#   web_limite_cuerpo(longitud: int, maximo: int) -> bool
+#       true si 0 <= longitud <= maximo.
+#   web_requiere_json(p: Peticion) -> bool
+#       true si hay cabecera Content-Type con application/json y el cuerpo es JSON válido.
+#   web_error_json(estado: int, mensaje: str) -> Respuesta
+#       Cuerpo {"error": mensaje}, serializado con json_serializar (escapa comillas, barras, etc.).
+#
+# Uso: import middleware   (con -I lib/web; importa respuesta, http y json)
+
+import http
+import json
+import respuesta
+
+fn web_cors(r: Respuesta) -> Respuesta:
+    mut q = r
+    q = web_con_cabecera(q, "Access-Control-Allow-Origin", "*")
+    q = web_con_cabecera(q, "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    q = web_con_cabecera(q, "Access-Control-Allow-Headers", "Content-Type, Authorization")
+    return q
+
+fn web_seguridad(r: Respuesta) -> Respuesta:
+    mut q = r
+    q = web_con_cabecera(q, "X-Content-Type-Options", "nosniff")
+    q = web_con_cabecera(q, "X-Frame-Options", "DENY")
+    q = web_con_cabecera(q, "Cache-Control", "no-store")
+    return q
+
+fn web_registro(metodo: str, ruta: str, estado: int) -> str:
+    return metodo + " " + ruta + " " + str(estado)
+
+fn web_limite_cuerpo(longitud: int, maximo: int) -> bool:
+    return longitud >= 0 and longitud <= maximo
+
+fn web_requiere_json(p: Peticion) -> bool:
+    ct = http_cabecera(p, "Content-Type")
+    if not ct.es_some():
+        return false
+    if buscar(http_minusculas(ct.desempacar_o("")), "application/json") < 0:
+        return false
+    return json_es_valido(p.cuerpo)
+
+fn web_error_json(estado: int, mensaje: str) -> Respuesta:
+    cuerpo = json_serializar(json_nuevo_objeto(["error"], [json_nuevo_cadena(mensaje)]))
+    return web_respuesta_json(estado, cuerpo)

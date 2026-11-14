@@ -1,0 +1,9 @@
+# Prueba de carga para wasm: renderiza n elementos <li> con texto que contiene caracteres especiales.
+import html
+import render
+
+fn render_lista(n: int) -> str:
+    mut hs: List[Nodo] = []
+    for i in 0..n:
+        hs.append(ui_elemento("li", ["class", "item"], [ui_texto("elemento " + str(i) + " & más <x>")]))
+    return ui_render(ui_elemento("ul", [], hs))

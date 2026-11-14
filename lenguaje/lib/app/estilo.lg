@@ -1,0 +1,204 @@
+# lib/app/estilo.lg: estilos tipados y reglas CSS con nombre de clase estable.
+#
+# Un Estilo es una struct con campos concretos. Un campo vacío ("" o false) significa "sin estilo":
+# no se emite ninguna declaración para él. Los valores se escriben como texto CSS ("16px", "#fff",
+# "50%"); los caracteres que podrían romper la hoja (llaves, punto y coma, comillas, '<', ':') se quitan.
+#
+# Campos (todos str salvo centrar):
+#   relleno (padding), margen (margin), color, fondo (background), tamano_letra (font-size)
+#   alineacion: "izquierda" | "centro" | "derecha" | "justificado"       -> text-align
+#   ancho, alto (width, height), radio (border-radius)
+#   direccion: "fila" | "columna"                                          -> display:flex + flex-direction
+#   justificar: "inicio" | "centro" | "fin" | "entre" | "alrededor"        -> justify-content
+#   centrar: bool; true centra en ambos ejes (justify-content y align-items) y anula justificar
+#   movil, tableta: List[str] de pares propiedad/valor aplicados solo en ese punto de ruptura
+#                   (ver responsive.lg)
+#
+# API:
+#   estilo_nuevo() -> Estilo                     estilo vacío; se completa con `mut e = estilo_nuevo()` y e.campo = ...
+#   estilo_clase(e: Estilo) -> str               nombre de clase estable: "e" + hash del contenido
+#   estilo_css(clase: str, e: Estilo) -> str     regla base y, si hay, @media de movil y de tableta
+#   estilo_copia(e: Estilo) -> Estilo            copia independiente (asignar un struct comparte el objeto)
+#   estilo_lista_copia(l: List[str]) -> List[str]  copia independiente de una lista
+#
+# Uso: import estilo   (con -I lib/app -I lib/ui -I stdlib, o LG_PATH con lib/app)
+
+import cadena
+import html
+
+struct Estilo:
+    relleno: str
+    margen: str
+    color: str
+    fondo: str
+    tamano_letra: str
+    alineacion: str
+    ancho: str
+    alto: str
+    radio: str
+    direccion: str
+    justificar: str
+    centrar: bool
+    movil: List[str]
+    tableta: List[str]
+
+fn estilo_nuevo() -> Estilo:
+    return Estilo(relleno: "", margen: "", color: "", fondo: "", tamano_letra: "", alineacion: "", ancho: "", alto: "", radio: "", direccion: "", justificar: "", centrar: false, movil: [], tableta: [])
+
+# Asignar un struct o una lista la comparte (no copia): para derivar un estilo sin tocar el original,
+# se copia campo a campo.
+fn estilo_lista_copia(l: List[str]) -> List[str]:
+    mut r: List[str] = []
+    for x in l:
+        r.append(x)
+    return r
+
+fn estilo_copia(e: Estilo) -> Estilo:
+    return Estilo(relleno: e.relleno, margen: e.margen, color: e.color, fondo: e.fondo, tamano_letra: e.tamano_letra, alineacion: e.alineacion, ancho: e.ancho, alto: e.alto, radio: e.radio, direccion: e.direccion, justificar: e.justificar, centrar: e.centrar, movil: estilo_lista_copia(e.movil), tableta: estilo_lista_copia(e.tableta))
+
+# Caracteres permitidos en un valor CSS. Sin ';', '{', '}', '<', '>', '"', '\'', '\\' ni ':'.
+fn app_alfabeto_css() -> str:
+    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 #%.,()-+/_"
+
+fn app_valor_css(v: str) -> str:
+    alfa = app_alfabeto_css()
+    mut partes: List[str] = []
+    for i in 0..len(v):
+        c = recortar(v, i, i + 1)
+        if buscar(alfa, c) >= 0:
+            partes.append(c)
+    return ui_unir(partes, 0, len(partes))
+
+# Una declaración "prop:valor;", o "" si el valor está vacío o no queda nada válido.
+fn app_decl(prop: str, valor: str) -> str:
+    if prop == "" or valor == "":
+        return ""
+    v = app_valor_css(valor)
+    if v == "":
+        return ""
+    return app_valor_css(prop) + ":" + v + ";"
+
+fn app_alineacion(v: str) -> str:
+    if v == "izquierda":
+        return "left"
+    if v == "centro":
+        return "center"
+    if v == "derecha":
+        return "right"
+    if v == "justificado":
+        return "justify"
+    return ""
+
+fn app_justificar(v: str) -> str:
+    if v == "inicio":
+        return "flex-start"
+    if v == "centro":
+        return "center"
+    if v == "fin":
+        return "flex-end"
+    if v == "entre":
+        return "space-between"
+    if v == "alrededor":
+        return "space-around"
+    return ""
+
+fn app_direccion(v: str) -> str:
+    if v == "fila":
+        return "row"
+    if v == "columna":
+        return "column"
+    return ""
+
+# Declaraciones de la regla base, en orden fijo (sin llaves).
+fn app_propiedades(e: Estilo) -> str:
+    mut partes: List[str] = []
+    partes.append("box-sizing:border-box;")
+    if e.direccion != "" or e.centrar:
+        partes.append("display:flex;")
+    partes.append(app_decl("flex-direction", app_direccion(e.direccion)))
+    if e.centrar:
+        partes.append("justify-content:center;align-items:center;")
+    else:
+        partes.append(app_decl("justify-content", app_justificar(e.justificar)))
+    partes.append(app_decl("padding", e.relleno))
+    partes.append(app_decl("margin", e.margen))
+    partes.append(app_decl("color", e.color))
+    partes.append(app_decl("background", e.fondo))
+    partes.append(app_decl("font-size", e.tamano_letra))
+    partes.append(app_decl("text-align", app_alineacion(e.alineacion)))
+    partes.append(app_decl("width", e.ancho))
+    partes.append(app_decl("height", e.alto))
+    partes.append(app_decl("border-radius", e.radio))
+    return ui_unir(partes, 0, len(partes))
+
+# Declaraciones de una variante responsive: lista plana propiedad, valor, propiedad, valor...
+fn app_variante(lista: List[str]) -> str:
+    mut partes: List[str] = []
+    n = len(lista)
+    mut i = 0
+    while i + 1 < n:
+        partes.append(app_decl(lista[i], lista[i + 1]))
+        i = i + 2
+    return ui_unir(partes, 0, len(partes))
+
+fn estilo_css(clase: str, e: Estilo) -> str:
+    c = ui_nombre_seguro(clase)
+    mut salida = "." + c + "{" + app_propiedades(e) + "}\n"
+    if len(e.movil) > 0:
+        salida = salida + "@media (max-width: 599px){." + c + "{" + app_variante(e.movil) + "}}\n"
+    if len(e.tableta) > 0:
+        salida = salida + "@media (min-width: 600px) and (max-width: 1023px){." + c + "{" + app_variante(e.tableta) + "}}\n"
+    return salida
+
+# Serialización sin ambigüedad: cada campo lleva su longitud. Dos estilos distintos dan texto distinto.
+fn app_campo(v: str) -> str:
+    return str(len(v)) + ":" + v
+
+fn app_campos_lista(l: List[str]) -> str:
+    mut partes: List[str] = []
+    partes.append(str(len(l)))
+    for x in l:
+        partes.append(app_campo(x))
+    return ui_unir(partes, 0, len(partes))
+
+fn app_canon(e: Estilo) -> str:
+    mut partes: List[str] = []
+    partes.append(app_campo(e.relleno))
+    partes.append(app_campo(e.margen))
+    partes.append(app_campo(e.color))
+    partes.append(app_campo(e.fondo))
+    partes.append(app_campo(e.tamano_letra))
+    partes.append(app_campo(e.alineacion))
+    partes.append(app_campo(e.ancho))
+    partes.append(app_campo(e.alto))
+    partes.append(app_campo(e.radio))
+    partes.append(app_campo(e.direccion))
+    partes.append(app_campo(e.justificar))
+    if e.centrar:
+        partes.append("1")
+    else:
+        partes.append("0")
+    partes.append(app_campos_lista(e.movil))
+    partes.append(app_campos_lista(e.tableta))
+    return ui_unir(partes, 0, len(partes))
+
+# Código 1..95 para los caracteres ASCII imprimibles; 127 para cualquier otro byte.
+fn app_codigo(c: str) -> int:
+    tabla = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+    k = buscar(tabla, c)
+    if k < 0:
+        return 127
+    return k + 1
+
+# Dos hashes polinómicos con módulos primos (sin XOR ni desbordamiento: int comprueba overflow).
+# Juntos dan unos 60 bits; con 500 estilos la probabilidad de colisión es despreciable.
+# Se comprueba en lib_app_estilo_clase.lg.
+fn estilo_clase(e: Estilo) -> str:
+    s = app_canon(e)
+    mut h1 = 7
+    mut h2 = 11
+    for i in 0..len(s):
+        k = app_codigo(recortar(s, i, i + 1))
+        h1 = (h1 * 131 + k) % 1000000007
+        h2 = (h2 * 137 + k) % 998244353
+    return "e" + str(h1) + "x" + str(h2)

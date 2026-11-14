@@ -1,0 +1,24 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Connection: close
+Content-Length: 11
+
+{"ok":true}
+HTTP/1.1 404 Not Found
+Content-Type: text/plain; charset=utf-8
+Connection: close
+Content-Length: 9
+
+no existe
+HTTP/1.1 500 Internal Server Error
+Content-Type: text/html; charset=utf-8
+Connection: close
+Content-Length: 11
+
+<p>año</p>
+HTTP/1.1 422 Unprocessable Entity
+Content-Type: application/json
+Connection: close
+Content-Length: 2
+
+{}

@@ -1,0 +1,6 @@
+mut n = len([1, 2])
+mut m = len([1, 2, 3, 4])
+a = zeros(n, 3)
+b = zeros(m, 2)
+c = a @ b
+print(c.forma())

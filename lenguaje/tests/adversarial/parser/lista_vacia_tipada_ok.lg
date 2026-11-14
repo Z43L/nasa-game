@@ -1,0 +1,2 @@
+l: List[int] = []
+print(len(l))

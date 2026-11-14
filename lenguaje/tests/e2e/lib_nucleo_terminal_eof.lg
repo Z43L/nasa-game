@@ -1,0 +1,5 @@
+import terminal
+
+print(terminal_hay_entrada())
+l = terminal_leer_linea()
+print("[" + l + "]", len(l))

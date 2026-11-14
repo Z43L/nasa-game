@@ -1,0 +1,4 @@
+# Una débil a una cadena devuelve Some mientras la cadena vive.
+s = "hola"
+d = debil(s)
+print(d.fuerte().desempacar_o("vacia"))

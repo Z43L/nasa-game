@@ -1,0 +1,25 @@
+# Cadenas largas y UTF-8 devueltas a JavaScript.
+# texto_largo(n) devuelve "abcdefghij" repetido n / 10 veces (n múltiplo de 10).
+
+fn repetir(base: str, veces: int) -> str:
+    mut t: str = ""
+    mut b: str = base
+    mut n: int = veces
+    while n > 0:
+        if n % 2 == 1:
+            t = t + b
+        b = b + b
+        n = n / 2
+    return t
+
+fn texto_largo(n: int) -> str:
+    return repetir("abcdefghij", n / 10)
+
+fn texto_utf8() -> str:
+    return "ñandú ✓"
+
+fn es_par(n: int) -> bool:
+    return n % 2 == 0
+
+fn media(a: float, b: float) -> float:
+    return (a + b) / 2.0

@@ -1,0 +1,15 @@
+/ -> ok 1 []
+ -> ok 1 []
+/detalle/42 -> ok 2 [42;]
+/detalle/42?x=1#f -> ok 2 [42;]
+/detalle/nuevo -> ok 3 []
+//detalle//7/ -> ok 2 [7;]
+/usuarios/5/pedidos/9 -> ok 4 [5;9;]
+/detalle/ -> no encontrada, pantalla 404
+/detalle/a/b -> no encontrada, pantalla 404
+/nada -> no encontrada, pantalla 404
+/Detalle/1 -> no encontrada, pantalla 404
+404 = 404
+ascii completo: true
+antes: /x
+despues de byte 195: /x?

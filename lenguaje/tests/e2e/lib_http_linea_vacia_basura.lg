@@ -1,0 +1,6 @@
+import lib_http_mod/http
+
+p = http_parsear_peticion("\t\t\r\n\r\n")
+print(p.valida, p.error)
+r = http_parsear_peticion("GET / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n")
+print(r.valida, r.error)

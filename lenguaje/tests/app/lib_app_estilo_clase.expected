@@ -1,0 +1,5 @@
+colisiones: 0
+contenidos distintos: 401
+nombres distintos = contenidos distintos: true
+estilo igual, mismo nombre: true
+nombre con prefijo e: true

@@ -1,0 +1,10 @@
+struct Contador:
+    n: int
+
+impl Contador:
+    fn fija(self):
+        self.n = 5
+
+mut c = Contador(n: 0)
+c.fija()
+print(c.n)

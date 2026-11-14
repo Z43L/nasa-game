@@ -1,0 +1,7 @@
+import tiempo
+
+a = tiempo_monotonico_ms()
+tiempo_dormir_ms(0)
+tiempo_dormir_ms(-5)
+b = tiempo_monotonico_ms()
+print(b >= a, b - a < 1000)

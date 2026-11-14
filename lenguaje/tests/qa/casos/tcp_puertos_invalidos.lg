@@ -1,0 +1,7 @@
+# Puertos fuera de rango (1..65535 válidos): deben devolver -1 sin crash.
+import tcp
+print(escuchar(-1))
+print(escuchar(70000))
+print(escuchar(65536))
+print(escuchar(-65535))
+print("fin")

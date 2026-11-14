@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contador con lib/ui (WebAssembly)</title>
+  <style>
+    :root { color-scheme: light dark; --fondo: #fff; --texto: #111; --borde: #888; }
+    :root[data-theme="dark"] { --fondo: #111; --texto: #eee; --borde: #aaa; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fondo: #111; --texto: #eee; --borde: #aaa; } }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: var(--fondo); color: var(--texto); }
+    .contador { max-width: 480px; margin: 40px auto; text-align: center; }
+    #texto { font-size: 1.6rem; margin: 24px 0; }
+    button { font-size: 1.1rem; padding: 10px 22px; margin: 0 6px; border-radius: 8px; border: 1px solid var(--borde); background: transparent; color: var(--texto); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="app"><p>Cargando…</p></div>
+  <script src="../../../lib/ui/puente.js"></script>
+  <script>
+    (async () => {
+      const app = document.getElementById('app');
+      // Estado en JS: las funciones de Lenguaje no leen variables globales.
+      let estado = 0n;
+      const p = await LgPuente.cargar('contador_app.wasm');
+      p.iniciar();
+      const pinta = () => { app.innerHTML = p.texto('vista', estado); };
+      // Delegación: un solo listener; el id de acción va en data-accion (el HTML lo genera Lenguaje).
+      app.addEventListener('click', (e) => {
+        const boton = e.target.closest('[data-accion]');
+        if (!boton) return;
+        estado = p.llamar('despachar', BigInt(boton.dataset.accion), estado);
+        pinta();
+      });
+      pinta();
+    })().catch((e) => { document.getElementById('app').textContent = 'Error: ' + e.message; });
+  </script>
+</body>
+</html>

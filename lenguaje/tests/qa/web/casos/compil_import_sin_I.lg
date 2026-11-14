@@ -1,0 +1,3 @@
+# Importar un módulo de lib/web sin -I debe fallar al compilar con código 1.
+import app
+print("no debería compilar")

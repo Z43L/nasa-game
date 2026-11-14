@@ -1,0 +1,5 @@
+import utilidades
+import utilidades/extra
+
+print(doble(21))
+print(triple(3))

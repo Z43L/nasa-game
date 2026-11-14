@@ -1,0 +1,26 @@
+# Prueba de estado.lg con globales mutables: varias globales independientes, mutadas desde funciones.
+import estado
+
+mut visitas_id = estado_nuevo(0)
+mut pulsos_id = estado_nuevo(100)
+mut nombre_id = estado_nuevo_texto("")
+
+fn visitar() -> int:
+    return estado_sumar(visitas_id, 1)
+
+fn pulsar(d: int) -> int:
+    return estado_sumar(pulsos_id, d)
+
+fn nombre(s: str) -> str:
+    return estado_set_texto(nombre_id, s)
+
+visitar()
+visitar()
+pulsar(-30)
+nombre("Ana")
+print("visitas " + str(estado_get(visitas_id)))
+print("pulsos " + str(estado_get(pulsos_id)))
+print("nombre " + estado_get_texto(nombre_id))
+print("reiniciar pulsos " + str(estado_reiniciar(pulsos_id)))
+print("visitas sigue " + str(estado_get(visitas_id)))
+print("ids " + str(visitas_id) + " " + str(pulsos_id) + " " + str(nombre_id))

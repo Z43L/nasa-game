@@ -1,0 +1,4 @@
+mut i = 100
+for i in 0..2:
+    print(i)
+print(i)

@@ -1,0 +1,20 @@
+# Dos módulos con la misma función f, usados por alias; import sin alias de un nombre único;
+# struct Punto en dos módulos usado como alfa.Punto y beta.Punto.
+import ns_mods/alfa
+import ns_mods/beta
+import ns_mods/unico
+
+print(alfa.f())
+print(beta.f())
+print(solo_aqui(4))
+
+p = alfa.Punto(x: 3, y: 4)
+q = beta.Punto(nombre: "ana")
+print(p.suma())
+print(q.saluda())
+print(alfa.origen(p))
+print(alfa.suma_alfa(10))
+print(norma(p))
+
+fn norma(v: alfa.Punto) -> int:
+    return v.x + v.y

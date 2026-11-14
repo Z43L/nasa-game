@@ -1,0 +1,5 @@
+mut total = 0
+for i in 0..1000000:
+    t = "x" + str(i)
+    total = total + len(t)
+print(total)

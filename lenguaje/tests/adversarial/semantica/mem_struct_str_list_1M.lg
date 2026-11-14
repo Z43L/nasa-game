@@ -1,0 +1,11 @@
+struct Caja:
+    nombre: str
+    datos: List[int]
+
+mut i = 0
+mut total = 0
+while i < 1000000:
+    c = Caja(nombre: str(i), datos: [i, i])
+    total = total + len(c.nombre) + len(c.datos)
+    i = i + 1
+print(total)

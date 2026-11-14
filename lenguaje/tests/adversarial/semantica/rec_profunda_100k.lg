@@ -1,0 +1,5 @@
+fn cuenta(n: int) -> int:
+    if n == 0:
+        return 0
+    return 1 + cuenta(n - 1)
+print(cuenta(100000))

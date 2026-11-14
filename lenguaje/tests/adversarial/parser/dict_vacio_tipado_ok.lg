@@ -1,0 +1,2 @@
+d: Dict[str, int] = {}
+print(len(d))

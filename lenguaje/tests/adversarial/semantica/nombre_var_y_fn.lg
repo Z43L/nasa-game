@@ -1,0 +1,4 @@
+fn x() -> int:
+    return 1
+x = 2
+print(x)

@@ -1,0 +1,22 @@
+import texto
+
+vacia: List[str] = []
+print("[" + texto_recortar_espacios("") + "]")
+print("[" + texto_recortar_espacios(" \n\t ") + "]")
+p1 = texto_dividir("abc", ",")
+print(len(p1), p1[0])
+p2 = texto_dividir("", ",")
+print(len(p2), "[" + p2[0] + "]")
+p3 = texto_dividir("a,", ",")
+print(len(p3), "[" + p3[1] + "]")
+print(len(texto_dividir("ab", "abc")))
+print(len(texto_dividir(",", ",")))
+print("[" + texto_unir(vacia, ", ") + "]")
+print(texto_unir(["solo"], "-"))
+print(texto_unir(["a", "b"], ""))
+print(texto_reemplazar("abc", "x", "y"))
+print(texto_reemplazar("aXbX", "X", ""))
+print(texto_reemplazar("aaa", "aa", "b"))
+print("[" + texto_a_mayusculas("") + "]")
+print(texto_empieza_por("abc", ""), texto_termina_por("", "a"), texto_contiene("abc", ""), texto_contiene("", "a"))
+print("[" + texto_repetir("x", 0) + "]", "[" + texto_repetir("", 5) + "]", texto_repetir("ab", 1))

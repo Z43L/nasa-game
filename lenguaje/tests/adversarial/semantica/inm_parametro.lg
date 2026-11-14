@@ -1,0 +1,4 @@
+fn f(n: int) -> int:
+    n = n + 1
+    return n
+print(f(1))

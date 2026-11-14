@@ -1,0 +1,148 @@
+# lib/datos/csv.lg: CSV sobre texto. Lectura a filas de campos y escritura con comillas cuando hacen falta.
+#
+# API
+#   csv_parsear(texto: str) -> List[List[str]]     filas de campos, en orden
+#   csv_escribir(filas: List[List[str]]) -> str    texto CSV, una línea por fila, terminado en '\n'
+#
+# LECTURA
+#   - Separador de campos ','. Fin de fila '\n', '\r' o '\r\n'.
+#   - Un campo entre comillas puede contener ',', saltos de línea y comillas dobladas ("").
+#   - Las líneas vacías se saltan: no producen fila. Un texto vacío da una lista vacía.
+#   - Los espacios no se quitan: " a " es el campo " a ".
+#   - Una fila con ',' final tiene un campo vacío al final: "a," da ["a", ""].
+#   - Comilla sin cerrar: el campo llega hasta el final del texto. No es error.
+#   - Texto entre la comilla de cierre y el separador se añade al campo ("ab"c da abc). No es error.
+#   - La cabecera no tiene tratamiento especial: es la primera fila, y el programa decide cómo usarla.
+#
+# ESCRITURA
+#   - Un campo se entrecomilla si contiene ',', '"', '\n' o '\r'. Las comillas internas se duplican.
+#   - Una fila de un solo campo vacío se escribe como "" para no confundirse con una línea vacía.
+#   - Una fila sin campos se escribe como línea vacía, y al leerla desaparece.
+#   - Cada fila termina en '\n'.
+#
+# Implementación: lee el texto con recortar() de cadena.lg, sin nativos. Une fragmentos por mitades,
+# O(n log n) en bytes copiados.
+#
+# Uso: import csv
+
+import cadena
+
+struct CsvCampo:
+    valor: str
+    siguiente: int
+
+fn csv_car(t: str, i: int) -> str:
+    return recortar(t, i, i + 1)
+
+fn csv_es_separador(c: str) -> bool:
+    return c == "," or c == "\n" or c == "\r"
+
+# Une partes[ini..fin) por mitades.
+fn csv_unir(partes: List[str], ini: int, fin: int) -> str:
+    if fin - ini <= 0:
+        return ""
+    if fin - ini == 1:
+        return partes[ini]
+    mid = ini + (fin - ini) / 2
+    return csv_unir(partes, ini, mid) + csv_unir(partes, mid, fin)
+
+# Cada comilla doble de s pasa a ser dos.
+fn csv_duplicar_comillas(s: str) -> str:
+    mut partes: List[str] = []
+    mut ini = 0
+    for i in 0..len(s):
+        if csv_car(s, i) == "\"":
+            partes.append(recortar(s, ini, i + 1))
+            partes.append("\"")
+            ini = i + 1
+    partes.append(recortar(s, ini, len(s)))
+    return csv_unir(partes, 0, len(partes))
+
+# Cada par de comillas dobles de s pasa a una. Se usa dentro de un campo entrecomillado.
+fn csv_quitar_dobles(s: str) -> str:
+    mut partes: List[str] = []
+    mut ini = 0
+    mut i = 0
+    n = len(s)
+    while i < n:
+        if csv_car(s, i) == "\"" and csv_car(s, i + 1) == "\"":
+            partes.append(recortar(s, ini, i + 1))
+            ini = i + 2
+            i = i + 2
+        else:
+            i = i + 1
+    partes.append(recortar(s, ini, n))
+    return csv_unir(partes, 0, len(partes))
+
+# Lee un campo que empieza en p. Devuelve su valor y la posición del separador o del final.
+fn csv_leer_campo(t: str, p: int) -> CsvCampo:
+    n = len(t)
+    if csv_car(t, p) == "\"":
+        mut q = p + 1
+        mut cierre = -1
+        while q < n:
+            if csv_car(t, q) == "\"":
+                if csv_car(t, q + 1) == "\"":
+                    q = q + 2
+                else:
+                    cierre = q
+                    break
+            else:
+                q = q + 1
+        if cierre < 0:
+            return CsvCampo(valor: csv_quitar_dobles(recortar(t, p + 1, n)), siguiente: n)
+        mut fin = cierre + 1
+        while fin < n and not csv_es_separador(csv_car(t, fin)):
+            fin = fin + 1
+        contenido = csv_quitar_dobles(recortar(t, p + 1, cierre))
+        return CsvCampo(valor: contenido + recortar(t, cierre + 1, fin), siguiente: fin)
+    mut r = p
+    while r < n and not csv_es_separador(csv_car(t, r)):
+        r = r + 1
+    return CsvCampo(valor: recortar(t, p, r), siguiente: r)
+
+fn csv_parsear(texto: str) -> List[List[str]]:
+    mut filas: List[List[str]] = []
+    n = len(texto)
+    mut p = 0
+    while p < n:
+        c = csv_car(texto, p)
+        if c == "\n" or c == "\r":
+            p = p + 1
+        else:
+            mut fila: List[str] = []
+            mut fin_fila = false
+            while not fin_fila:
+                campo = csv_leer_campo(texto, p)
+                fila.append(campo.valor)
+                p = campo.siguiente
+                if p >= n:
+                    fin_fila = true
+                elif csv_car(texto, p) == ",":
+                    p = p + 1
+                else:
+                    p = p + 1
+                    fin_fila = true
+            filas.append(fila)
+    return filas
+
+fn csv_campo_escrito(s: str) -> str:
+    if buscar(s, ",") >= 0 or buscar(s, "\"") >= 0 or buscar(s, "\n") >= 0 or buscar(s, "\r") >= 0:
+        return "\"" + csv_duplicar_comillas(s) + "\""
+    return s
+
+fn csv_escribir(filas: List[List[str]]) -> str:
+    mut partes: List[str] = []
+    for fila in filas:
+        if len(fila) == 1:
+            if fila[0] == "":
+                partes.append("\"\"\n")
+            else:
+                partes.append(csv_campo_escrito(fila[0]) + "\n")
+        else:
+            for j in 0..len(fila):
+                if j > 0:
+                    partes.append(",")
+                partes.append(csv_campo_escrito(fila[j]))
+            partes.append("\n")
+    return csv_unir(partes, 0, len(partes))

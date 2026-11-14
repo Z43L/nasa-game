@@ -1,0 +1,4 @@
+x = 0
+for i in 0..3:
+    x = x + i
+print(x)

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tienda con lib/app (WebAssembly)</title>
+  <style>body { margin: 0; font-family: system-ui, sans-serif; } #app { padding: 16px; }</style>
+</head>
+<body>
+  <div id="app"><p>Cargando…</p></div>
+  <script src="../../../lib/ui/puente.js"></script>
+  <script>
+    // La página completa (doctype, viewport, <style> y cuerpo) la genera Lenguaje con pagina().
+    // Se reemplaza el documento con document.write para que la vista de lib/app sea la única.
+    (async () => {
+      const p = await LgPuente.cargar('tienda_app.wasm');
+      p.iniciar();
+      document.open();
+      document.write(p.texto('vista', 2n));
+      document.close();
+    })().catch((e) => { document.getElementById('app').textContent = 'Error: ' + e.message; });
+  </script>
+</body>
+</html>

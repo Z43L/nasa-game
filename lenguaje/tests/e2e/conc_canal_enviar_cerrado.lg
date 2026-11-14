@@ -1,0 +1,5 @@
+# Enviar en un canal cerrado es un error de ejecución.
+c = Canal[int]()
+c.cerrar()
+c.enviar(1)
+print("no debería imprimirse")

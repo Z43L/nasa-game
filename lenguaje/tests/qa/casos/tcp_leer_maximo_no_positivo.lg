@@ -1,0 +1,10 @@
+# leer con maximo 0 o negativo devuelve "" sin leer el socket. Luego lee "hola" con maximo 4.
+import tcp
+s = escuchar(18761)
+c = aceptar(s)
+print("[" + leer(c, 0) + "]")
+print("[" + leer(c, -5) + "]")
+print("[" + leer(c, 4) + "]")
+cerrar(c)
+cerrar(s)
+print("fin")

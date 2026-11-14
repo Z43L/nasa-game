@@ -1,0 +1,31 @@
+# Servidor de prueba del framework web (lib/web), según la API documentada:
+#   web_nuevo_enrutador, web_agregar(e, metodo, patron, id), web_recibir(servidor, e, timeout_ms),
+#   web_responder(s, r). Ajustar tipos de id / campos de Solicitud al API real si difiere.
+# Rutas: GET /ping -> 200 "ok"; GET /salir -> 200 y termina con código 0; resto -> 404.
+# Plantilla: run_web_qa.sh sustituye __PUERTO__ y __TIMEOUT__ antes de compilar.
+import tcp
+import http
+import router
+import app
+
+e = web_nuevo_enrutador()
+web_agregar(e, "GET", "/ping", 1)
+web_agregar(e, "GET", "/salir", 2)
+s = escuchar(__PUERTO__)
+mut vivo = s >= 0
+while vivo:
+    sol = web_recibir(s, e, __TIMEOUT__)
+    if sol.conexion < 0:
+        continue
+    if not sol.peticion.valida:
+        web_responder(sol, web_respuesta_error(400))
+    else:
+        if sol.encontrada:
+            if sol.id == 2:
+                web_responder(sol, http_respuesta_texto(200, "adios"))
+                vivo = false
+            else:
+                web_responder(sol, http_respuesta_texto(200, "ok"))
+        else:
+            web_responder(sol, web_respuesta_error(404))
+cerrar(s)

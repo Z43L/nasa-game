@@ -1,0 +1,2 @@
+d: Dict[str, Dict[str, int]] = {"a": {"b": 1}}
+print(d["a"]["b"])

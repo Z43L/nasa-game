@@ -1,0 +1,46 @@
+# lib/app/responsive.lg: variantes de estilo por punto de ruptura y unidades relativas.
+#
+# Puntos de ruptura (generados por estilo_css, en estilo.lg):
+#   movil     < 600 px   -> @media (max-width: 599px)
+#   tableta   600-1023 px -> @media (min-width: 600px) and (max-width: 1023px)
+#   escritorio >= 1024 px -> la regla base, sin media query
+#
+# API:
+#   responsive_movil(e: Estilo, prop: str, valor: str) -> Estilo     añade una declaración solo en movil
+#   responsive_tableta(e: Estilo, prop: str, valor: str) -> Estilo   añade una declaración solo en tableta
+#   responsive_columna_movil(e: Estilo) -> Estilo                    fila que pasa a columna en movil
+#   unidad_pct(n: int) -> str        "50%"
+#   unidad_vw(n: int) -> str         "100vw"
+#   unidad_rem(n: float) -> str      "1.5rem"
+#
+# Uso: import responsive   (importa estilo)
+
+import estilo
+
+fn responsive_movil(e: Estilo, prop: str, valor: str) -> Estilo:
+    mut r = estilo_copia(e)
+    mut l = estilo_lista_copia(e.movil)
+    l.append(prop)
+    l.append(valor)
+    r.movil = l
+    return r
+
+fn responsive_tableta(e: Estilo, prop: str, valor: str) -> Estilo:
+    mut r = estilo_copia(e)
+    mut l = estilo_lista_copia(e.tableta)
+    l.append(prop)
+    l.append(valor)
+    r.tableta = l
+    return r
+
+fn responsive_columna_movil(e: Estilo) -> Estilo:
+    return responsive_movil(e, "flex-direction", "column")
+
+fn unidad_pct(n: int) -> str:
+    return str(n) + "%"
+
+fn unidad_vw(n: int) -> str:
+    return str(n) + "vw"
+
+fn unidad_rem(n: float) -> str:
+    return str(n) + "rem"

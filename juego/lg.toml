@@ -1,0 +1,11 @@
+[proyecto]
+nombre = "juego"
+version = "0.1.0"
+
+[dependencias]
+web = { ruta = "../lenguaje/lib/web" }
+red = { ruta = "../lenguaje/lib/red" }
+ui = { ruta = "../lenguaje/lib/ui" }
+datos = { ruta = "../lenguaje/lib/datos" }
+nucleo = { ruta = "../lenguaje/lib/nucleo" }
+stdlib = { ruta = "../lenguaje/stdlib" }

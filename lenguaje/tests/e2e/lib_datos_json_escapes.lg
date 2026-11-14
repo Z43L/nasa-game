@@ -1,0 +1,7 @@
+import lib_datos_modulos/json
+
+v = json_parsear("\"a\\\"b\\\\c\\/d\\n\\t\\r\\b\\f\\u0041\\u00e9\"")
+print(json_serializar(v))
+print(len(json_texto(v)))
+print(json_tipo(json_parsear("\"\\u0000\"")), json_tipo(json_parsear("\"\\x\"")))
+print(json_tipo(json_parsear("\"\\u4e2d\"")), json_tipo(json_parsear("\"\\ud83d\"")))

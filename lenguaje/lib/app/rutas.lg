@@ -1,0 +1,127 @@
+# lib/app/rutas.lg: tabla de rutas y resolución de paths (F2).
+#
+# Un patrón son segmentos separados por '/'. Un segmento que empieza por ':' es un parámetro: casa
+# con cualquier segmento no vacío y su valor va a `parametros`, en orden. "/detalle/:id" casa con
+# "/detalle/42" (parametros = ["42"]).
+#
+# Reglas:
+#   - la consulta y el fragmento se ignoran ("/a/b?x=1#y" es "/a/b");
+#   - las barras sobrantes se ignoran ("/a//b/" es "/a/b"); la raíz "/" son cero segmentos;
+#   - gana la primera ruta agregada que case; si ninguna casa: encontrada = false, pantalla 404;
+#   - el path no se decodifica (%20 queda tal cual) y la comparación distingue mayúsculas.
+#
+# API:
+#   struct Ruta: patron: str, pantalla: int
+#   struct Coincidencia: encontrada: bool, pantalla: int, parametros: List[str]
+#   ruta(patron: str, pantalla: int) -> Ruta
+#   rutas_nuevas() -> int                       vacía la tabla; devuelve 0
+#   rutas_agregar(r: Ruta) -> int               añade al final; devuelve el número de rutas
+#   rutas_resolver(path: str) -> Coincidencia
+#   rutas_pantalla_404() -> int                 devuelve 404
+#
+# Transferencia de un path desde JS (los exports wasm solo aceptan int, float y bool):
+#   rutas_entrada_nueva() -> int                vacía el búfer; devuelve 0
+#   rutas_entrada_byte(b: int) -> int           añade un byte; 32..126 se copian, otro valor es '?';
+#                                               devuelve la longitud del búfer
+#   rutas_entrada_texto() -> str                el path acumulado en el búfer
+#
+# Uso: import rutas   (importa cadena; con -I lib/app -I stdlib)
+
+import cadena
+
+struct Ruta:
+    patron: str
+    pantalla: int
+
+struct Coincidencia:
+    encontrada: bool
+    pantalla: int
+    parametros: List[str]
+
+mut rutas_tabla: List[Ruta] = []
+mut rutas_bytes: List[int] = []
+
+fn ruta(patron: str, pantalla: int) -> Ruta:
+    return Ruta(patron: patron, pantalla: pantalla)
+
+fn rutas_nuevas() -> int:
+    rutas_tabla = []
+    return 0
+
+fn rutas_agregar(r: Ruta) -> int:
+    rutas_tabla.append(r)
+    return len(rutas_tabla)
+
+fn rutas_pantalla_404() -> int:
+    return 404
+
+# Quita la consulta ("?...") y el fragmento ("#...").
+fn rutas_sin_consulta(path: str) -> str:
+    mut p = path
+    mut k = buscar(p, "?")
+    if k >= 0:
+        p = recortar(p, 0, k)
+    k = buscar(p, "#")
+    if k >= 0:
+        p = recortar(p, 0, k)
+    return p
+
+# Segmentos no vacíos de s, separados por '/'.
+fn rutas_segmentos(s: str) -> List[str]:
+    mut partes: List[str] = []
+    mut ini = 0
+    n = len(s)
+    for i in 0..n:
+        if recortar(s, i, i + 1) == "/":
+            if i > ini:
+                partes.append(recortar(s, ini, i))
+            ini = i + 1
+    if n > ini:
+        partes.append(recortar(s, ini, n))
+    return partes
+
+fn rutas_no_casa() -> Coincidencia:
+    return Coincidencia(encontrada: false, pantalla: 404, parametros: [])
+
+# Compara el patrón de r con los segmentos del path.
+fn rutas_casar(r: Ruta, segs: List[str]) -> Coincidencia:
+    psegs = rutas_segmentos(r.patron)
+    if len(psegs) != len(segs):
+        return rutas_no_casa()
+    mut params: List[str] = []
+    for i in 0..len(psegs):
+        ps = psegs[i]
+        if recortar(ps, 0, 1) == ":":
+            params.append(segs[i])
+        elif ps != segs[i]:
+            return rutas_no_casa()
+    return Coincidencia(encontrada: true, pantalla: r.pantalla, parametros: params)
+
+fn rutas_resolver(path: str) -> Coincidencia:
+    segs = rutas_segmentos(rutas_sin_consulta(path))
+    for r in rutas_tabla:
+        m = rutas_casar(r, segs)
+        if m.encontrada:
+            return m
+    return rutas_no_casa()
+
+fn rutas_tabla_ascii() -> str:
+    return " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+
+fn rutas_entrada_nueva() -> int:
+    rutas_bytes = []
+    return 0
+
+fn rutas_entrada_byte(b: int) -> int:
+    rutas_bytes.append(b)
+    return len(rutas_bytes)
+
+fn rutas_entrada_texto() -> str:
+    tabla = rutas_tabla_ascii()
+    mut s = ""
+    for b in rutas_bytes:
+        if b >= 32 and b <= 126:
+            s = s + recortar(tabla, b - 32, b - 31)
+        else:
+            s = s + "?"
+    return s

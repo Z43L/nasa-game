@@ -1,0 +1,26 @@
+# Servidor de prueba de la capa HTTP (lib/red/http.lg), sin framework.
+# Plantilla: run_web_qa.sh sustituye __PUERTO__ y __TIMEOUT__ antes de compilar.
+# Rutas: /ping -> 200 "ok"; /salir -> 200 y el programa termina con código 0; resto -> 404.
+import tcp
+import http
+
+s = escuchar(__PUERTO__)
+mut vivo = s >= 0
+while vivo:
+    c = aceptar(s)
+    if c < 0:
+        continue
+    fijar_tiempo(c, __TIMEOUT__)
+    p = http_leer_peticion(c)
+    if not p.valida:
+        http_responder(c, http_respuesta_texto(400, "peticion invalida"))
+    else:
+        if p.ruta == "/salir":
+            http_responder(c, http_respuesta_texto(200, "adios"))
+            vivo = false
+        else:
+            if p.ruta == "/ping":
+                http_responder(c, http_respuesta_texto(200, "ok"))
+            else:
+                http_responder(c, http_respuesta_texto(404, "no"))
+cerrar(s)

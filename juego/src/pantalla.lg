@@ -1,0 +1,98 @@
+# src/pantalla.lg: página de la terminal web (HTML con lib/ui) y registro de salida.
+#
+#   log_agregar(texto: str)     añade líneas al registro de la terminal
+#   log_limpiar()
+#   pantalla_terminal() -> str  página principal
+#   pantalla_editor(nombre, contenido) -> str  editor de un script
+#   cuerpo_campo(cuerpo: str, campo: str) -> str  valor de un campo enviado como text/plain
+
+import texto
+import cadena
+import render
+import html
+import misiones
+
+mut log_lineas: List[str] = []
+
+fn log_agregar(s: str):
+    for l in texto_dividir(s, "\n"):
+        log_lineas.append(l)
+    if len(log_lineas) > 800:
+        mut nuevo: List[str] = []
+        for i in 300..len(log_lineas):
+            nuevo.append(log_lineas[i])
+        log_lineas = nuevo
+
+fn log_limpiar():
+    log_lineas = []
+
+fn log_texto() -> str:
+    return texto_unir(log_lineas, "\n")
+
+# text/plain: "campo=valor" seguido de CRLF; los saltos de línea del valor también llegan como CRLF.
+fn cuerpo_campo(cuerpo: str, campo: str) -> str:
+    prefijo = campo + "="
+    if not texto_empieza_por(cuerpo, prefijo):
+        return ""
+    mut s = recortar(cuerpo, len(prefijo), len(cuerpo))
+    if texto_termina_por(s, "\r\n"):
+        s = recortar(s, 0, len(s) - 2)
+    return texto_reemplazar(s, "\r\n", "\n")
+
+fn estado_barra() -> str:
+    if mision_en_curso():
+        return "MISIÓN " + str(mision_numero()) + " · tiempo restante: " + str(mision_restante_s()) + " s"
+    if mision_estado_actual() == 2:
+        return "MISIÓN " + str(mision_numero()) + " COMPLETADA · escribe 'misiones' para seguir"
+    if mision_estado_actual() == 3:
+        return "MISIÓN " + str(mision_numero()) + " FALLIDA · escribe 'iniciar " + str(mision_numero()) + "' para reintentar"
+    return "SIN MISIÓN · escribe 'misiones' para ver las misiones y 'iniciar N' para empezar"
+
+fn pantalla_css() -> str:
+    reglas = [
+        "html, body { margin: 0; min-height: 100%; color: #c8f7c5; font-family: ui-monospace, Menlo, Consolas, monospace; background: #05070a url('/fondo.jpg') center / cover fixed no-repeat; }",
+        "main.terminal { max-width: 960px; margin: 0 auto; padding: 12px; box-sizing: border-box; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }",
+        ".barra { background: rgba(8, 22, 16, 0.78); color: #7CFC9A; padding: 6px 10px; border: 1px solid #2a8a55; border-radius: 4px; font-size: 14px; backdrop-filter: blur(3px); }",
+        "pre.salida { white-space: pre-wrap; word-break: break-word; min-height: 50vh; max-height: 65vh; overflow-y: auto; background: rgba(4, 10, 8, 0.72); border: 1px solid #2a8a55; border-radius: 4px; padding: 10px; margin: 10px 0; font-size: 14px; line-height: 1.4; backdrop-filter: blur(3px); }",
+        "form.entrada { display: flex; align-items: center; gap: 6px; background: rgba(4, 10, 8, 0.72); border: 1px solid #2a8a55; border-radius: 4px; padding: 0 10px; }",
+        ".prompt { color: #7CFC9A; white-space: nowrap; }",
+        "input.campo { flex: 1; background: transparent; color: #c8f7c5; border: 0; border: 0; font: inherit; font-size: 16px; padding: 8px 0; outline: none; min-width: 0; }",
+        ".pista { color: #9be7b3; font-size: 13px; background: rgba(4, 10, 8, 0.72); padding: 4px 8px; border-radius: 4px; align-self: flex-start; }",
+        "form.editor { display: flex; flex-direction: column; gap: 8px; }",
+        "textarea.area { min-height: 65vh; background: #0a0f0c; color: #c8f7c5; border: 1px solid #1d5a36; font: inherit; font-size: 15px; padding: 10px; box-sizing: border-box; width: 100%; }",
+        "button.boton { background: #1d5a36; color: #fff; border: 0; padding: 10px 16px; font: inherit; border-radius: 4px; cursor: pointer; align-self: flex-start; }",
+        "a.volver { color: #7CFC9A; }",
+        "@media (max-width: 600px) { pre.salida { font-size: 13px; } }",
+    ]
+    return "<style>\n" + texto_unir(reglas, "\n") + "\n</style>"
+
+fn pantalla_html(cuerpo: Nodo) -> str:
+    partes = [
+        "<!doctype html>\n<html lang=\"es\">\n<head>\n<meta charset=\"utf-8\">\n",
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n",
+        "<title>Nave · control de errores</title>\n",
+        pantalla_css(),
+        "\n</head>\n<body>\n",
+        ui_render(cuerpo),
+        "\n</body>\n</html>\n",
+    ]
+    return texto_unir(partes, "")
+
+fn pantalla_terminal() -> str:
+    barra = ui_elemento("div", ["class", "barra"], [ui_texto(estado_barra())])
+    salida = ui_elemento("pre", ["class", "salida"], [ui_texto(log_texto())])
+    entrada = ui_elemento("form", ["method", "post", "action", "/cmd", "enctype", "text/plain", "class", "entrada", "autocomplete", "off"], [
+        ui_elemento("span", ["class", "prompt"], [ui_texto("nave$")]),
+        ui_elemento("input", ["name", "linea", "class", "campo", "autofocus"], [])
+    ])
+    pista = ui_elemento("p", ["class", "pista"], [ui_texto("ayuda · man ORDEN · man-code TEMA · editar FICHERO.lg · ejecutar FICHERO.lg")])
+    return pantalla_html(ui_elemento("main", ["class", "terminal"], [barra, salida, entrada, pista]))
+
+fn pantalla_editor(nombre: str, contenido: str) -> str:
+    formulario = ui_elemento("form", ["method", "post", "action", "/guardar/" + nombre, "enctype", "text/plain", "class", "editor"], [
+        ui_elemento("p", ["class", "pista"], [ui_texto("Editando scripts/" + nombre + ". Escribe el script en Lenguaje (man-code sintaxis).")]),
+        ui_elemento("textarea", ["name", "texto", "class", "area", "spellcheck", "false"], [ui_texto(contenido)]),
+        ui_elemento("button", ["type", "submit", "class", "boton"], [ui_texto("Guardar")]),
+        ui_elemento("a", ["href", "/", "class", "volver"], [ui_texto("Volver a la terminal")])
+    ])
+    return pantalla_html(ui_elemento("main", ["class", "terminal"], [formulario]))

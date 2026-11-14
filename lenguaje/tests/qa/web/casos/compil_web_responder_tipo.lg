@@ -1,0 +1,7 @@
+# requiere: web
+# Tipo equivocado en web_responder: el segundo argumento debe ser una Respuesta, no un entero.
+import app
+import router
+e = web_nuevo_enrutador()
+s = web_enrutar(e, "GET", "/")
+web_responder(s, 42)

@@ -1,0 +1,8 @@
+import lib_datos_modulos/csv
+
+filas = csv_parsear("a,\"b,c\",\"d\"\"e\",f\n")
+print(len(filas), len(filas[0]))
+for campo in filas[0]:
+    print("[" + campo + "]")
+print(csv_escribir(filas))
+print(csv_escribir([["x y", "con\"comilla", "salto\nlinea"]]))

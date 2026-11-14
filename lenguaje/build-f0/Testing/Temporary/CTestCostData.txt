@@ -1,0 +1,14 @@
+unit 3 0.00848763
+e2e 4 5.03004
+debug_lldb 4 0.234687
+wasm 4 0.740982
+wasm_ui 0 0
+qa 4 2.91938
+qa_web 4 2.79966
+adversarial 4 3.23272
+lgfmt 4 1.28261
+lsp_json 4 0.0015999
+lsp_protocol 4 0.00732732
+pkg 4 0.348997
+---
+wasm_ui

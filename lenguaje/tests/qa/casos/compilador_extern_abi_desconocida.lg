@@ -1,0 +1,2 @@
+extern "XYZ" fn f() -> int
+print(1)

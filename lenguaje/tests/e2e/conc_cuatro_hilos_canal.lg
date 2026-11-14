@@ -1,0 +1,24 @@
+# Cuatro hilos calculan una suma parcial y la envían por un canal.
+fn trabajador(id: int, c: Canal[int]) -> int:
+    mut s = 0
+    for i in 0..1000:
+        s = s + i * id
+    c.enviar(s)
+    return s
+
+c = Canal[int]()
+mut hs: List[Hilo[int]] = []
+for k in 1..5:
+    hs.append(hilo trabajador(k, c))
+
+mut total = 0
+for h in hs:
+    total = total + h.esperar()
+
+mut recibido = 0
+for i in 0..4:
+    r = c.recibir()
+    recibido = recibido + r.desempacar_o(0)
+
+print(total)
+print(recibido)

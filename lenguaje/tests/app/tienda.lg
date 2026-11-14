@@ -1,0 +1,86 @@
+# Ejemplo de lib/app: tienda con cabecera, una fila de tarjetas responsive (columna en movil),
+# una lista de destacados y pie. El documento lo genera pagina(); no hay HTML escrito a mano.
+#
+# Nativo:  lgc tests/app/tienda.lg -I lib/app -I lib/ui -I stdlib -o tienda
+# Wasm:    lgc --target wasm32 --export vista -I lib/app -I lib/ui -I stdlib tests/app/tienda.lg -o tests/wasm_ui/navegador/tienda_app.wasm
+#   vista(carrito: int) -> str   documento HTML completo (el número se muestra en la cabecera)
+
+import estilo
+import primitivas
+import responsive
+import app
+
+fn vista(carrito: int) -> str:
+    mut cabecera = estilo_nuevo()
+    cabecera.relleno = "16px"
+    cabecera.fondo = "#1f2937"
+    cabecera.color = "#ffffff"
+    cabecera.direccion = "fila"
+    cabecera.justificar = "entre"
+
+    mut titulo = estilo_nuevo()
+    titulo.tamano_letra = "1.5rem"
+    titulo.color = "#ffffff"
+
+    mut carrito_s = estilo_nuevo()
+    carrito_s.color = "#fde68a"
+
+    mut fila_s = estilo_nuevo()
+    fila_s.relleno = "16px"
+    fila_s.margen = "8px 0"
+    fila_s.direccion = "fila"
+    fila_s = responsive_columna_movil(fila_s)
+
+    mut tarjeta = estilo_nuevo()
+    tarjeta.relleno = "16px"
+    tarjeta.fondo = "#ffffff"
+    tarjeta.radio = "12px"
+    tarjeta.direccion = "columna"
+    tarjeta.ancho = unidad_pct(30)
+    tarjeta.margen = "8px"
+    tarjeta = responsive_movil(tarjeta, "width", unidad_pct(100))
+
+    mut nombre = estilo_nuevo()
+    nombre.tamano_letra = "1.1rem"
+    nombre.color = "#111827"
+
+    mut precio = estilo_nuevo()
+    precio.tamano_letra = "1.25rem"
+    precio.color = "#047857"
+
+    mut boton_s = estilo_nuevo()
+    boton_s.relleno = "10px 16px"
+    boton_s.fondo = "#2563eb"
+    boton_s.color = "#ffffff"
+    boton_s.radio = "8px"
+
+    mut destacados = estilo_nuevo()
+    destacados.relleno = "0 16px"
+    destacados.color = "#374151"
+    destacados.tamano_letra = unidad_rem(1.0)
+
+    mut pie = estilo_nuevo()
+    pie.relleno = "12px"
+    pie.alineacion = "centro"
+    pie.color = "#6b7280"
+
+    p1 = caja(tarjeta, [texto(nombre, "Libro de Lenguaje"), texto(precio, "12,00 EUR"), boton(boton_s, "Comprar", 1)])
+    p2 = caja(tarjeta, [texto(nombre, "Taza <de café>"), texto(precio, "6,50 EUR"), boton(boton_s, "Comprar", 2)])
+    p3 = caja(tarjeta, [texto(nombre, "Camiseta"), texto(precio, "18,00 EUR"), boton(boton_s, "Comprar", 3)])
+    fila_n = fila(fila_s, [p1, p2, p3])
+
+    lista_n = lista(destacados, [texto(destacados, "Envío gratis desde 30 EUR"), texto(destacados, "Devoluciones en 14 días")])
+
+    mut raiz = estilo_nuevo()
+    raiz.ancho = unidad_pct(100)
+    cuerpo = caja(raiz, [
+        caja(cabecera, [texto(titulo, "Tienda Lenguaje"), texto(carrito_s, "Carrito: " + str(carrito))]),
+        fila_n,
+        lista_n,
+        texto(pie, "Precios con IVA incluido")
+    ])
+
+    estilos: List[Estilo] = [cabecera, titulo, carrito_s, fila_s, tarjeta, nombre, precio, boton_s, destacados, pie, raiz]
+    return pagina("Tienda Lenguaje", estilos, cuerpo)
+
+print(vista(0))

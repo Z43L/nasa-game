@@ -1,0 +1,2 @@
+y: int = 7
+print(y * 6)

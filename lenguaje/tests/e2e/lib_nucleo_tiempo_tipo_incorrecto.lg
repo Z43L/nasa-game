@@ -1,0 +1,3 @@
+import tiempo
+
+tiempo_dormir_ms("100")

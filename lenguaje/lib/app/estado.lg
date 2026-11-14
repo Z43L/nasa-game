@@ -1,0 +1,54 @@
+# lib/app/estado.lg: estado de la app en globales mutables (F3).
+#
+# Cada valor se crea con una función que devuelve su id (un int). Los valores viven en listas globales
+# del módulo y se crean al inicio del programa: `mut contador_id = estado_nuevo(0)`. Las funciones de
+# escritura cambian el valor y lo devuelven, para que el evento (export) lo use al re-pintar.
+# Un id fuera de rango detiene el programa (índice de lista).
+#
+# API:
+#   estado_nuevo(inicial: int) -> int                 crea un entero; devuelve su id
+#   estado_get(id: int) -> int
+#   estado_set(id: int, valor: int) -> int            escribe; devuelve el valor escrito
+#   estado_sumar(id: int, delta: int) -> int          suma; devuelve el valor nuevo
+#   estado_reiniciar(id: int) -> int                  vuelve al valor inicial; devuelve ese valor
+#   estado_nuevo_texto(inicial: str) -> int           crea un str; devuelve su id
+#   estado_get_texto(id: int) -> str
+#   estado_set_texto(id: int, valor: str) -> str      escribe; devuelve el valor escrito
+#
+# Los enteros y los textos tienen ids independientes (cada lista tiene su propio contador).
+# Uso: import estado   (con -I lib/app -I stdlib)
+
+mut estado_enteros: List[int] = []
+mut estado_iniciales: List[int] = []
+mut estado_textos: List[str] = []
+mut estado_textos_iniciales: List[str] = []
+
+fn estado_nuevo(inicial: int) -> int:
+    estado_enteros.append(inicial)
+    estado_iniciales.append(inicial)
+    return len(estado_enteros) - 1
+
+fn estado_get(id: int) -> int:
+    return estado_enteros[id]
+
+fn estado_set(id: int, valor: int) -> int:
+    estado_enteros[id] = valor
+    return valor
+
+fn estado_sumar(id: int, delta: int) -> int:
+    return estado_set(id, estado_enteros[id] + delta)
+
+fn estado_reiniciar(id: int) -> int:
+    return estado_set(id, estado_iniciales[id])
+
+fn estado_nuevo_texto(inicial: str) -> int:
+    estado_textos.append(inicial)
+    estado_textos_iniciales.append(inicial)
+    return len(estado_textos) - 1
+
+fn estado_get_texto(id: int) -> str:
+    return estado_textos[id]
+
+fn estado_set_texto(id: int, valor: str) -> str:
+    estado_textos[id] = valor
+    return valor

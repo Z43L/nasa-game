@@ -1,0 +1,9 @@
+import lib_datos_modulos/csv
+
+texto = "nombre,edad,ciudad\nAna,31,\"Madrid, ES\"\nLuis,27,Sevilla\n"
+filas = csv_parsear(texto)
+cabecera = filas[0]
+print(len(cabecera), cabecera[2])
+for i in 1..len(filas):
+    fila = filas[i]
+    print(fila[0] + " (" + fila[1] + ") " + fila[2])

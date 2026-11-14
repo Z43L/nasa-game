@@ -1,0 +1,5 @@
+# Sin cualificar, f existe en alfa y en beta: debe fallar con un error claro.
+import ns_mods/alfa
+import ns_mods/beta
+
+print(f())

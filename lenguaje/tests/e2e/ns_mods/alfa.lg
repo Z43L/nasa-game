@@ -1,0 +1,17 @@
+# Módulo de prueba de namespaces (tests/e2e/ns_*.lg). Define f, Punto y origen.
+fn f() -> int:
+    return 1
+
+fn suma_alfa(a: int) -> int:
+    return a + f()
+
+struct Punto:
+    x: int
+    y: int
+
+impl Punto:
+    fn suma(self) -> int:
+        return self.x + self.y
+
+fn origen(p: Punto) -> int:
+    return p.x

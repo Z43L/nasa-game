@@ -1,0 +1,8 @@
+mut i = 0
+mut total = 0
+while i < 1000000:
+    l = [i, i + 1, i + 2]
+    s = str(i) + "-"
+    total = total + len(l) + len(s)
+    i = i + 1
+print(total)

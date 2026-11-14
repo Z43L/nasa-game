@@ -1,0 +1,11 @@
+import lib_datos_modulos/json
+
+fn ida_y_vuelta(texto: str) -> bool:
+    return json_serializar(json_parsear(texto)) == texto
+
+print(ida_y_vuelta("null"))
+print(ida_y_vuelta("[1.0,\"x\",true,false,null]"))
+print(ida_y_vuelta("{\"k\":{\"a\":[[],{}]},\"z\":-1.5e-07}"))
+print(ida_y_vuelta("\"tab\\tlinea\\nq\\\"\""))
+print(ida_y_vuelta("{\"b\":1.0,\"a\":2.0}"))
+print(ida_y_vuelta("[1e-07,1e+300]"))

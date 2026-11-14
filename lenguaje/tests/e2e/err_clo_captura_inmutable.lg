@@ -1,0 +1,7 @@
+fn a() -> int:
+    x = 1
+    fn g():
+        x = 2
+    g()
+    return x
+print(a())

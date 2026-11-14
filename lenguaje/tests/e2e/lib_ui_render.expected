@@ -1,0 +1,5 @@
+<div class="caja" data-x="a&amp;b"><p>hola &lt;b&gt;mundo&lt;/b&gt;</p><br><img src="a.png" alt=""><ul><li>uno</li><li>dos</li></ul><input type="text" disabled>fin &amp; punto</div>
+<a title="dice &quot;hola&quot; &lt;x&gt;&#39; y">ok</a>
+<p></p>
+<button type="button" data-accion="7">+1</button>
+<divonclickx></divonclickx>

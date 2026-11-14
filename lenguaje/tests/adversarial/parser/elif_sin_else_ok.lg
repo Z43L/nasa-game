@@ -1,0 +1,4 @@
+if false:
+    print(1)
+elif true:
+    print(2)

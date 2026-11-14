@@ -1,0 +1,15 @@
+# Ciclo padre-hijo: el hijo guarda una referencia débil al padre, así que no hay fuga.
+struct Nodo:
+    nombre: str
+    hijos: List[Nodo]
+    padre: Option[Debil[Nodo]]
+
+mut p = Nodo(nombre: "padre", hijos: [], padre: None)
+mut c = Nodo(nombre: "hijo", hijos: [], padre: None)
+c.padre = Some(debil(p))
+p.hijos.append(c)
+
+d = c.padre.desempacar_o(debil(p))
+print(d.fuerte().es_some())
+print(len(p.hijos))
+print(p.hijos[0].nombre)

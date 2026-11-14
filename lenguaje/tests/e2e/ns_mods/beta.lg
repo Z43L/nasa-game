@@ -1,0 +1,10 @@
+# Módulo de prueba de namespaces: define otra f y otro struct Punto.
+fn f() -> int:
+    return 2
+
+struct Punto:
+    nombre: str
+
+impl Punto:
+    fn saluda(self) -> str:
+        return "hola " + self.nombre

@@ -1,0 +1,9 @@
+import tiempo
+
+t0 = tiempo_monotonico_ms()
+tiempo_dormir_ms(60)
+t1 = tiempo_monotonico_ms()
+print(t1 - t0 >= 60)
+print(t1 >= t0)
+p = tiempo_pared_unix_s()
+print(p > 1700000000, p < 4102444800)

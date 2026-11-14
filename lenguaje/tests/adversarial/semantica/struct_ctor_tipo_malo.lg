@@ -1,0 +1,5 @@
+struct P:
+    x: int
+
+a = P(x: "uno")
+print(a.x)

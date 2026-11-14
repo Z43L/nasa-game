@@ -1,0 +1,4 @@
+print(int(3.7))
+print(int(-2.5))
+print(int(9.2e18))
+print(int(-9.2233720368547758e18))

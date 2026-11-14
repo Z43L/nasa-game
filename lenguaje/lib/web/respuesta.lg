@@ -1,0 +1,54 @@
+# lib/web/respuesta.lg: constructores de Respuesta para las rutas de la aplicación web.
+#
+# Cada función devuelve un Respuesta de lib/red/http.lg. El motivo (frase del estado) se rellena
+# aquí y no se deja vacío, porque http_motivo_por_defecto no conoce códigos como 302.
+# El Content-Length lo calcula http_serializar_respuesta a partir del cuerpo.
+#
+# API:
+#   web_respuesta_json(estado: int, cuerpo_json: str) -> Respuesta     Content-Type: application/json
+#   web_respuesta_texto(estado: int, cuerpo: str) -> Respuesta         Content-Type: text/plain; charset=utf-8
+#   web_respuesta_html(estado: int, cuerpo: str) -> Respuesta          Content-Type: text/html; charset=utf-8
+#   web_con_cabecera(r: Respuesta, nombre: str, valor: str) -> Respuesta
+#   web_respuesta_redireccion(url: str) -> Respuesta                   302 con Location
+#   web_motivo_estado(estado: int) -> str                              frase del estado (302, 401, 403, ... y el resto de http.lg)
+#
+# Uso: import respuesta   (con -I lib/web; importa http y json)
+
+import http
+import json
+
+fn web_motivo_estado(estado: int) -> str:
+    if estado == 302:
+        return "Found"
+    if estado == 401:
+        return "Unauthorized"
+    if estado == 403:
+        return "Forbidden"
+    if estado == 409:
+        return "Conflict"
+    if estado == 415:
+        return "Unsupported Media Type"
+    if estado == 422:
+        return "Unprocessable Entity"
+    if estado == 429:
+        return "Too Many Requests"
+    if estado == 503:
+        return "Service Unavailable"
+    return http_motivo_por_defecto(estado)
+
+fn web_respuesta_json(estado: int, cuerpo_json: str) -> Respuesta:
+    return Respuesta(estado: estado, motivo: web_motivo_estado(estado), cabeceras: [HttpCabecera(nombre: "Content-Type", valor: "application/json")], cuerpo: cuerpo_json)
+
+fn web_respuesta_texto(estado: int, cuerpo: str) -> Respuesta:
+    return Respuesta(estado: estado, motivo: web_motivo_estado(estado), cabeceras: [HttpCabecera(nombre: "Content-Type", valor: "text/plain; charset=utf-8")], cuerpo: cuerpo)
+
+fn web_respuesta_html(estado: int, cuerpo: str) -> Respuesta:
+    return Respuesta(estado: estado, motivo: web_motivo_estado(estado), cabeceras: [HttpCabecera(nombre: "Content-Type", valor: "text/html; charset=utf-8")], cuerpo: cuerpo)
+
+fn web_con_cabecera(r: Respuesta, nombre: str, valor: str) -> Respuesta:
+    mut q = r
+    q.cabeceras.append(HttpCabecera(nombre: nombre, valor: valor))
+    return q
+
+fn web_respuesta_redireccion(url: str) -> Respuesta:
+    return Respuesta(estado: 302, motivo: "Found", cabeceras: [HttpCabecera(nombre: "Location", valor: url)], cuerpo: "")

@@ -1,0 +1,10 @@
+fn acumula() -> int:
+    mut total = 0
+    fn sumar(v: int):
+        total = total + v
+    sumar(3)
+    total = total * 10
+    sumar(4)
+    return total
+
+print(acumula())

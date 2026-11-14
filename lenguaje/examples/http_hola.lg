@@ -1,0 +1,33 @@
+# Servidor HTTP mínimo escrito en Lenguaje: responde a cualquier GET con un texto que incluye la línea
+# de la petición. Usa las bibliotecas tcp (sockets) y cadena (búsqueda y recorte).
+#
+# Compilar y ejecutar desde la raíz del repositorio:
+#   build/bin/lgc examples/http_hola.lg -I stdlib -o http_hola && ./http_hola
+# Probar en otra terminal:
+#   curl -i http://localhost:8080/hola
+import tcp
+import cadena
+
+fn respuesta(cuerpo: str) -> str:
+    cabecera = "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\n"
+    return cabecera + "Content-Length: " + str(len(cuerpo)) + "\r\nConnection: close\r\n\r\n" + cuerpo
+
+fn atender(conexion: int):
+    peticion = leer(conexion, 8192)
+    fin = buscar(peticion, "\r\n")
+    if fin < 0:
+        escribir(conexion, "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\nConnection: close\r\n\r\n")
+        return
+    linea = recortar(peticion, 0, fin)
+    escribir(conexion, respuesta("Hola desde Lenguaje\nPetición: " + linea + "\n"))
+
+servidor = escuchar(8080)
+if servidor < 0:
+    print("no se pudo escuchar en el puerto 8080")
+else:
+    print("escuchando en http://localhost:8080")
+    while true:
+        conexion = aceptar(servidor)
+        if conexion >= 0:
+            atender(conexion)
+            cerrar(conexion)

@@ -1,0 +1,37 @@
+# stdlib/datos.lg: lectura de CSV numérico y lectura/escritura de texto. Nativos en C.
+#
+# NATIVOS (src/runtime/std/datos.c):
+#   C:       LgList* lg_std_leer_csv_numeros(const LgStr* ruta);
+#   Lenguaje: extern "C" fn lg_std_leer_csv_numeros(ruta: str) -> List[float]
+#            Lee el fichero, separa campos por ',' y saltos de línea ('\n', '\r') y convierte
+#            cada campo con strtod. Ignora campos vacíos. Un campo no numérico termina el programa.
+#            Devuelve List[float] nueva (propiedad del llamador).
+#   C:       void lg_std_escribir_texto(const LgStr* ruta, const LgStr* texto);
+#   Lenguaje: extern "C" fn lg_std_escribir_texto(ruta: str, texto: str)
+#            Sobrescribe ruta con texto. Termina el programa si no puede escribir.
+#   C:       LgStr* lg_std_leer_texto(const LgStr* ruta);
+#   Lenguaje: extern "C" fn lg_std_leer_texto(ruta: str) -> str
+#            Devuelve el contenido completo del fichero como str nuevo.
+#            Termina el programa si no puede leer.
+#
+# API:
+#   leer_csv_numeros(ruta: str) -> List[float]
+#   escribir_texto(ruta: str, texto: str)
+#   leer_texto(ruta: str) -> str
+#
+# Las rutas se resuelven respecto al directorio de trabajo del programa, no respecto al fichero fuente.
+#
+# Uso: import datos
+
+extern "C" fn lg_std_leer_csv_numeros(ruta: str) -> List[float]
+extern "C" fn lg_std_escribir_texto(ruta: str, texto: str)
+extern "C" fn lg_std_leer_texto(ruta: str) -> str
+
+fn leer_csv_numeros(ruta: str) -> List[float]:
+    return lg_std_leer_csv_numeros(ruta)
+
+fn escribir_texto(ruta: str, texto: str):
+    lg_std_escribir_texto(ruta, texto)
+
+fn leer_texto(ruta: str) -> str:
+    return lg_std_leer_texto(ruta)

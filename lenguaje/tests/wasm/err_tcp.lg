@@ -1,0 +1,4 @@
+import tcp
+
+s = escuchar(8080)
+print(s)

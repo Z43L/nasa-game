@@ -1,0 +1,24 @@
+import util
+import carpeta/util2
+struct Punto:
+  x: float
+  y: float
+impl Punto:
+  fn norma2(self) -> float:
+      return self.x*self.x + self.y*self.y
+  fn mover(mut self, dx: float):
+    self.x = self.x + dx
+extern "C" fn sqrt(x: float) -> float
+fn suma_lista(xs: List[int]) -> int:
+  mut s = 0
+  for x in xs:
+     s = s + x
+  return s
+fn busca(d: Dict[str,int], k: str) -> Option[int]:
+  return None
+fn tensor_id(t: Tensor[float,(2,3)]) -> Tensor[float, (2, 3)]:
+  return t
+fn externo(a: int) -> fn(int) -> int:
+  fn interna(b: int) -> int:
+    return a + b
+  return interna

@@ -1,0 +1,200 @@
+[
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/lg_rt.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/lg_rt.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/lg_rt.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/lg_rt.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/README.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/README.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/README.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/README.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/cadena.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/cadena.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/datos.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/datos.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/datos.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/datos.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/hilos.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/hilos.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/hilos.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/hilos.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/json.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/json.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/json.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/json.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/nucleo.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/nucleo.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/nucleo.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/nucleo.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/red.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/red.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/red.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/red.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/cc -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/tcp.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/tcp.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/tcp.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_runtime.dir/src/runtime/std/tcp.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/common/diagnostics.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/common/diagnostics.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/common/diagnostics.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/common/diagnostics.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/lexer/lexer.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/lexer/lexer.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/lexer/lexer.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/lexer/lexer.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/parser/parser.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/parser/parser.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/parser/parser.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/parser/parser.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/sema/types.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/sema/types.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/sema/types.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/sema/types.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/sema/sema.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/sema/sema.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/sema/sema.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/sema/sema.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/codegen/codegen.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/codegen/codegen.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/codegen/codegen.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/codegen/codegen.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/codegen/debug_info.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/codegen/debug_info.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/codegen/debug_info.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/codegen/debug_info.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o CMakeFiles/lg_core.dir/src/driver/loader.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/driver/loader.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/driver/loader.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_core.dir/src/driver/loader.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -DLG_RUNTIME_INCLUDE=\\\"/Users/david/Desktop/nasa/lenguaje/src/runtime\\\" -DLG_RUNTIME_LIB=\\\"/Users/david/Desktop/nasa/lenguaje/build-wasm/lib/liblg_runtime.a\\\" -DLG_STDLIB_DIR=\\\"/Users/david/Desktop/nasa/lenguaje/stdlib\\\" -DLG_WASM_CC=\\\"/opt/homebrew/Cellar/llvm/23.1.5_1/bin/clang\\\" -DLG_WASM_RUNTIME_LIB=\\\"/Users/david/Desktop/nasa/lenguaje/build-wasm/wasm-runtime/liblg_runtime_wasm32.a\\\" -DLG_WASM_SYSROOT=\\\"/opt/homebrew/share/wasi-sysroot\\\" -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -o CMakeFiles/lgc.dir/src/driver/main.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/driver/main.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/driver/main.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lgc.dir/src/driver/main.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -o CMakeFiles/lg_unit_tests.dir/tests/unit/concurrencia_test.cpp.o -c /Users/david/Desktop/nasa/lenguaje/tests/unit/concurrencia_test.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/tests/unit/concurrencia_test.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_unit_tests.dir/tests/unit/concurrencia_test.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -o CMakeFiles/lg_unit_tests.dir/tests/unit/parser_test.cpp.o -c /Users/david/Desktop/nasa/lenguaje/tests/unit/parser_test.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/tests/unit/parser_test.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_unit_tests.dir/tests/unit/parser_test.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -o CMakeFiles/lg_unit_tests.dir/tests/unit/sema_test.cpp.o -c /Users/david/Desktop/nasa/lenguaje/tests/unit/sema_test.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/tests/unit/sema_test.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/CMakeFiles/lg_unit_tests.dir/tests/unit/sema_test.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/fmt/CMakeFiles/lgfmt.dir/main.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/fmt/main.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/fmt/main.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/fmt/CMakeFiles/lgfmt.dir/main.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/fmt/CMakeFiles/lgfmt.dir/format.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/fmt/format.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/fmt/format.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/fmt/CMakeFiles/lgfmt.dir/format.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/fmt/CMakeFiles/lgfmt.dir/printer.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/fmt/printer.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/fmt/printer.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/fmt/CMakeFiles/lgfmt.dir/printer.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/fmt/CMakeFiles/lgfmt.dir/ast_dump.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/fmt/ast_dump.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/fmt/ast_dump.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/fmt/CMakeFiles/lgfmt.dir/ast_dump.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/fmt/CMakeFiles/lgfmt.dir/comments.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/fmt/comments.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/fmt/comments.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/fmt/CMakeFiles/lgfmt.dir/comments.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/lsp/CMakeFiles/lg_lsp_core.dir/json.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/lsp/json.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/lsp/json.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/lsp/CMakeFiles/lg_lsp_core.dir/json.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/lsp/CMakeFiles/lg_lsp_core.dir/analysis.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/lsp/analysis.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/lsp/analysis.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/lsp/CMakeFiles/lg_lsp_core.dir/analysis.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/lsp/CMakeFiles/lg_lsp_core.dir/server.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/lsp/server.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/lsp/server.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/lsp/CMakeFiles/lg_lsp_core.dir/server.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -o src/tools/lsp/CMakeFiles/lglsp.dir/main.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/lsp/main.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/lsp/main.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/lsp/CMakeFiles/lglsp.dir/main.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src -isystem /opt/homebrew/include -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -o src/tools/lsp/CMakeFiles/lglsp_json_test.dir/__/__/__/tests/v2/lsp/json_test.cpp.o -c /Users/david/Desktop/nasa/lenguaje/tests/v2/lsp/json_test.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/tests/v2/lsp/json_test.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/lsp/CMakeFiles/lglsp_json_test.dir/__/__/__/tests/v2/lsp/json_test.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -DLGPM_LGC_DEFAULT=\\\"/Users/david/Desktop/nasa/lenguaje/build-wasm/bin/lgc\\\" -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/tools/pkg -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/pkg/CMakeFiles/lgpm.dir/lgpm.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/pkg/lgpm.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/pkg/lgpm.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/pkg/CMakeFiles/lgpm.dir/lgpm.cpp.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build-wasm",
+  "command": "/usr/bin/c++ -DLGPM_LGC_DEFAULT=\\\"/Users/david/Desktop/nasa/lenguaje/build-wasm/bin/lgc\\\" -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/tools/pkg -O2 -g -DNDEBUG -std=gnu++17 -arch arm64 -Wall -Wextra -o src/tools/pkg/CMakeFiles/lgpm.dir/toml.cpp.o -c /Users/david/Desktop/nasa/lenguaje/src/tools/pkg/toml.cpp",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/tools/pkg/toml.cpp",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build-wasm/src/tools/pkg/CMakeFiles/lgpm.dir/toml.cpp.o"
+}
+]

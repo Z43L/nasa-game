@@ -1,0 +1,4 @@
+mut m = [[1]]
+m.append([2, 3])
+print(m)
+print(len(m[1]))

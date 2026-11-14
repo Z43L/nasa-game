@@ -1,0 +1,13 @@
+struct Contador:
+    n: int
+
+impl Contador:
+    fn inc(mut self):
+        self.n = self.n + 1
+    fn valor(self) -> int:
+        return self.n
+
+mut c = Contador(n: 0)
+c.inc()
+c.inc()
+print(c.valor())

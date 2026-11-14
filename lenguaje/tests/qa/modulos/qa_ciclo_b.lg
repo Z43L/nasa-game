@@ -1,0 +1,4 @@
+import qa_ciclo_a
+
+fn b() -> int:
+    return 2

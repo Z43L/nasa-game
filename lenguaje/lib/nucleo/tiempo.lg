@@ -1,0 +1,25 @@
+# lib/nucleo/tiempo.lg: reloj monotónico, reloj de pared y espera. Nativos en src/runtime/std/nucleo.c.
+#
+# API:
+#   tiempo_monotonico_ms() -> int
+#       Milisegundos de CLOCK_MONOTONIC. No retrocede; úsalo para medir duraciones.
+#       El origen es arbitrario (normalmente el arranque del sistema): solo sirven las diferencias.
+#   tiempo_pared_unix_s() -> int
+#       Segundos desde 1970-01-01 UTC (reloj de pared, puede saltar si se ajusta el sistema).
+#   tiempo_dormir_ms(ms: int)
+#       Bloquea el hilo al menos ms milisegundos. ms <= 0 vuelve de inmediato.
+#
+# Uso: import tiempo
+
+extern "C" fn lg_std_tiempo_monotonico_ms() -> int
+extern "C" fn lg_std_tiempo_pared_unix_s() -> int
+extern "C" fn lg_std_tiempo_dormir_ms(ms: int)
+
+fn tiempo_monotonico_ms() -> int:
+    return lg_std_tiempo_monotonico_ms()
+
+fn tiempo_pared_unix_s() -> int:
+    return lg_std_tiempo_pared_unix_s()
+
+fn tiempo_dormir_ms(ms: int):
+    lg_std_tiempo_dormir_ms(ms)

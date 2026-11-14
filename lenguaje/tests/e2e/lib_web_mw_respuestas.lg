@@ -1,0 +1,7 @@
+import respuesta
+import http
+
+print(http_serializar_respuesta(web_respuesta_json(200, "{\"ok\":true}")))
+print(http_serializar_respuesta(web_respuesta_texto(404, "no existe")))
+print(http_serializar_respuesta(web_respuesta_html(500, "<p>año</p>")))
+print(http_serializar_respuesta(web_respuesta_json(422, "{}")))

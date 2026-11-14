@@ -1,0 +1,4 @@
+import aleatorio
+
+print("antes")
+print(aleatorio_entero(5, 1))

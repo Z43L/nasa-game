@@ -1,0 +1,14 @@
+# Ejemplo de stdlib/red: pase hacia delante de una capa lineal, activaciones y pérdida MSE.
+# Ejecutar desde la raíz del repositorio con: build/bin/lgc examples/std_red.lg -o std_red && ./std_red
+import red
+
+entrada = from_list([1.0, 0.5], 1, 2)
+pesos = from_list([0.5, -0.5, 0.25, 1.0], 2, 2)
+sesgo = from_list([0.0, 0.1], 1, 2)
+capa = Lineal(pesos: pesos, sesgo: sesgo)
+
+z = capa.adelante(entrada)
+print("salida lineal:", z)
+print("sigmoide:", sigmoide(z))
+print("relu:", relu(z))
+print("pérdida MSE:", perdida_mse(z, from_list([0.5, 0.5], 1, 2)))

@@ -1,0 +1,33 @@
+# lib/nucleo/terminal.lg: entrada por línea de stdin y salida con color ANSI. Nativos en src/runtime/std/nucleo.c.
+#
+# API:
+#   terminal_hay_entrada() -> bool
+#       true si queda algo por leer en stdin, false si está en EOF. No consume datos.
+#   terminal_leer_linea() -> str
+#       Lee una línea sin el salto final ("\n", y "\r" si lo precede). Devuelve "" al EOF.
+#       Una línea vacía también devuelve "": compruébalo con terminal_hay_entrada() antes de leer
+#       para distinguir ambos casos. Sin límite de longitud.
+#   terminal_color(texto: str, color: int) -> str
+#       Envuelve texto en secuencias ANSI SGR. color: 0 negro, 1 rojo, 2 verde, 3 amarillo,
+#       4 azul, 5 magenta, 6 cian, 7 blanco. Otro valor devuelve texto sin secuencias.
+#   terminal_limpiar_pantalla() -> str
+#       Devuelve la secuencia que borra la pantalla y lleva el cursor a (1, 1). No la imprime.
+#
+# Uso: import terminal
+
+extern "C" fn lg_std_terminal_hay_entrada() -> int
+extern "C" fn lg_std_terminal_leer_linea() -> str
+extern "C" fn lg_std_terminal_color(texto: str, color: int) -> str
+extern "C" fn lg_std_terminal_limpiar_pantalla() -> str
+
+fn terminal_hay_entrada() -> bool:
+    return lg_std_terminal_hay_entrada() == 1
+
+fn terminal_leer_linea() -> str:
+    return lg_std_terminal_leer_linea()
+
+fn terminal_color(texto: str, color: int) -> str:
+    return lg_std_terminal_color(texto, color)
+
+fn terminal_limpiar_pantalla() -> str:
+    return lg_std_terminal_limpiar_pantalla()

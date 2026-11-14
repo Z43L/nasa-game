@@ -1,0 +1,6 @@
+import mat
+
+t = identidad2()
+print(suma_total(t))
+print(media(t))
+print(suma_total(identidad2()))

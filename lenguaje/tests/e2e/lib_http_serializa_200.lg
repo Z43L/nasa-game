@@ -1,0 +1,11 @@
+import lib_http_mod/http
+
+mut r = http_respuesta_texto(200, "hola mundo")
+r.cabeceras.append(HttpCabecera(nombre: "X-Test", valor: "1"))
+s = http_serializar_respuesta(r)
+print(buscar(s, "HTTP/1.1 200 OK\r\n") == 0)
+print(buscar(s, "X-Test: 1\r\n") > 0)
+print(buscar(s, "Content-Type: text/plain; charset=utf-8\r\n") > 0)
+print(buscar(s, "Connection: close\r\n") > 0)
+print(buscar(s, "Content-Length: 10\r\n\r\n") > 0)
+print(recortar(s, buscar(s, "\r\n\r\n") + 4, len(s)))

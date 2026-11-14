@@ -1,0 +1,3 @@
+a = from_list([1, 2], 1, 2)
+b = zeros(2, 1)
+c = a @ b

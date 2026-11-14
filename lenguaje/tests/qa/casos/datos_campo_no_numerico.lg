@@ -1,0 +1,4 @@
+# Un campo no numérico termina el programa con el mensaje de CSV.
+import datos
+escribir_texto("malo_qa.csv", "1.0, 2x, 3")
+print(leer_csv_numeros("malo_qa.csv"))

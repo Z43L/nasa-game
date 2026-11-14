@@ -1,0 +1,13 @@
+import texto
+
+s = texto_repetir("a,", 50000)
+print(len(s))
+partes = texto_dividir(s, ",")
+print(len(partes))
+print(len(partes[50000]))
+u = texto_unir(partes, ",")
+print(len(u))
+print(u == s)
+t = texto_repetir("x", 100000)
+p = texto_dividir(t, ",")
+print(len(p), len(p[0]))

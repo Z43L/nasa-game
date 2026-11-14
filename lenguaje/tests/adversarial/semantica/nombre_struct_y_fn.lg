@@ -1,0 +1,5 @@
+struct P:
+    x: int
+fn P() -> int:
+    return 1
+print(P())

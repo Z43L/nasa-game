@@ -1,0 +1,4 @@
+import datos
+
+escribir_texto("build/std_datos_invalido.txt", "1.0, abc, 3")
+print(leer_csv_numeros("build/std_datos_invalido.txt"))

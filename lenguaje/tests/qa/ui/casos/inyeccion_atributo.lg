@@ -1,0 +1,9 @@
+# Inyección por atributo: el valor cierra la comilla y pretende añadir onclick. Las comillas
+# deben estar escapadas: no puede aparecer un atributo onclick real ni una etiqueta nueva.
+import cadena
+import render
+a: List[str] = ["title", "x\" onclick=\"alert(1)"]
+r = ui_render(ui_elemento("a", a, [ui_texto("ok")]))
+print(buscar(r, "onclick=\"") < 0)
+print(buscar(r, "<script") < 0)
+print(buscar(r, "&quot; onclick=&quot;alert(1)") >= 0)

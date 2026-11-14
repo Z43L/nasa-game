@@ -1,0 +1,10 @@
+mut acc = 100
+
+fn externa() -> int:
+    fn interna(k: int) -> int:
+        acc = acc + k
+        return acc
+    return interna(5) + interna(1)
+
+print(externa())
+print(acc)

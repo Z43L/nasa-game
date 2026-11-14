@@ -1,0 +1,46 @@
+# stdlib/red.lg: capa lineal, activaciones y pérdida. Escrito en el lenguaje salvo dos nativos.
+#
+# NATIVOS (src/runtime/std/red.c). Son independientes de la forma: operan sobre los
+# elementos contiguos del tensor. Las firmas de abajo fijan la forma (1, 2).
+#   C:       LgTensor* lg_std_exp_tensor(const LgTensor* t);
+#   Lenguaje: extern "C" fn lg_std_exp_tensor(t: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]
+#            exp(x) elemento a elemento. Devuelve tensor nuevo de la misma forma. Solo Tensor[float].
+#   C:       LgTensor* lg_std_max_tensor(const LgTensor* t, double s);
+#   Lenguaje: extern "C" fn lg_std_max_tensor(t: Tensor[float, (1, 2)], s: float) -> Tensor[float, (1, 2)]
+#            max(x, s) elemento a elemento. Devuelve tensor nuevo de la misma forma. Solo Tensor[float].
+#
+# Para otra forma, copia las firmas de los nativos con la forma deseada (el C no cambia).
+#
+# API:
+#   struct Lineal(pesos: Tensor[float, (2, 2)], sesgo: Tensor[float, (1, 2)])
+#     Lineal.adelante(self, x: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]   x @ pesos + sesgo
+#   sigmoide(t: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]   1 / (1 + exp(-t))
+#   relu(t: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]       max(t, 0)
+#   perdida_mse(pred: Tensor[float, (1, 2)], obj: Tensor[float, (1, 2)]) -> float
+#       media de (pred - obj)^2 sobre los 2 elementos
+#
+# Uso: import red
+
+extern "C" fn lg_std_exp_tensor(t: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]
+extern "C" fn lg_std_max_tensor(t: Tensor[float, (1, 2)], s: float) -> Tensor[float, (1, 2)]
+
+struct Lineal:
+    pesos: Tensor[float, (2, 2)]
+    sesgo: Tensor[float, (1, 2)]
+
+impl Lineal:
+    fn adelante(self, x: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]:
+        return x @ self.pesos + self.sesgo
+
+fn sigmoide(t: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]:
+    return 1.0 / (1.0 + lg_std_exp_tensor(0.0 - t))
+
+fn relu(t: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]:
+    return lg_std_max_tensor(t, 0.0)
+
+fn perdida_mse(pred: Tensor[float, (1, 2)], obj: Tensor[float, (1, 2)]) -> float:
+    d = pred - obj
+    mut s = 0.0
+    for j in 0..2:
+        s = s + d[0, j] * d[0, j]
+    return s / 2.0

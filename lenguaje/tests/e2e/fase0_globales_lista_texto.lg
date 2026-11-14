@@ -1,0 +1,12 @@
+mut registro: List[str] = []
+mut ultimo = "ninguno"
+
+fn anotar(t: str):
+    registro.append(t)
+    ultimo = t
+
+anotar("uno")
+anotar("dos")
+print(len(registro))
+print(registro[0])
+print(ultimo)

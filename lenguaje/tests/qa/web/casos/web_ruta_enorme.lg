@@ -1,0 +1,30 @@
+# requiere: web
+# Patrón de 10 000 segmentos y ruta de 1 MB: no debe caer; el patrón enorme debe casar consigo mismo.
+import app
+import router
+
+mut patron = ""
+mut i = 0
+while i < 10000:
+    patron = patron + "/s"
+    i = i + 1
+
+e = web_nuevo_enrutador()
+web_agregar(e, "GET", patron, 7)
+r = web_enrutar(e, "GET", patron)
+if r.encontrada:
+    print(str(r.id))
+else:
+    print("no")
+
+mut grande = "a"
+mut k = 0
+while k < 20:
+    grande = grande + grande
+    k = k + 1
+r2 = web_enrutar(e, "GET", "/" + grande)
+if r2.encontrada:
+    print("si")
+else:
+    print("no")
+print("fin")

@@ -1,0 +1,33 @@
+# lib/app/app.lg: documento HTML completo de una vista.
+#
+# API:
+#   pagina(titulo: str, estilos: List[Estilo], cuerpo: Nodo) -> str
+#       <!doctype html> con meta charset y viewport (móvil), título escapado, una sola <style>
+#       con las reglas de `estilos` y el `cuerpo` renderizado.
+#   pagina_extra(titulo, estilos, cuerpo, cabeceras: str) -> str   igual, con HTML extra en <head>.
+#
+# Uso: import app   (importa hoja, estilo, html y render)
+#   Con -I lib/app; si lib/web está en LG_PATH antes, `import app` puede resolver a lib/web/app.lg.
+
+import estilo
+import hoja
+import html
+import render
+
+fn pagina(titulo: str, estilos: List[Estilo], cuerpo: Nodo) -> str:
+    return pagina_extra(titulo, estilos, cuerpo, "")
+
+# Igual que pagina, pero añade `cabeceras` (HTML ya escapado por quien lo genera, p. ej. pwa_cabeceras)
+# dentro de <head>, después del <title>. Con "" el resultado es idéntico a pagina.
+fn pagina_extra(titulo: str, estilos: List[Estilo], cuerpo: Nodo, cabeceras: str) -> str:
+    mut partes: List[str] = []
+    partes.append("<!doctype html>\n<html lang=\"es\">\n<head>\n")
+    partes.append("<meta charset=\"utf-8\">\n")
+    partes.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n")
+    partes.append("<title>" + ui_escapar(titulo) + "</title>\n")
+    partes.append(cabeceras)
+    partes.append(hoja_css(estilos))
+    partes.append("\n</head>\n<body>\n")
+    partes.append(ui_render(cuerpo))
+    partes.append("\n</body>\n</html>\n")
+    return ui_unir(partes, 0, len(partes))

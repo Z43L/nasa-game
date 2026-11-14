@@ -1,0 +1,57 @@
+Start testing: Nov 14 02:46 CET
+----------------------------------------------------------
+4/12 Testing: wasm
+4/12 Test: wasm
+Command: "/Users/david/Desktop/nasa/lenguaje/tests/wasm/run_wasm.sh" "/Users/david/Desktop/nasa/lenguaje/build-wasm/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"wasm" start time: Nov 14 02:46 CET
+Output:
+----------------------------------------------------------
+PASS  aritmetica
+PASS  err_hilos
+PASS  err_tcp
+PASS  hola
+PASS  listas_cadenas
+PASS  mat_modulo
+PASS  mult_grande
+PASS  rt_desbordamiento
+PASS  rt_div_cero
+PASS  rt_indice
+PASS  structs_metodos
+wasm: 11 pasaron, 0 fallaron
+<end of output>
+Test time =   2.34 sec
+----------------------------------------------------------
+Test Passed.
+"wasm" end time: Nov 14 02:46 CET
+"wasm" time elapsed: 00:00:02
+----------------------------------------------------------
+
+5/12 Testing: wasm_ui
+5/12 Test: wasm_ui
+Command: "/opt/homebrew/bin/node" "--no-warnings" "/Users/david/Desktop/nasa/lenguaje/tests/wasm_ui/run_ui.js" "/Users/david/Desktop/nasa/lenguaje/build-wasm/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"wasm_ui" start time: Nov 14 02:46 CET
+Output:
+----------------------------------------------------------
+PASS  contador: exports con nombre del .lg
+PASS  contador: 3 pulsaciones -> "Pulsaciones: 3"
+PASS  largo: compilar con exports
+PASS  largo: str de 100000 caracteres completo y correcto
+PASS  largo: UTF-8 (ñ, ú, ✓) y tipos bool/float
+PASS  error: export inexistente
+PASS  error: nombre con caracteres raros
+PASS  error: nombre reservado lg_
+PASS  error: --export sin --target wasm32
+      (100 programas comparados)
+PASS  ir nativo idéntico a build/bin/lgc
+wasm_ui: 10 pasaron, 0 fallaron
+<end of output>
+Test time =   2.27 sec
+----------------------------------------------------------
+Test Passed.
+"wasm_ui" end time: Nov 14 02:46 CET
+"wasm_ui" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Nov 14 02:46 CET

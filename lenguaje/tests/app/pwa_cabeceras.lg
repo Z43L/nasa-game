@@ -1,0 +1,11 @@
+# lib/app/pwa.lg: pwa_cabeceras produce las etiquetas PWA y pagina_extra las inserta en <head>.
+import estilo
+import primitivas
+import app
+import pwa
+
+mut e = estilo_nuevo()
+e.relleno = "16px"
+cuerpo = caja(e, [texto(e, "PWA <app>")])
+print(pagina_extra("PWA \"test\"", [e], cuerpo, pwa_cabeceras("", "sw.js")))
+print(pwa_cabeceras("a/b/", "x/sw.js"))

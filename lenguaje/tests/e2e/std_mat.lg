@@ -1,0 +1,10 @@
+import mat
+
+i2 = identidad2()
+print(i2)
+print(suma_total(i2))
+print(media(i2))
+i3 = identidad3()
+print(i3.forma())
+print(producto_punto(from_list([1.0, 2.0, 3.0], 3), from_list([4.0, 5.0, 6.0], 3)))
+print(media(from_list([1.0, 2.0, 3.0, 6.0], 2, 2)))

@@ -1,0 +1,66 @@
+# lib/nucleo/texto.lg: operaciones sobre cadenas str. Nativos en src/runtime/std/nucleo.c.
+#
+# Los nombres llevan el prefijo texto_ mientras no haya namespaces (el espacio de nombres es global).
+#
+# API:
+#   texto_recortar_espacios(s: str) -> str
+#       Quita espacios, tabuladores y saltos de línea al principio y al final.
+#   texto_dividir(s: str, sep: str) -> List[str]
+#       Parte s por cada aparición de sep. Sin separador devuelve [s]. Si s es "" devuelve [""].
+#       sep vacío: error de ejecución.
+#   texto_unir(partes: List[str], sep: str) -> str
+#       Une las partes con sep entre ellas. Lista vacía: "".
+#   texto_reemplazar(s: str, buscado: str, nuevo: str) -> str
+#       Sustituye todas las apariciones de buscado. Si no aparece, devuelve s. buscado vacío: error de ejecución.
+#   texto_a_mayusculas(s: str) -> str
+#   texto_a_minusculas(s: str) -> str
+#       Solo cambian ASCII (a-z, A-Z). Los bytes UTF-8 no ASCII se copian sin cambios.
+#   texto_empieza_por(s: str, prefijo: str) -> bool
+#   texto_termina_por(s: str, sufijo: str) -> bool
+#   texto_contiene(s: str, aguja: str) -> bool
+#       Una aguja vacía se considera siempre presente.
+#   texto_repetir(s: str, n: int) -> str
+#       s repetida n veces. n == 0 devuelve "". n < 0: error de ejecución.
+#
+# Uso: import texto
+
+extern "C" fn lg_std_texto_recortar(s: str) -> str
+extern "C" fn lg_std_texto_dividir(s: str, sep: str) -> List[str]
+extern "C" fn lg_std_texto_unir(partes: List[str], sep: str) -> str
+extern "C" fn lg_std_texto_reemplazar(s: str, buscado: str, nuevo: str) -> str
+extern "C" fn lg_std_texto_a_mayusculas(s: str) -> str
+extern "C" fn lg_std_texto_a_minusculas(s: str) -> str
+extern "C" fn lg_std_texto_empieza_por(s: str, prefijo: str) -> int
+extern "C" fn lg_std_texto_termina_por(s: str, sufijo: str) -> int
+extern "C" fn lg_std_texto_contiene(s: str, aguja: str) -> int
+extern "C" fn lg_std_texto_repetir(s: str, n: int) -> str
+
+fn texto_recortar_espacios(s: str) -> str:
+    return lg_std_texto_recortar(s)
+
+fn texto_dividir(s: str, sep: str) -> List[str]:
+    return lg_std_texto_dividir(s, sep)
+
+fn texto_unir(partes: List[str], sep: str) -> str:
+    return lg_std_texto_unir(partes, sep)
+
+fn texto_reemplazar(s: str, buscado: str, nuevo: str) -> str:
+    return lg_std_texto_reemplazar(s, buscado, nuevo)
+
+fn texto_a_mayusculas(s: str) -> str:
+    return lg_std_texto_a_mayusculas(s)
+
+fn texto_a_minusculas(s: str) -> str:
+    return lg_std_texto_a_minusculas(s)
+
+fn texto_empieza_por(s: str, prefijo: str) -> bool:
+    return lg_std_texto_empieza_por(s, prefijo) == 1
+
+fn texto_termina_por(s: str, sufijo: str) -> bool:
+    return lg_std_texto_termina_por(s, sufijo) == 1
+
+fn texto_contiene(s: str, aguja: str) -> bool:
+    return lg_std_texto_contiene(s, aguja) == 1
+
+fn texto_repetir(s: str, n: int) -> str:
+    return lg_std_texto_repetir(s, n)

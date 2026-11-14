@@ -1,0 +1,6 @@
+# Escribir sobre un fd ya cerrado devuelve -1 (EBADF) y el programa sigue.
+import tcp
+s = escuchar(18763)
+cerrar(s)
+print(escribir(s, "hola"))
+print("fin")

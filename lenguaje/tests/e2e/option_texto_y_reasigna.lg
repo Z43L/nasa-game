@@ -1,0 +1,14 @@
+s: Option[str] = Some("hola")
+t: Option[str] = None
+print(s.desempacar_o("x"), t.desempacar_o("x"))
+print(s)
+mut c = Some(2.5)
+print(c.desempacar_o(0.0))
+c = None
+print(c.es_none(), c == None)
+fn busca(xs: List[int], v: int) -> Option[int]:
+    for x in xs:
+        if x == v:
+            return Some(x)
+    return None
+print(busca([1, 2, 3], 2).desempacar_o(-1), busca([1, 2, 3], 9).desempacar_o(-1))

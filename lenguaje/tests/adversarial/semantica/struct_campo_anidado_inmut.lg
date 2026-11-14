@@ -1,0 +1,8 @@
+struct P:
+    x: int
+
+struct L:
+    p: P
+
+l = L(p: P(x: 4))
+l.p.x = 9

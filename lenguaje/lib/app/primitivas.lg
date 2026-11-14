@@ -1,0 +1,50 @@
+# lib/app/primitivas.lg: componentes básicos, estilo React Native. Cada uno devuelve un Nodo (lib/ui/html.lg)
+# con la clase CSS de su estilo. hoja_css emite la regla CSS de los estilos que se pasan a pagina():
+# pasa TODOS los estilos usados. fila/columna fijan la dirección en una copia del estilo; esa copia no
+# está en la lista, así que fija direccion ("fila"/"columna") en el propio estilo antes de usarlo.
+#
+# API:
+#   caja(e: Estilo, hijos: List[Nodo]) -> Nodo                 <div>
+#   fila(e: Estilo, hijos: List[Nodo]) -> Nodo                 <div> en flex, direccion "fila"
+#   columna(e: Estilo, hijos: List[Nodo]) -> Nodo              <div> en flex, direccion "columna"
+#   texto(e: Estilo, contenido: str) -> Nodo                   <span>; el contenido se escapa
+#   boton(e: Estilo, etiqueta: str, accion: int) -> Nodo       <button type="button" data-accion="N">
+#   entrada(e: Estilo, nombre: str, valor: str) -> Nodo        <input type="text">
+#   imagen(e: Estilo, url: str, alt: str) -> Nodo              <img>; la url se filtra (javascript:)
+#   lista(e: Estilo, elementos: List[Nodo]) -> Nodo            <ul> con un <li> por elemento
+#
+# Uso: import primitivas   (importa estilo y html)
+
+import estilo
+import html
+
+fn caja(e: Estilo, hijos: List[Nodo]) -> Nodo:
+    return ui_elemento("div", ["class", estilo_clase(e)], hijos)
+
+fn fila(e: Estilo, hijos: List[Nodo]) -> Nodo:
+    mut r = estilo_copia(e)
+    r.direccion = "fila"
+    return ui_elemento("div", ["class", estilo_clase(r)], hijos)
+
+fn columna(e: Estilo, hijos: List[Nodo]) -> Nodo:
+    mut r = estilo_copia(e)
+    r.direccion = "columna"
+    return ui_elemento("div", ["class", estilo_clase(r)], hijos)
+
+fn texto(e: Estilo, contenido: str) -> Nodo:
+    return ui_elemento("span", ["class", estilo_clase(e)], [ui_texto(contenido)])
+
+fn boton(e: Estilo, etiqueta: str, accion: int) -> Nodo:
+    return ui_elemento("button", ["type", "button", "class", estilo_clase(e), "data-accion", str(accion)], [ui_texto(etiqueta)])
+
+fn entrada(e: Estilo, nombre: str, valor: str) -> Nodo:
+    return ui_elemento("input", ["type", "text", "class", estilo_clase(e), "name", nombre, "value", valor], [])
+
+fn imagen(e: Estilo, url: str, alt: str) -> Nodo:
+    return ui_elemento("img", ["class", estilo_clase(e), "src", url, "alt", alt], [])
+
+fn lista(e: Estilo, elementos: List[Nodo]) -> Nodo:
+    mut items: List[Nodo] = []
+    for x in elementos:
+        items.append(ui_elemento("li", [], [x]))
+    return ui_elemento("ul", ["class", estilo_clase(e)], items)

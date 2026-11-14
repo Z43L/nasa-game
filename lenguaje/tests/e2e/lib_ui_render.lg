@@ -1,0 +1,17 @@
+# lib/ui: render de árboles con atributos, anidados, elementos void y atributos con comillas.
+import html
+import render
+
+arbol = ui_elemento("div", ["class", "caja", "data-x", "a&b"], [
+    ui_elemento("p", [], [ui_texto("hola <b>mundo</b>")]),
+    ui_elemento("br", [], []),
+    ui_elemento("img", ["src", "a.png", "alt", ""], []),
+    ui_elemento("ul", [], [ui_elemento("li", [], [ui_texto("uno")]), ui_elemento("li", [], [ui_texto("dos")])]),
+    ui_elemento("input", ["type", "text", "disabled"], []),
+    ui_texto("fin & punto")
+])
+print(ui_render(arbol))
+print(ui_render(ui_elemento("a", ["title", "dice \"hola\" <x>' y"], [ui_texto("ok")])))
+print(ui_render(ui_elemento("p", [], [])))
+print(ui_render(ui_boton("+1", 7)))
+print(ui_render(ui_elemento("div onclick=\"x\"", ["on\"load", "1"], [])))

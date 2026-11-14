@@ -1,0 +1,12 @@
+import lib_datos_modulos/json
+
+fn anidado(n: int) -> str:
+    mut s = "1"
+    for i in 0..n:
+        s = "[" + s + "]"
+    return s
+
+print(json_es_valido(anidado(64)), json_es_valido(anidado(65)))
+print(json_es_valido("{\"a\":" + anidado(63) + "}"), json_es_valido("{\"a\":" + anidado(64) + "}"))
+print(json_longitud(json_parsear(anidado(64))))
+print(json_texto(json_parsear(anidado(65))))

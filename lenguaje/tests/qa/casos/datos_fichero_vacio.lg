@@ -1,0 +1,5 @@
+# stdlib/datos sobre un fichero vacío: lista vacía, sin error.
+import datos
+escribir_texto("vacio_qa.csv", "")
+print(leer_csv_numeros("vacio_qa.csv"))
+print(len(leer_csv_numeros("vacio_qa.csv")))

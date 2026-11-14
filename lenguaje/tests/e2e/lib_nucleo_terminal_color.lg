@@ -1,0 +1,8 @@
+import terminal
+
+print(terminal_color("hola", 1))
+print(terminal_color("", 4))
+print(len(terminal_color("hola", 1)))
+print(terminal_color("ok", 9) == "ok", terminal_color("ok", -1) == "ok")
+print(terminal_limpiar_pantalla())
+print(len(terminal_limpiar_pantalla()))

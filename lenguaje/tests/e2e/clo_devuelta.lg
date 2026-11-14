@@ -1,0 +1,13 @@
+fn contador() -> fn() -> int:
+    mut n = 0
+    fn siguiente() -> int:
+        n = n + 1
+        return n
+    return siguiente
+
+c = contador()
+print(c())
+print(c())
+d = contador()
+print(d())
+print(c())

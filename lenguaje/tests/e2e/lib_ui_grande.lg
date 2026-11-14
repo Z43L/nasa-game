@@ -1,0 +1,11 @@
+# lib/ui: 10 000 nodos renderizados de una vez (sin crash, en tiempo razonable).
+import html
+import render
+
+mut hs: List[Nodo] = []
+for i in 0..10000:
+    hs.append(ui_elemento("li", ["class", "item"], [ui_texto("elemento " + str(i) + " & más")]))
+s = ui_render(ui_elemento("ul", [], hs))
+print(len(s))
+print(recortar(s, 0, 50))
+print(recortar(s, len(s) - 30, len(s)))

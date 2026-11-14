@@ -1,0 +1,15 @@
+import middleware
+import http
+
+fn pet_con(nombre: str, ct: str, cuerpo: str) -> Peticion:
+    return Peticion(metodo: "POST", ruta: "/x", version: "HTTP/1.1", cabeceras: [HttpCabecera(nombre: nombre, valor: ct)], cuerpo: cuerpo, longitud: len(cuerpo), valida: true, error: "")
+
+fn pet_sin_cabecera(cuerpo: str) -> Peticion:
+    return Peticion(metodo: "POST", ruta: "/x", version: "HTTP/1.1", cabeceras: [], cuerpo: cuerpo, longitud: len(cuerpo), valida: true, error: "")
+
+print(web_requiere_json(pet_con("Content-Type", "application/json", "{\"a\":[1,2]}")))
+print(web_requiere_json(pet_con("Content-Type", "application/json", "{\"a\":")))
+print(web_requiere_json(pet_sin_cabecera("{\"a\":1}")))
+print(web_requiere_json(pet_con("Content-Type", "text/plain", "{\"a\":1}")))
+print(web_requiere_json(pet_con("content-type", "Application/JSON; charset=utf-8", "[]")))
+print(web_requiere_json(pet_con("Content-Type", "application/json", "")))

@@ -1,0 +1,14 @@
+x1 = 0.1
+x2 = 1e-5
+x3 = 123456789.5
+x4 = 1e20
+x5 = 0.0
+x6 = 3
+x7 = 007
+s1 = "tab\there"
+s2 = "comilla \" y barra \\"
+s3 = ""
+s4 = "con # almohadilla"  # comentario tras cadena con almohadilla
+v = [ ]
+w = {}
+o2 = Some(3)

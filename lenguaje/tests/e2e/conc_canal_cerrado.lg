@@ -1,0 +1,17 @@
+# Un canal cerrado entrega lo que quedaba en la cola y después devuelve None.
+c = Canal[str]()
+c.enviar("a")
+c.enviar("b")
+c.cerrar()
+
+mut n = 0
+mut fin = false
+while not fin:
+    r = c.recibir()
+    if r.es_some():
+        print(r.desempacar_o(""))
+        n = n + 1
+    else:
+        fin = true
+print(n)
+print(c.recibir().es_none())

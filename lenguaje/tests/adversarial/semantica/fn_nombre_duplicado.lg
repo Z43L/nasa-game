@@ -1,0 +1,5 @@
+fn f() -> int:
+    return 1
+fn f() -> int:
+    return 2
+print(f())

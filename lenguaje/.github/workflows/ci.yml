@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---------- Linux: LLVM 23 de apt.llvm.org ----------
+      - name: Instalar LLVM 23 (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          wget -O llvm.sh https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 23 all
+          sudo apt-get install -y llvm-23-dev clang-23 ninja-build libgtest-dev
+          {
+            echo "LG_CC=clang-23"
+            echo "LG_CXX=clang++-23"
+            echo "LG_LLVM_DIR=/usr/lib/llvm-23/lib/cmake/llvm"
+          } >> "$GITHUB_ENV"
+
+      # ---------- macOS: LLVM de Homebrew (23.x) ----------
+      - name: Instalar LLVM, Ninja y GoogleTest (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install llvm ninja googletest
+          P="$(brew --prefix llvm)"
+          {
+            echo "LG_CC=$P/bin/clang"
+            echo "LG_CXX=$P/bin/clang++"
+            echo "LG_LLVM_DIR=$P/lib/cmake/llvm"
+          } >> "$GITHUB_ENV"
+          "$P/bin/clang++" --version
+
+      - name: Configurar
+        shell: bash
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER="$LG_CC" \
+            -DCMAKE_CXX_COMPILER="$LG_CXX" \
+            -DLLVM_DIR="$LG_LLVM_DIR"
+
+      - name: Compilar
+        run: cmake --build build
+
+      - name: Pruebas unitarias (lg_unit_tests)
+        shell: bash
+        run: build/lg_unit_tests
+
+      - name: Pruebas end-to-end
+        shell: bash
+        run: tests/e2e/run_e2e.sh build/bin/lgc
+
+      - name: Pruebas adversariales
+        shell: bash
+        run: python3 tests/adversarial/run_adversarial.py build/bin/lgc

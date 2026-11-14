@@ -1,0 +1,4 @@
+# BUG según el encargo QA: el puerto 0 no es válido para escuchar, debe devolver -1.
+# tcp.c solo rechaza puerto < 0 o > 65535, así que escuchar(0) devuelve un fd válido.
+import tcp
+print(escuchar(0) < 0)

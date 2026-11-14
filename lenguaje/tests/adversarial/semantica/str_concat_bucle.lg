@@ -1,0 +1,4 @@
+mut s = ""
+for i in 0..20000:
+    s = s + "x"
+print(len(s))

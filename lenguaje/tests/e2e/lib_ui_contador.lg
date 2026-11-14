@@ -1,0 +1,28 @@
+# lib/ui: la vista del contador (misma lógica que tests/ui/contador_app.lg) con 3 pulsaciones y reinicio.
+import html
+import render
+
+fn vista(cuenta: int) -> str:
+    return ui_render(ui_elemento("main", ["class", "contador"], [
+        ui_elemento("h1", [], [ui_texto("Contador & amigos")]),
+        ui_elemento("p", ["id", "texto"], [ui_texto("Pulsaciones: " + str(cuenta))]),
+        ui_boton("+1", 1),
+        ui_boton("Reiniciar", 2)
+    ]))
+
+fn despachar(accion: int, cuenta: int) -> int:
+    if accion == 1:
+        return cuenta + 1
+    if accion == 2:
+        return 0
+    return cuenta
+
+mut n = 0
+for i in 0..3:
+    n = despachar(1, n)
+print(n)
+print(vista(n))
+print(buscar(vista(n), "Pulsaciones: 3") >= 0)
+n = despachar(2, n)
+print(n)
+print(buscar(vista(n), "Pulsaciones: 0") >= 0)

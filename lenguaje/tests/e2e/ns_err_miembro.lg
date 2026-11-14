@@ -1,0 +1,4 @@
+# alias.nombre debe existir en el módulo.
+import ns_mods/unico
+
+print(unico.no_existe(1))

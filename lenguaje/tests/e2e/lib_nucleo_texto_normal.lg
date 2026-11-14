@@ -1,0 +1,13 @@
+import texto
+
+print("[" + texto_recortar_espacios("  hola mundo \t\n") + "]")
+partes = texto_dividir("a,b,,c", ",")
+print(len(partes))
+print(partes[1])
+print("[" + partes[2] + "]")
+print(texto_unir(partes, "-"))
+print(texto_reemplazar("hola hola", "hola", "adios"))
+print(texto_a_mayusculas("Hola Mundo 123"))
+print(texto_a_minusculas("HOLA mundo"))
+print(texto_empieza_por("lenguaje", "len"), texto_termina_por("lenguaje", "je"), texto_contiene("lenguaje", "gua"))
+print(texto_repetir("ab", 3))

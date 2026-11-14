@@ -1,0 +1,45 @@
+import app
+
+# Cliente en un hilo: conecta, envía una petición cruda y lee la respuesta hasta que el servidor
+# cierra la conexión (o vence el tiempo de espera). Devuelve la respuesta completa.
+fn cliente(puerto: int, peticion: str) -> str:
+    c = conectar("localhost", puerto)
+    if c < 0:
+        return "ERROR conectar"
+    fijar_tiempo(c, 3000)
+    escribir(c, peticion)
+    mut total = ""
+    mut seguir = true
+    while seguir:
+        trozo = leer(c, 4096)
+        if len(trozo) == 0:
+            seguir = false
+        else:
+            total = total + trozo
+    cerrar(c)
+    return total
+
+fn atender(srv: int, e: Enrutador) -> int:
+    s = web_recibir(srv, e, 3000)
+    if not s.peticion.valida:
+        return web_responder(s, web_respuesta_error(400))
+    if s.id == 1:
+        return web_responder(s, http_respuesta_texto(200, "cohete " + s.parametros[0] + "\n"))
+    return web_responder(s, web_respuesta_error(404))
+
+PUERTO = 22010
+srv = escuchar(PUERTO)
+if srv < 0:
+    print("no se pudo escuchar")
+else:
+    e = web_nuevo_enrutador()
+    web_agregar(e, "GET", "/cohetes/:id", 1)
+
+    h = hilo cliente(PUERTO, "GET /cohetes/7?v=2 HTTP/1.1\r\nHost: localhost\r\n\r\n")
+    atender(srv, e)
+    r = h.esperar()
+
+    print(buscar(r, "HTTP/1.1 200 OK\r\n") == 0)
+    print(buscar(r, "\r\n\r\ncohete 7\n") > 0)
+    print(r == "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\nContent-Length: 9\r\n\r\ncohete 7\n")
+    cerrar(srv)

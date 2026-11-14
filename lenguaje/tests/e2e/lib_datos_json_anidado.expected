@@ -1,0 +1,8 @@
+{"nombre":"Ana","edad":31.0,"datos":{"activo":true,"etiquetas":["a","b"]}}
+Ana
+true
+b
+31.0
+2 2
+error
+clave no encontrada: 'falta'

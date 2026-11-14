@@ -1,0 +1,13 @@
+# async fn: llamarla lanza un hilo y devuelve Hilo[T]; await espera el resultado.
+async fn cuadrado(x: int) -> int:
+    return x * x
+
+async fn saluda(n: str) -> str:
+    return "hola " + n
+
+r = await cuadrado(7)
+print(r)
+print(await saluda("async"))
+h = cuadrado(3)
+print(await h)
+print(await cuadrado(2) + await cuadrado(3))

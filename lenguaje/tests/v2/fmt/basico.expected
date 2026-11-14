@@ -1,0 +1,21 @@
+mut x = 1 + 2 * 3
+y: int = (1 + 2) * 3
+z = -(a + b)
+w = not a and b or c
+v = a < b == c
+u = a - (b - c)
+t = a - b - c
+s = x.f(1, n: 2)[0]
+p = 2.5
+q = 1000.0
+o = "a\"b\\c\n"
+n2 = None
+m = [1, 2, 3]
+d = {"a": 1, "b": 2}
+k = x @ w + b * -c
+j = -a * -b
+i = (not a) == b
+h = a in lista
+g = t[1, 2]
+for i in 0..10:
+    print(i, "hola")

@@ -1,0 +1,24 @@
+# lib/app/hoja.lg: la hoja <style> de una vista. Una sola vez por documento, con una regla por estilo distinto.
+#
+# API:
+#   hoja_css(estilos: List[Estilo]) -> str    "<style>...</style>" con la base y las reglas de cada estilo
+#                                             único (deduplicado por nombre de clase)
+#
+# Uso: import hoja   (importa estilo y html)
+
+import estilo
+import html
+
+fn hoja_base() -> str:
+    return "*,*::before,*::after{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:#ffffff;color:#111827;font-family:system-ui,sans-serif;line-height:1.4}"
+
+fn hoja_css(estilos: List[Estilo]) -> str:
+    mut vistos: Dict[str, bool] = {}
+    mut partes: List[str] = []
+    partes.append(hoja_base())
+    for e in estilos:
+        c = estilo_clase(e)
+        if vistos.tiene(c) == false:
+            vistos[c] = true
+            partes.append(estilo_css(c, e))
+    return "<style>" + ui_unir(partes, 0, len(partes)) + "</style>"

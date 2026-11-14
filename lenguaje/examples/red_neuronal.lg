@@ -1,0 +1,17 @@
+# Pase hacia delante de una capa lineal: h = x @ W + b, y sigmoid sobre escalares.
+# Limitacion actual: sema no admite leer elementos de un Tensor (t[i]) ni hay sigmoid
+# elemento a elemento sobre tensores, asi que la sigmoid se muestra sobre floats.
+extern "C" fn exp(x: float) -> float
+
+fn sigmoid(z: float) -> float:
+    return 1.0 / (1.0 + exp(0.0 - z))
+
+fn capa(x: Tensor[float, (1, 2)], w: Tensor[float, (2, 2)], b: Tensor[float, (1, 2)]) -> Tensor[float, (1, 2)]:
+    return x @ w + b
+
+x: Tensor[float, (1, 2)] = from_list([1.0, 0.5], 1, 2)
+w: Tensor[float, (2, 2)] = from_list([0.5, -0.5, 0.25, 1.0], 2, 2)
+b: Tensor[float, (1, 2)] = from_list([0.0, 0.1], 1, 2)
+h = capa(x, w, b)
+print("forma de salida:", h.forma())
+print("sigmoid(0.0) =", sigmoid(0.0))

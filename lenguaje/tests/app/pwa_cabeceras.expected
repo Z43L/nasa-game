@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PWA &quot;test&quot;</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f2937">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lenguaje">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>body{padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)}</style>
+<script src="registro.js" data-sw="sw.js"></script>
+<style>*,*::before,*::after{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:#ffffff;color:#111827;font-family:system-ui,sans-serif;line-height:1.4}.e414524319x970971943{box-sizing:border-box;padding:16px;}
+</style>
+</head>
+<body>
+<div class="e414524319x970971943"><span class="e414524319x970971943">PWA &lt;app&gt;</span></div>
+</body>
+</html>
+
+<link rel="manifest" href="a/b/manifest.webmanifest">
+<meta name="theme-color" content="#1f2937">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lenguaje">
+<link rel="apple-touch-icon" href="a/b/icons/icon-192.png">
+<style>body{padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)}</style>
+<script src="a/b/registro.js" data-sw="x/sw.js"></script>
+

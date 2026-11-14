@@ -1,0 +1,8 @@
+# BUG candidato: escapar el valor no impide un esquema javascript: en un atributo de URL.
+# html.lg solo promete escapar (& < > " '), así que <a href="javascript:..."> se renderiza tal cual.
+# Hay que confirmar con el contrato de lib/ui si debe filtrarse; por ahora se marca como BUG_.
+import cadena
+import render
+a: List[str] = ["href", "javascript:alert(1)"]
+r = ui_render(ui_elemento("a", a, [ui_texto("clic")]))
+print(buscar(r, "href=\"javascript:") < 0)

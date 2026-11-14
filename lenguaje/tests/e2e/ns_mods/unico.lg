@@ -1,0 +1,3 @@
+# Módulo de prueba de namespaces: su única función no choca con ningún otro módulo.
+fn solo_aqui(n: int) -> int:
+    return n * 10

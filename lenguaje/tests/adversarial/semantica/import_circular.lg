@@ -1,0 +1,2 @@
+import mods/circ/a
+print(fa())

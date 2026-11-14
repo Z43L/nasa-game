@@ -1,0 +1,4 @@
+# Separadores mixtos (',', '\r\n', '\n') y campos vacíos que se ignoran.
+import datos
+escribir_texto("crlf_qa.csv", "1.5,,2\r\n3\n")
+print(leer_csv_numeros("crlf_qa.csv"))

@@ -1,0 +1,19 @@
+# stdlib/cadena.lg: búsqueda y recorte de cadenas. Nativos en C (src/runtime/std/cadena.c).
+#
+# Las cadenas `str` no tienen métodos ni indexación en el lenguaje; este módulo cubre lo necesario
+# para analizar texto (por ejemplo, una petición HTTP o un comando de terminal).
+#
+# API:
+#   buscar(s: str, aguja: str) -> int          posición de la primera aparición de aguja, o -1
+#   recortar(s: str, ini: int, fin: int) -> str   s[ini:fin], con los límites ajustados al rango válido
+#
+# Uso: import cadena
+
+extern "C" fn lg_std_cadena_buscar(s: str, aguja: str) -> int
+extern "C" fn lg_std_cadena_sub(s: str, ini: int, fin: int) -> str
+
+fn buscar(s: str, aguja: str) -> int:
+    return lg_std_cadena_buscar(s, aguja)
+
+fn recortar(s: str, ini: int, fin: int) -> str:
+    return lg_std_cadena_sub(s, ini, fin)

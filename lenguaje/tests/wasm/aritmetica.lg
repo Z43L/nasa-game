@@ -1,0 +1,27 @@
+fn factorial(n: int) -> int:
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+print(7 + 3 * 2)
+print(17 / 5)
+print(17 % 5)
+print(factorial(10))
+x = 1.5 * 2.0
+print(x)
+print(float(3) / 2.0)
+print(int(7.9))
+mut suma = 0
+for i in 0..5:
+    suma = suma + i
+print(suma)
+mut k = 10
+mut cuenta = 0
+while k > 0:
+    k = k - 3
+    cuenta = cuenta + 1
+print(cuenta)
+if suma == 10 and cuenta == 4:
+    print("ok")
+else:
+    print("mal")

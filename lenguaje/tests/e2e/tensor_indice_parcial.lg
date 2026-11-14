@@ -1,0 +1,8 @@
+t = from_list([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3)
+f = t[1]
+print(f.forma())
+print(f.numel())
+print(f[0])
+print(f[2])
+g = t[0]
+print(g[1])

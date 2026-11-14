@@ -1,0 +1,21 @@
+# Cabecera del archivo
+# segunda línea de cabecera
+
+import util   # cola en import
+
+# Comentario antes de la función
+fn f(x: int) -> int:   # cola en la cabecera
+    # dentro, antes de la primera sentencia
+    mut y = x  # cola en sentencia
+    if y > 0:
+        # dentro del if
+        y = y - 1
+        # fin del bloque del if
+    # antes del else, a nivel del if
+    else:
+        y = 0
+    return y
+
+# separado por línea en blanco
+
+z = f(3)  # cola al final

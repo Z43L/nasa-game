@@ -1,0 +1,1 @@
+la función 'f' lanzada con hilo no puede usar la variable global mutable 'cuenta'

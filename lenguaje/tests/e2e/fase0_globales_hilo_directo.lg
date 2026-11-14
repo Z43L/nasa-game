@@ -1,0 +1,8 @@
+mut cuenta = 0
+
+async fn tocar(n: int) -> int:
+    cuenta = cuenta + n
+    return cuenta
+
+r = tocar(2)
+print(await r)

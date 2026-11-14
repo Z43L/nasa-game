@@ -1,0 +1,97 @@
+# Ejemplo de F2 + F3: dos pantallas por ruta (inicio "/" y detalle "/detalle/:id") y un contador en una
+# global. El contador conserva su valor al cambiar de pantalla. Requiere lib/app/app_puente.js en el navegador.
+#
+# Exports (wasm, ver lib/app/README.md):
+#   lgc --target wasm32 --export vista --export ruta_inicio --export ruta_byte --export ruta_cambio \
+#       --export evento -I lib/app -I lib/ui -I stdlib tests/app/app_rutas.lg -o app_rutas.wasm
+#   vista() -> str, ruta_inicio() -> int, ruta_byte(b: int) -> int, ruta_cambio() -> int, evento(id: int) -> int
+#
+# Nativo y wasm: el main solo imprime las vistas de "/", "/detalle/42" y "/no-existe" (sin mutar el estado:
+# iniciar() ejecuta el main en wasm).
+
+import html
+import render
+import rutas
+import estado
+
+mut tabla_listas = configurar_rutas()
+mut contador_id = estado_nuevo(0)
+mut actual: Coincidencia = Coincidencia(encontrada: false, pantalla: 404, parametros: [])
+
+fn configurar_rutas() -> int:
+    rutas_nuevas()
+    rutas_agregar(ruta("/", 1))
+    rutas_agregar(ruta("/detalle/:id", 2))
+    return rutas_pantalla_404()
+
+fn enlace(destino: str, texto: str) -> Nodo:
+    return ui_elemento("a", ["href", destino, "data-ruta", destino], [ui_texto(texto)])
+
+fn navegacion() -> Nodo:
+    return ui_elemento("nav", ["id", "nav"], [
+        enlace("/", "Inicio"),
+        enlace("/detalle/42", "Detalle 42"),
+        enlace("/detalle/7", "Detalle 7")
+    ])
+
+fn pantalla_inicio() -> Nodo:
+    return ui_elemento("section", ["id", "pantalla"], [
+        ui_elemento("h1", [], [ui_texto("Inicio")]),
+        ui_elemento("p", [], [ui_texto("Elige un detalle en el menú.")])
+    ])
+
+fn pantalla_detalle(id: str) -> Nodo:
+    return ui_elemento("section", ["id", "pantalla"], [
+        ui_elemento("h1", [], [ui_texto("Detalle " + id)]),
+        ui_elemento("p", [], [ui_texto("Parámetro id = " + id)])
+    ])
+
+fn pantalla_no_existe() -> Nodo:
+    return ui_elemento("section", ["id", "pantalla"], [
+        ui_elemento("h1", [], [ui_texto("No encontrada")])
+    ])
+
+fn contador() -> Nodo:
+    return ui_elemento("div", ["id", "contador"], [
+        ui_elemento("p", ["id", "cuenta"], [ui_texto("Cuenta: " + str(estado_get(contador_id)))]),
+        ui_boton("+1", 1),
+        ui_boton("Reiniciar", 2)
+    ])
+
+fn vista() -> str:
+    mut cuerpo: List[Nodo] = []
+    cuerpo.append(navegacion())
+    if actual.pantalla == 1:
+        cuerpo.append(pantalla_inicio())
+    elif actual.pantalla == 2:
+        cuerpo.append(pantalla_detalle(actual.parametros[0]))
+    else:
+        cuerpo.append(pantalla_no_existe())
+    cuerpo.append(contador())
+    return ui_render(ui_elemento("main", ["class", "app"], cuerpo))
+
+# Exports de la navegación: el puente pasa el path byte a byte.
+fn ruta_inicio() -> int:
+    return rutas_entrada_nueva()
+
+fn ruta_byte(b: int) -> int:
+    return rutas_entrada_byte(b)
+
+fn ruta_cambio() -> int:
+    actual = rutas_resolver(rutas_entrada_texto())
+    return actual.pantalla
+
+# Export de eventos: devuelve el contador nuevo.
+fn evento(id: int) -> int:
+    if id == 1:
+        return estado_sumar(contador_id, 1)
+    if id == 2:
+        return estado_reiniciar(contador_id)
+    return estado_get(contador_id)
+
+actual = rutas_resolver("/")
+print(vista())
+actual = rutas_resolver("/detalle/42")
+print(vista())
+actual = rutas_resolver("/no-existe")
+print(vista())

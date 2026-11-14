@@ -1,0 +1,5 @@
+import texto
+
+print("antes")
+print(len(texto_dividir("a,b", "")))
+print("despues")

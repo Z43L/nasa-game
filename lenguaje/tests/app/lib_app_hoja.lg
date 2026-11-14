@@ -1,0 +1,18 @@
+# lib/app: hoja_css emite un <style> con una regla por estilo distinto (deduplicado por nombre).
+import estilo
+import primitivas
+import hoja
+import render
+
+mut a = estilo_nuevo()
+a.relleno = "8px"
+mut b = estilo_nuevo()
+b.color = "red"
+
+# Dos primitivas con el mismo estilo (a y a2 son equivalentes) y una con otro.
+mut a2 = estilo_nuevo()
+a2.relleno = "8px"
+print(ui_render(caja(a, [texto(a, "1")])))
+print(ui_render(caja(a2, [texto(b, "2")])))
+print(hoja_css([a, b, a2, a, b]))
+print(hoja_css([]))

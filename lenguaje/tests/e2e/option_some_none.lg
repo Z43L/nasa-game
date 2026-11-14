@@ -1,0 +1,7 @@
+a: Option[int] = Some(5)
+b: Option[int] = None
+print(a.es_some(), a.es_none(), b.es_some(), b.es_none())
+print(a.desempacar_o(0), b.desempacar_o(7))
+print(a == None, b == None, a != None, b != None)
+print(a)
+print(b)

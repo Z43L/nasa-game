@@ -1,0 +1,4 @@
+mut k = 2
+l = [1.0, 2.0, 3.0]
+t = from_list(l, k, 2)
+print(t.numel())

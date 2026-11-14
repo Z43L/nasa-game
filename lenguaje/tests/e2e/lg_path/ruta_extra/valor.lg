@@ -1,0 +1,2 @@
+fn valor_externo() -> int:
+    return 7

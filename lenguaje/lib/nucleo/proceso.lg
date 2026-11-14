@@ -1,0 +1,50 @@
+# lib/nucleo/proceso.lg: lanzar comandos del sistema y comunicarse con procesos por FIFO.
+# Nativos en src/runtime/std/proceso.c.
+#
+# API:
+#   proceso_ejecutar(comando: str) -> int
+#       Ejecuta el comando con /bin/sh y espera a que termine. Devuelve su código de salida, o -1.
+#   proceso_abrir(ruta: str, modo: str) -> int
+#       Abre un fichero o FIFO con modo "r" (leer) o "w" (escribir). Devuelve un manejador >= 0, o -1.
+#       Abrir un FIFO bloquea hasta que el otro extremo también lo abra.
+#   proceso_leer_linea(h: int) -> str
+#       Lee una línea sin el salto final. Al fin de fichero devuelve "": usa proceso_fin.
+#   proceso_fin(h: int) -> bool
+#       true si no quedan datos por leer (el otro extremo se cerró).
+#   proceso_escribir(h: int, texto: str) -> bool
+#       Escribe texto y lo vacía. false si el otro extremo ya no lee.
+#   proceso_cerrar(h: int)
+#   proceso_vaciar()
+#       Vacía toda la salida con búfer (print y terminal). Un proceso hijo que conversa por FIFO
+#       debe llamarla tras cada respuesta, si no el otro extremo se queda esperando.
+#
+# Uso: import proceso
+
+extern "C" fn lg_std_proceso_ejecutar(comando: str) -> int
+extern "C" fn lg_std_proceso_abrir(ruta: str, modo: str) -> int
+extern "C" fn lg_std_proceso_leer_linea(h: int) -> str
+extern "C" fn lg_std_proceso_fin(h: int) -> int
+extern "C" fn lg_std_proceso_escribir(h: int, texto: str) -> int
+extern "C" fn lg_std_proceso_cerrar(h: int)
+extern "C" fn fflush(f: int) -> int
+
+fn proceso_ejecutar(comando: str) -> int:
+    return lg_std_proceso_ejecutar(comando)
+
+fn proceso_abrir(ruta: str, modo: str) -> int:
+    return lg_std_proceso_abrir(ruta, modo)
+
+fn proceso_leer_linea(h: int) -> str:
+    return lg_std_proceso_leer_linea(h)
+
+fn proceso_fin(h: int) -> bool:
+    return lg_std_proceso_fin(h) == 1
+
+fn proceso_escribir(h: int, texto: str) -> bool:
+    return lg_std_proceso_escribir(h, texto) == 0
+
+fn proceso_cerrar(h: int):
+    lg_std_proceso_cerrar(h)
+
+fn proceso_vaciar():
+    fflush(0)

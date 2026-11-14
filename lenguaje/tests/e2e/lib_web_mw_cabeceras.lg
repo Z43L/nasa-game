@@ -1,0 +1,6 @@
+import middleware
+import respuesta
+import http
+
+print(http_serializar_respuesta(web_seguridad(web_cors(web_respuesta_texto(200, "ok")))))
+print(http_serializar_respuesta(web_con_cabecera(web_respuesta_json(201, "{}"), "X-Id", "7")))

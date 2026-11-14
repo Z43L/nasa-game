@@ -1,0 +1,8 @@
+# BUG conocido: leer con maximo > 1 MiB devuelve "" sin leer el socket (src/runtime/std/tcp.c).
+# Esperado: "[hola]". Observado: "[]".
+import tcp
+s = escuchar(18765)
+c = aceptar(s)
+print("[" + leer(c, 2000000) + "]")
+cerrar(c)
+cerrar(s)

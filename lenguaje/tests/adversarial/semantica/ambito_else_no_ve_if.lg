@@ -1,0 +1,4 @@
+if false:
+    w = 1
+else:
+    print(w)

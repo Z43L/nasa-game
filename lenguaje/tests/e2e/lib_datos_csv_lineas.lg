@@ -1,0 +1,10 @@
+import lib_datos_modulos/csv
+
+filas = csv_parsear("cab1,cab2\n\n1,2\r\n\r\n3,\n")
+print(len(filas))
+print(filas[0][0], filas[0][1])
+print(filas[1][0], filas[1][1])
+print(filas[2][0], len(filas[2][1]), len(filas[2]))
+print(len(csv_parsear("")), len(csv_parsear("\n\n")))
+print(len(csv_parsear("\"sin cerrar,x")), csv_parsear("\"sin cerrar,x")[0][0])
+print(csv_escribir([[""]]) == "\"\"\n", len(csv_escribir([["a", ""]])))

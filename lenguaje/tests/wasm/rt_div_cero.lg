@@ -1,0 +1,3 @@
+mut z = 0
+print("antes")
+print(10 / z)

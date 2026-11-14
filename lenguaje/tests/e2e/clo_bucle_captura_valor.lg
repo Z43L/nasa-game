@@ -1,0 +1,10 @@
+fn mk() -> List[fn() -> int]:
+    mut r: List[fn() -> int] = []
+    for i in 0..3:
+        fn g() -> int:
+            return i * 100
+        r.append(g)
+    return r
+
+for f in mk():
+    print(f())

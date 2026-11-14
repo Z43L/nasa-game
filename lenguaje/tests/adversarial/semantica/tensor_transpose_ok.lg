@@ -1,0 +1,2 @@
+t = zeros(2, 3)
+print(t.transpose().forma())

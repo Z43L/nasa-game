@@ -1,0 +1,77 @@
+# lib/nave.lg: API de la nave para los scripts del jugador (import nave).
+#
+# Cada función envía una orden a la terminal del juego y devuelve su respuesta. Las órdenes
+# viajan por la tubería con el servidor (ver src/shell.lg): el script escribe "@CMD orden" en
+# su salida y lee la respuesta de su entrada hasta "@FIN".
+#
+#   nave_ejecutar(orden: str) -> str       cualquier orden de la terminal (con tuberías)
+#   nave_estado(sistema: str) -> str
+#   nave_valor(sistema: str) -> int        valor numérico, -1 si no existe
+#   nave_diagnostico(sistema: str) -> str
+#   nave_reparar(sistema: str) -> str
+#   nave_encender(sistema: str) -> str
+#   nave_apagar(sistema: str) -> str
+#   nave_ajustar(sistema: str, valor: int) -> str
+#   nave_esperar(segundos: int) -> str
+#   nave_mision() -> str
+
+import terminal
+import proceso
+import texto
+import cadena
+
+fn nave_ejecutar(orden: str) -> str:
+    # El salto inicial cierra cualquier texto parcial de la línea (p. ej. print("x:", nave_valor(...))).
+    print("\n@CMD " + orden)
+    proceso_vaciar()
+    mut partes: List[str] = []
+    mut seguir = true
+    while seguir:
+        if not terminal_hay_entrada():
+            seguir = false
+        else:
+            linea = terminal_leer_linea()
+            if linea == "@FIN":
+                seguir = false
+            else:
+                partes.append(linea)
+    return texto_unir(partes, "\n")
+
+fn nave_es_entero(s: str) -> bool:
+    if len(s) == 0:
+        return false
+    for i in 0..len(s):
+        c = recortar(s, i, i + 1)
+        if not texto_contiene("-0123456789", c):
+            return false
+    return true
+
+fn nave_estado(sistema: str) -> str:
+    return nave_ejecutar("estado " + sistema)
+
+fn nave_valor(sistema: str) -> int:
+    r = nave_ejecutar("valor " + sistema)
+    if nave_es_entero(r):
+        return int(r)
+    return -1
+
+fn nave_diagnostico(sistema: str) -> str:
+    return nave_ejecutar("diagnostico " + sistema)
+
+fn nave_reparar(sistema: str) -> str:
+    return nave_ejecutar("reparar " + sistema)
+
+fn nave_encender(sistema: str) -> str:
+    return nave_ejecutar("encender " + sistema)
+
+fn nave_apagar(sistema: str) -> str:
+    return nave_ejecutar("apagar " + sistema)
+
+fn nave_ajustar(sistema: str, valor: int) -> str:
+    return nave_ejecutar("ajustar " + sistema + " " + str(valor))
+
+fn nave_esperar(segundos: int) -> str:
+    return nave_ejecutar("esperar " + str(segundos))
+
+fn nave_mision() -> str:
+    return nave_ejecutar("mision")

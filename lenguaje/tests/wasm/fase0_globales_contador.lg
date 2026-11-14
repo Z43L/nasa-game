@@ -1,0 +1,14 @@
+mut cuenta = 0
+
+fn sumar():
+    cuenta = cuenta + 1
+
+fn doble_sumar():
+    sumar()
+    sumar()
+
+sumar()
+sumar()
+print(cuenta)
+doble_sumar()
+print(cuenta)

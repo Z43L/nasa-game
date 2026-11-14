@@ -1,0 +1,6 @@
+mut l = [10]
+l.append(20)
+print(l[1])
+print(l.pop())
+print(l.len())
+print(10 in l)

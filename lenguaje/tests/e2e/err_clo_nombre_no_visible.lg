@@ -1,0 +1,6 @@
+fn a() -> int:
+    if true:
+        fn g() -> int:
+            return 1
+    return g()
+print(a())

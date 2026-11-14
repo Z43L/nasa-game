@@ -1,0 +1,502 @@
+# lib/datos/json.lg: JSON (RFC 8259) en el lenguaje: parser a un valor tipado y serializador canónico.
+#
+# MODELO DE VALOR
+#   struct JsonValor con el campo etiqueta: int, que indica el tipo, y los campos de cada tipo:
+#     etiqueta 0  nulo
+#     etiqueta 1  bool       booleano
+#     etiqueta 2  número     numero (float)
+#     etiqueta 3  cadena     texto
+#     etiqueta 4  lista      elementos (List[JsonValor])
+#     etiqueta 5  objeto     claves (List[str]) y valores (List[JsonValor]), en paralelo, en orden de aparición
+#     etiqueta 6  error      texto = mensaje con la posición, p. ej. "posición 3: se esperaba ':'"
+#   Los campos que no corresponden a la etiqueta valen cero ("", 0.0, false, listas vacías).
+#   Sin genéricos ni tipos suma, la etiqueta es el discriminante. Un error es un valor más:
+#   una entrada inválida nunca provoca panic.
+#
+# API
+#   json_parsear(texto: str) -> JsonValor                  valor, o etiqueta 6 si el texto no es JSON válido
+#   json_es_valido(texto: str) -> bool
+#   json_es_error(v: JsonValor) -> bool
+#   json_tipo(v: JsonValor) -> str                         "nulo", "bool", "numero", "cadena", "lista", "objeto" o "error"
+#   json_serializar(v: JsonValor) -> str                   texto canónico: sin espacios, claves en orden de aparición
+#   json_obtener(v: JsonValor, clave: str) -> JsonValor    valor de la clave (la última si se repite); error si falta
+#   json_elemento(v: JsonValor, i: int) -> JsonValor       elemento i de una lista; error si no existe
+#   json_longitud(v: JsonValor) -> int                     elementos de una lista o claves de un objeto; 0 si no
+#   json_texto(v: JsonValor) -> str                        texto de una cadena (o mensaje de un error); "" si no
+#   json_numero(v: JsonValor) -> float                     valor de un número; 0.0 si no
+#   json_booleano(v: JsonValor) -> bool                    valor de un bool; false si no
+#   json_nuevo_nulo(), json_nuevo_bool(b: bool), json_nuevo_numero(x: float), json_nuevo_cadena(s: str),
+#   json_nuevo_lista(elementos: List[JsonValor]), json_nuevo_objeto(claves: List[str], valores: List[JsonValor]),
+#   json_nuevo_error(mensaje: str)                         constructores para armar valores en el programa.
+#
+# LÍMITES Y DECISIONES
+#   - Entrada: máximo 1 MiB (1048576 bytes). Más grande produce error.
+#   - Anidamiento de listas y objetos: máximo 64 niveles. El nivel 65 produce error.
+#   - Números: se convierten con float() (doble precisión). Un número fuera del rango de double es error.
+#     Los enteros mayores de 2^53 pierden precisión.
+#   - Números en la salida: forma de str(float) del lenguaje. 3 se escribe 3.0 y 1e-7 se escribe 1e-07.
+#     Un round-trip es exacto si la entrada ya está en esa forma canónica.
+#   - Escapes de entrada: \" \\ \/ \b \f \n \r \t y \uXXXX.
+#     \uXXXX llega hasta U+07FF (ASCII, latino, griego, cirílico, árabe, ...). Por encima, los pares
+#     sustitutos y \u0000 son error: el lenguaje no puede construir bytes de 3 o 4 bytes UTF-8 ni el byte NUL.
+#   - Dentro de una cadena, un carácter de control (0x01 a 0x1F) sin escapar es error. Los caracteres UTF-8
+#     no ASCII se copian tal cual.
+#   - Salida de cadenas: \" \\ \n \r \t, y el resto de controles como \u00XX. Los caracteres UTF-8 no se escapan.
+#   - json_serializar de un error devuelve "" (no es JSON).
+#
+# IMPLEMENTACIÓN
+#   Descenso recursivo sobre posiciones de bytes. Los caracteres se leen con recortar() de cadena.lg.
+#   Las tablas de bytes son funciones que devuelven literales, porque el lenguaje no tiene chr ni ord
+#   y las variables globales no son visibles desde funciones. La unión de partes es por mitades (O(n log n)).
+#   No usa nativos propios.
+#
+# Uso: import json
+
+import cadena
+
+struct JsonValor:
+    etiqueta: int
+    booleano: bool
+    numero: float
+    texto: str
+    elementos: List[JsonValor]
+    claves: List[str]
+    valores: List[JsonValor]
+
+struct JsonPaso:
+    valor: JsonValor
+    siguiente: int
+
+# Constructores
+
+fn json_nuevo_nulo() -> JsonValor:
+    return JsonValor(etiqueta: 0, booleano: false, numero: 0.0, texto: "", elementos: [], claves: [], valores: [])
+
+fn json_nuevo_bool(b: bool) -> JsonValor:
+    return JsonValor(etiqueta: 1, booleano: b, numero: 0.0, texto: "", elementos: [], claves: [], valores: [])
+
+fn json_nuevo_numero(x: float) -> JsonValor:
+    return JsonValor(etiqueta: 2, booleano: false, numero: x, texto: "", elementos: [], claves: [], valores: [])
+
+fn json_nuevo_cadena(s: str) -> JsonValor:
+    return JsonValor(etiqueta: 3, booleano: false, numero: 0.0, texto: s, elementos: [], claves: [], valores: [])
+
+fn json_nuevo_lista(elementos: List[JsonValor]) -> JsonValor:
+    return JsonValor(etiqueta: 4, booleano: false, numero: 0.0, texto: "", elementos: elementos, claves: [], valores: [])
+
+fn json_nuevo_objeto(claves: List[str], valores: List[JsonValor]) -> JsonValor:
+    return JsonValor(etiqueta: 5, booleano: false, numero: 0.0, texto: "", elementos: [], claves: claves, valores: valores)
+
+fn json_nuevo_error(mensaje: str) -> JsonValor:
+    return JsonValor(etiqueta: 6, booleano: false, numero: 0.0, texto: mensaje, elementos: [], claves: [], valores: [])
+
+# Tablas de bytes. Son funciones porque el lenguaje no deja usar globales dentro de funciones.
+
+# Bytes 0x01 a 0x7F. El byte de código c está en la posición c - 1.
+fn json_tabla_ascii() -> str:
+    return "\t\n\r !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+
+# Caracteres U+0080 a U+07FF en UTF-8, 2 bytes cada uno. El de código cp está en la posición 2 * (cp - 128).
+fn json_tabla_dos() -> str:
+    return (
+        " ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"
+        + "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+        + "ĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĸĹĺĻļĽľĿ"
+        + "ŀŁłŃńŅņŇňŉŊŋŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſ"
+        + "ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟƠơƢƣƤƥƦƧƨƩƪƫƬƭƮƯưƱƲƳƴƵƶƷƸƹƺƻƼƽƾƿ"
+        + "ǀǁǂǃǄǅǆǇǈǉǊǋǌǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǝǞǟǠǡǢǣǤǥǦǧǨǩǪǫǬǭǮǯǰǱǲǳǴǵǶǷǸǹǺǻǼǽǾǿ"
+        + "ȀȁȂȃȄȅȆȇȈȉȊȋȌȍȎȏȐȑȒȓȔȕȖȗȘșȚțȜȝȞȟȠȡȢȣȤȥȦȧȨȩȪȫȬȭȮȯȰȱȲȳȴȵȶȷȸȹȺȻȼȽȾȿ"
+        + "ɀɁɂɃɄɅɆɇɈɉɊɋɌɍɎɏɐɑɒɓɔɕɖɗɘəɚɛɜɝɞɟɠɡɢɣɤɥɦɧɨɩɪɫɬɭɮɯɰɱɲɳɴɵɶɷɸɹɺɻɼɽɾɿ"
+        + "ʀʁʂʃʄʅʆʇʈʉʊʋʌʍʎʏʐʑʒʓʔʕʖʗʘʙʚʛʜʝʞʟʠʡʢʣʤʥʦʧʨʩʪʫʬʭʮʯʰʱʲʳʴʵʶʷʸʹʺʻʼʽʾʿ"
+        + "ˀˁ˂˃˄˅ˆˇˈˉˊˋˌˍˎˏːˑ˒˓˔˕˖˗˘˙˚˛˜˝˞˟ˠˡˢˣˤ˥˦˧˨˩˪˫ˬ˭ˮ˯˰˱˲˳˴˵˶˷˸˹˺˻˼˽˾˿"
+        + "̴̵̶̷̸̡̢̧̨̛̖̗̘̙̜̝̞̟̠̣̤̥̦̩̪̫̬̭̮̯̰̱̲̳̹̺̻̼̀́̂̃̄̅̆̇̈̉̊̋̌̍̎̏̐̑̒̓̔̽̾̿̕̚"
+        + "͇͈͉͍͎̀́͂̓̈́͆͊͋͌ͅ͏͓͔͕͖͙͚͐͑͒͗͛ͣͤͥͦͧͨͩͪͫͬͭͮͯ͘͜͟͢͝͞͠͡ͰͱͲͳʹ͵Ͷͷ͸͹ͺͻͼͽ;Ϳ"
+        + "΀΁΂΃΄΅Ά·ΈΉΊ΋Ό΍ΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ΢ΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξο"
+        + "πρςστυφχψωϊϋόύώϏϐϑϒϓϔϕϖϗϘϙϚϛϜϝϞϟϠϡϢϣϤϥϦϧϨϩϪϫϬϭϮϯϰϱϲϳϴϵ϶ϷϸϹϺϻϼϽϾϿ"
+        + "ЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп"
+        + "рстуфхцчшщъыьэюяѐёђѓєѕіїјљњћќѝўџѠѡѢѣѤѥѦѧѨѩѪѫѬѭѮѯѰѱѲѳѴѵѶѷѸѹѺѻѼѽѾѿ"
+        + "Ҁҁ҂҃҄҅҆҇҈҉ҊҋҌҍҎҏҐґҒғҔҕҖҗҘҙҚқҜҝҞҟҠҡҢңҤҥҦҧҨҩҪҫҬҭҮүҰұҲҳҴҵҶҷҸҹҺһҼҽҾҿ"
+        + "ӀӁӂӃӄӅӆӇӈӉӊӋӌӍӎӏӐӑӒӓӔӕӖӗӘәӚӛӜӝӞӟӠӡӢӣӤӥӦӧӨөӪӫӬӭӮӯӰӱӲӳӴӵӶӷӸӹӺӻӼӽӾӿ"
+        + "ԀԁԂԃԄԅԆԇԈԉԊԋԌԍԎԏԐԑԒԓԔԕԖԗԘԙԚԛԜԝԞԟԠԡԢԣԤԥԦԧԨԩԪԫԬԭԮԯ԰ԱԲԳԴԵԶԷԸԹԺԻԼԽԾԿ"
+        + "ՀՁՂՃՄՅՆՇՈՉՊՋՌՍՎՏՐՑՒՓՔՕՖ՗՘ՙ՚՛՜՝՞՟ՠաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտ"
+        + "րցւփքօֆևֈ։֊֋֌֍֎֏֐ְֱֲֳִֵֶַָֹֺֻּֽ֑֖֛֢֣֤֥֦֧֪֚֭֮֒֓֔֕֗֘֙֜֝֞֟֠֡֨֩֫֬֯־ֿ"
+        + "׀ׁׂ׃ׅׄ׆ׇ׈׉׊׋׌׍׎׏אבגדהוזחטיךכלםמןנסעףפץצקרשת׫׬׭׮ׯװױײ׳״׵׶׷׸׹׺׻׼׽׾׿"
+        + "؀؁؂؃؄؅؆؇؈؉؊؋،؍؎؏ؘؙؚؐؑؒؓؔؕؖؗ؛؜؝؞؟ؠءآأؤإئابةتثجحخدذرزسشصضطظعغػؼؽؾؿ"
+        + "ـفقكلمنهوىيًٌٍَُِّْٕٖٜٟٓٔٗ٘ٙٚٛٝٞ٠١٢٣٤٥٦٧٨٩٪٫٬٭ٮٯٰٱٲٳٴٵٶٷٸٹٺٻټٽپٿ"
+        + "ڀځڂڃڄڅچڇڈډڊڋڌڍڎڏڐڑڒړڔڕږڗژڙښڛڜڝڞڟڠڡڢڣڤڥڦڧڨکڪګڬڭڮگڰڱڲڳڴڵڶڷڸڹںڻڼڽھڿ"
+        + "ۀہۂۃۄۅۆۇۈۉۊۋیۍێۏېۑےۓ۔ەۖۗۘۙۚۛۜ۝۞ۣ۟۠ۡۢۤۥۦۧۨ۩۪ۭ۫۬ۮۯ۰۱۲۳۴۵۶۷۸۹ۺۻۼ۽۾ۿ"
+        + "܀܁܂܃܄܅܆܇܈܉܊܋܌܍܎܏ܐܑܒܓܔܕܖܗܘܙܚܛܜܝܞܟܠܡܢܣܤܥܦܧܨܩܪܫܬܭܮܯܱܴܷܸܹܻܼܾܰܲܳܵܶܺܽܿ"
+        + "݂݄݆݈݀݁݃݅݇݉݊݋݌ݍݎݏݐݑݒݓݔݕݖݗݘݙݚݛݜݝݞݟݠݡݢݣݤݥݦݧݨݩݪݫݬݭݮݯݰݱݲݳݴݵݶݷݸݹݺݻݼݽݾݿ"
+        + "ހށނރބޅކއވމފދތލގޏސޑޒޓޔޕޖޗޘޙޚޛޜޝޞޟޠޡޢޣޤޥަާިީުޫެޭޮޯްޱ޲޳޴޵޶޷޸޹޺޻޼޽޾޿"
+        + "߀߁߂߃߄߅߆߇߈߉ߊߋߌߍߎߏߐߑߒߓߔߕߖߗߘߙߚߛߜߝߞߟߠߡߢߣߤߥߦߧߨߩߪ߲߫߬߭߮߯߰߱߳ߴߵ߶߷߸߹ߺ߻߼߽߾߿"
+    )
+
+fn json_digitos_hex() -> str:
+    return "0123456789abcdef"
+
+# Accesos básicos
+
+fn json_car(t: str, i: int) -> str:
+    return recortar(t, i, i + 1)
+
+fn json_es_control(c: str) -> bool:
+    idx = buscar(json_tabla_ascii(), c)
+    return len(c) == 1 and idx >= 0 and idx < 31
+
+fn json_es_digito(c: str) -> bool:
+    return len(c) == 1 and buscar("0123456789", c) >= 0
+
+fn json_es_blanco(c: str) -> bool:
+    return c == " " or c == "\n" or c == "\r" or c == "\t"
+
+fn json_saltar(t: str, i: int) -> int:
+    mut p = i
+    while p < len(t) and json_es_blanco(json_car(t, p)):
+        p = p + 1
+    return p
+
+fn json_error_en(i: int, mensaje: str) -> JsonPaso:
+    return JsonPaso(valor: json_nuevo_error("posición " + str(i) + ": " + mensaje), siguiente: i)
+
+# Une partes[ini..fin) por mitades: O(n log n) en bytes copiados.
+fn json_unir(partes: List[str], ini: int, fin: int) -> str:
+    if fin - ini <= 0:
+        return ""
+    if fin - ini == 1:
+        return partes[ini]
+    mid = ini + (fin - ini) / 2
+    return json_unir(partes, ini, mid) + json_unir(partes, mid, fin)
+
+# Código de un carácter Unicode a UTF-8. "" si no está en el rango soportado (U+0001 a U+07FF).
+fn json_codigo_utf8(cp: int) -> str:
+    if cp >= 1 and cp <= 127:
+        return recortar(json_tabla_ascii(), cp - 1, cp)
+    if cp >= 128 and cp <= 2047:
+        return recortar(json_tabla_dos(), 2 * (cp - 128), 2 * (cp - 128) + 2)
+    return ""
+
+# Valor 0..15 de un dígito hexadecimal, o -1.
+fn json_hex(c: str) -> int:
+    if len(c) != 1:
+        return -1
+    idx = buscar(json_digitos_hex() + "ABCDEF", c)
+    if idx < 0:
+        return -1
+    if idx < 16:
+        return idx
+    return idx - 6
+
+# Cuatro dígitos hexadecimales desde i. -1 si alguno no es hexadecimal.
+fn json_leer_hex4(t: str, i: int) -> int:
+    mut v = 0
+    for k in 0..4:
+        d = json_hex(json_car(t, i + k))
+        if d < 0:
+            return -1
+        v = v * 16 + d
+    return v
+
+# Analizador
+
+fn json_parsear_valor(t: str, i: int, nivel: int) -> JsonPaso:
+    p = json_saltar(t, i)
+    if p >= len(t):
+        return json_error_en(p, "se esperaba un valor y el texto termina")
+    c = json_car(t, p)
+    if c == "{":
+        return json_parsear_objeto(t, p, nivel)
+    if c == "[":
+        return json_parsear_lista(t, p, nivel)
+    if c == "\"":
+        return json_parsear_cadena(t, p)
+    if c == "t":
+        return json_literal(t, p, "true", json_nuevo_bool(true))
+    if c == "f":
+        return json_literal(t, p, "false", json_nuevo_bool(false))
+    if c == "n":
+        return json_literal(t, p, "null", json_nuevo_nulo())
+    if c == "-" or json_es_digito(c):
+        return json_parsear_numero(t, p)
+    return json_error_en(p, "carácter inesperado '" + c + "'")
+
+fn json_literal(t: str, i: int, lit: str, v: JsonValor) -> JsonPaso:
+    if recortar(t, i, i + len(lit)) == lit:
+        return JsonPaso(valor: v, siguiente: i + len(lit))
+    return json_error_en(i, "literal no válido")
+
+fn json_parsear_numero(t: str, i: int) -> JsonPaso:
+    mut p = i
+    if json_car(t, p) == "-":
+        p = p + 1
+    if json_car(t, p) == "0":
+        p = p + 1
+    elif json_es_digito(json_car(t, p)):
+        while json_es_digito(json_car(t, p)):
+            p = p + 1
+    else:
+        return json_error_en(p, "número mal formado")
+    if json_car(t, p) == ".":
+        p = p + 1
+        if not json_es_digito(json_car(t, p)):
+            return json_error_en(p, "se esperaban dígitos tras '.'")
+        while json_es_digito(json_car(t, p)):
+            p = p + 1
+    if json_car(t, p) == "e" or json_car(t, p) == "E":
+        p = p + 1
+        if json_car(t, p) == "+" or json_car(t, p) == "-":
+            p = p + 1
+        if not json_es_digito(json_car(t, p)):
+            return json_error_en(p, "se esperaban dígitos en el exponente")
+        while json_es_digito(json_car(t, p)):
+            p = p + 1
+    x = float(recortar(t, i, p))
+    if x > 1.7976931348623157e308 or x < -1.7976931348623157e308:
+        return json_error_en(i, "número fuera de rango")
+    return JsonPaso(valor: json_nuevo_numero(x), siguiente: p)
+
+# i apunta a la comilla de apertura.
+fn json_parsear_cadena(t: str, i: int) -> JsonPaso:
+    mut p = i + 1
+    mut ini = p
+    mut partes: List[str] = []
+    mut cerrada = false
+    while p < len(t):
+        c = json_car(t, p)
+        if c == "\"":
+            cerrada = true
+            break
+        if c == "\\":
+            partes.append(recortar(t, ini, p))
+            e = json_car(t, p + 1)
+            mut trozo = ""
+            mut ancho = 2
+            if e == "\"":
+                trozo = "\""
+            elif e == "\\":
+                trozo = "\\"
+            elif e == "/":
+                trozo = "/"
+            elif e == "n":
+                trozo = "\n"
+            elif e == "t":
+                trozo = "\t"
+            elif e == "r":
+                trozo = "\r"
+            elif e == "b":
+                trozo = json_codigo_utf8(8)
+            elif e == "f":
+                trozo = json_codigo_utf8(12)
+            elif e == "u":
+                cp = json_leer_hex4(t, p + 2)
+                if cp < 0:
+                    return json_error_en(p, "escape \\u mal formado")
+                if cp >= 55296 and cp <= 57343:
+                    return json_error_en(p, "pares sustitutos de \\u no soportados")
+                trozo = json_codigo_utf8(cp)
+                if len(trozo) == 0:
+                    return json_error_en(p, "escape \\u fuera del rango soportado (U+0001 a U+07FF)")
+                ancho = 6
+            else:
+                return json_error_en(p, "escape no válido '\\" + e + "'")
+            partes.append(trozo)
+            p = p + ancho
+            ini = p
+        elif json_es_control(c):
+            return json_error_en(p, "carácter de control sin escapar en una cadena")
+        else:
+            p = p + 1
+    if not cerrada:
+        return json_error_en(i, "cadena sin cerrar")
+    partes.append(recortar(t, ini, p))
+    return JsonPaso(valor: json_nuevo_cadena(json_unir(partes, 0, len(partes))), siguiente: p + 1)
+
+fn json_parsear_lista(t: str, i: int, nivel: int) -> JsonPaso:
+    if nivel + 1 > 64:
+        return json_error_en(i, "profundidad máxima (64) superada")
+    mut elementos: List[JsonValor] = []
+    mut p = json_saltar(t, i + 1)
+    if json_car(t, p) == "]":
+        return JsonPaso(valor: json_nuevo_lista(elementos), siguiente: p + 1)
+    mut seguir = true
+    while seguir:
+        r = json_parsear_valor(t, p, nivel + 1)
+        if r.valor.etiqueta == 6:
+            return r
+        elementos.append(r.valor)
+        p = json_saltar(t, r.siguiente)
+        c = json_car(t, p)
+        if c == ",":
+            p = p + 1
+        elif c == "]":
+            seguir = false
+        else:
+            return json_error_en(p, "se esperaba ',' o ']'")
+    return JsonPaso(valor: json_nuevo_lista(elementos), siguiente: p + 1)
+
+fn json_parsear_objeto(t: str, i: int, nivel: int) -> JsonPaso:
+    if nivel + 1 > 64:
+        return json_error_en(i, "profundidad máxima (64) superada")
+    mut claves: List[str] = []
+    mut valores: List[JsonValor] = []
+    mut p = json_saltar(t, i + 1)
+    if json_car(t, p) == "}":
+        return JsonPaso(valor: json_nuevo_objeto(claves, valores), siguiente: p + 1)
+    mut seguir = true
+    while seguir:
+        if json_car(t, p) != "\"":
+            return json_error_en(p, "se esperaba una clave entre comillas")
+        k = json_parsear_cadena(t, p)
+        if k.valor.etiqueta == 6:
+            return k
+        p = json_saltar(t, k.siguiente)
+        if json_car(t, p) != ":":
+            return json_error_en(p, "se esperaba ':'")
+        r = json_parsear_valor(t, p + 1, nivel + 1)
+        if r.valor.etiqueta == 6:
+            return r
+        claves.append(k.valor.texto)
+        valores.append(r.valor)
+        p = json_saltar(t, r.siguiente)
+        c = json_car(t, p)
+        if c == ",":
+            p = json_saltar(t, p + 1)
+        elif c == "}":
+            seguir = false
+        else:
+            return json_error_en(p, "se esperaba ',' o '}'")
+    return JsonPaso(valor: json_nuevo_objeto(claves, valores), siguiente: p + 1)
+
+fn json_parsear(texto: str) -> JsonValor:
+    if len(texto) > 1048576:
+        return json_nuevo_error("entrada demasiado grande (máximo 1048576 bytes)")
+    r = json_parsear_valor(texto, 0, 0)
+    if r.valor.etiqueta == 6:
+        return r.valor
+    p = json_saltar(texto, r.siguiente)
+    if p < len(texto):
+        return json_nuevo_error("posición " + str(p) + ": texto sobrante tras el valor")
+    return r.valor
+
+fn json_es_valido(texto: str) -> bool:
+    return json_parsear(texto).etiqueta != 6
+
+# Serializador
+
+# Texto entre comillas con los escapes necesarios.
+fn json_escapar(s: str) -> str:
+    mut partes: List[str] = []
+    partes.append("\"")
+    mut ini = 0
+    n = len(s)
+    for i in 0..n:
+        c = json_car(s, i)
+        mut esc = ""
+        if c == "\"":
+            esc = "\\\""
+        elif c == "\\":
+            esc = "\\\\"
+        elif c == "\n":
+            esc = "\\n"
+        elif c == "\r":
+            esc = "\\r"
+        elif c == "\t":
+            esc = "\\t"
+        elif json_es_control(c):
+            cp = buscar(json_tabla_ascii(), c) + 1
+            esc = "\\u00" + recortar(json_digitos_hex(), cp / 16, cp / 16 + 1) + recortar(json_digitos_hex(), cp % 16, cp % 16 + 1)
+        if len(esc) > 0:
+            partes.append(recortar(s, ini, i))
+            partes.append(esc)
+            ini = i + 1
+    partes.append(recortar(s, ini, n))
+    partes.append("\"")
+    return json_unir(partes, 0, len(partes))
+
+fn json_serializar(v: JsonValor) -> str:
+    if v.etiqueta == 0:
+        return "null"
+    if v.etiqueta == 1:
+        if v.booleano:
+            return "true"
+        return "false"
+    if v.etiqueta == 2:
+        return str(v.numero)
+    if v.etiqueta == 3:
+        return json_escapar(v.texto)
+    if v.etiqueta == 4:
+        mut partes_lista: List[str] = []
+        for i in 0..len(v.elementos):
+            if i > 0:
+                partes_lista.append(",")
+            partes_lista.append(json_serializar(v.elementos[i]))
+        return "[" + json_unir(partes_lista, 0, len(partes_lista)) + "]"
+    if v.etiqueta == 5:
+        mut partes_obj: List[str] = []
+        for i in 0..len(v.claves):
+            if i > 0:
+                partes_obj.append(",")
+            partes_obj.append(json_escapar(v.claves[i]))
+            partes_obj.append(":")
+            partes_obj.append(json_serializar(v.valores[i]))
+        return "{" + json_unir(partes_obj, 0, len(partes_obj)) + "}"
+    return ""
+
+# Accesores
+
+fn json_es_error(v: JsonValor) -> bool:
+    return v.etiqueta == 6
+
+fn json_tipo(v: JsonValor) -> str:
+    if v.etiqueta == 0:
+        return "nulo"
+    if v.etiqueta == 1:
+        return "bool"
+    if v.etiqueta == 2:
+        return "numero"
+    if v.etiqueta == 3:
+        return "cadena"
+    if v.etiqueta == 4:
+        return "lista"
+    if v.etiqueta == 5:
+        return "objeto"
+    return "error"
+
+fn json_obtener(v: JsonValor, clave: str) -> JsonValor:
+    if v.etiqueta != 5:
+        return json_nuevo_error("json_obtener: el valor no es un objeto")
+    mut encontrado = -1
+    for i in 0..len(v.claves):
+        if v.claves[i] == clave:
+            encontrado = i
+    if encontrado < 0:
+        return json_nuevo_error("clave no encontrada: '" + clave + "'")
+    return v.valores[encontrado]
+
+fn json_elemento(v: JsonValor, i: int) -> JsonValor:
+    if v.etiqueta != 4:
+        return json_nuevo_error("json_elemento: el valor no es una lista")
+    if i < 0 or i >= len(v.elementos):
+        return json_nuevo_error("json_elemento: índice " + str(i) + " fuera de rango")
+    return v.elementos[i]
+
+fn json_longitud(v: JsonValor) -> int:
+    if v.etiqueta == 4:
+        return len(v.elementos)
+    if v.etiqueta == 5:
+        return len(v.claves)
+    return 0
+
+fn json_texto(v: JsonValor) -> str:
+    if v.etiqueta == 3 or v.etiqueta == 6:
+        return v.texto
+    return ""
+
+fn json_numero(v: JsonValor) -> float:
+    if v.etiqueta == 2:
+        return v.numero
+    return 0.0
+
+fn json_booleano(v: JsonValor) -> bool:
+    if v.etiqueta == 1:
+        return v.booleano
+    return false

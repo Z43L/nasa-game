@@ -1,0 +1,2 @@
+import mods/roto
+print(1)

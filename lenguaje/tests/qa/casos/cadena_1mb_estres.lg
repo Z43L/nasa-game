@@ -1,0 +1,13 @@
+# Estrés: cadena de 1 MiB (65536 concatenaciones de 16 bytes) y búsqueda/recorte sobre ella.
+import cadena
+mut s = ""
+for i in 0..65536:
+    s = s + "0123456789ABCDEF"
+print(len(s))
+print(buscar(s, "ZZ"))
+print(buscar(s, "F0123"))
+print(buscar(s, "CDEF"))
+print(len(recortar(s, 0, len(s))))
+print(len(recortar(s, len(s) - 4, len(s) + 100)))
+print("[" + recortar(s, len(s) - 4, len(s)) + "]")
+print("[" + recortar(s, 1048570, 1048576) + "]")

@@ -1,0 +1,21 @@
+# lib/app: primitivas. Cada una añade su clase; el texto de usuario se escapa; atributos peligrosos
+# y URLs javascript: se filtran (lo hace lib/ui/render.lg).
+import estilo
+import primitivas
+import render
+
+mut e = estilo_nuevo()
+e.relleno = "8px"
+clase = estilo_clase(e)
+
+print(ui_render(caja(e, [texto(e, "hola <b>& adiós</b>")])))
+print(ui_render(fila(e, [])))
+print(ui_render(columna(e, [])))
+print(ui_render(boton(e, "Comprar \"ya\"", 3)))
+print(ui_render(entrada(e, "nombre", "a\"b<c>")))
+print(ui_render(imagen(e, "javascript:alert(1)", "foto & sol")))
+print(ui_render(imagen(e, "img/a.png", "")))
+print(ui_render(lista(e, [texto(e, "uno"), texto(e, "dos")])))
+print(ui_render(caja(e, [texto(e, "x")])) == ui_render(caja(e, [texto(e, "x")])))
+print(str(ui_render(fila(e, [])) != ui_render(caja(e, []))))
+print(clase)

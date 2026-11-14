@@ -1,0 +1,44 @@
+# Prueba de rutas.lg: exacta, con parámetros en orden, 404, raíz, consulta ignorada, prioridad,
+# mayúsculas y transferencia de bytes desde JS (ASCII completo y byte no ASCII).
+import rutas
+
+fn informe(path: str) -> int:
+    m = rutas_resolver(path)
+    if m.encontrada:
+        mut s = "ok " + str(m.pantalla) + " ["
+        for p in m.parametros:
+            s = s + p + ";"
+        print(path + " -> " + s + "]")
+    else:
+        print(path + " -> no encontrada, pantalla " + str(m.pantalla))
+    return 0
+
+rutas_nuevas()
+rutas_agregar(ruta("/", 1))
+rutas_agregar(ruta("/detalle/nuevo", 3))
+rutas_agregar(ruta("/detalle/:id", 2))
+rutas_agregar(ruta("/usuarios/:uid/pedidos/:pid", 4))
+
+informe("/")
+informe("")
+informe("/detalle/42")
+informe("/detalle/42?x=1#f")
+informe("/detalle/nuevo")
+informe("//detalle//7/")
+informe("/usuarios/5/pedidos/9")
+informe("/detalle/")
+informe("/detalle/a/b")
+informe("/nada")
+informe("/Detalle/1")
+print("404 = " + str(rutas_pantalla_404()))
+
+rutas_entrada_nueva()
+for b in 32..127:
+    rutas_entrada_byte(b)
+print("ascii completo: " + str(rutas_entrada_texto() == rutas_tabla_ascii()))
+rutas_entrada_nueva()
+rutas_entrada_byte(47)
+rutas_entrada_byte(120)
+print("antes: " + rutas_entrada_texto())
+rutas_entrada_byte(195)
+print("despues de byte 195: " + rutas_entrada_texto())

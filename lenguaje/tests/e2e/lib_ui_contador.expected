@@ -1,0 +1,5 @@
+3
+<main class="contador"><h1>Contador &amp; amigos</h1><p id="texto">Pulsaciones: 3</p><button type="button" data-accion="1">+1</button><button type="button" data-accion="2">Reiniciar</button></main>
+true
+0
+true

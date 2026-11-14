@@ -1,0 +1,45 @@
+# lib/app: estilo_css genera la regla exacta; campos vacíos no emiten nada; variantes movil y tableta;
+# valores peligrosos se filtran.
+import estilo
+import responsive
+
+mut base = estilo_nuevo()
+base.relleno = "16px"
+base.margen = "8px 0"
+base.color = "#111"
+base.fondo = "rgb(255, 255, 255)"
+base.tamano_letra = "1.5rem"
+base.alineacion = "centro"
+base.ancho = "50%"
+base.alto = "100vh"
+base.radio = "12px"
+base.direccion = "columna"
+base.justificar = "entre"
+print(estilo_css("base", base))
+
+mut centrado = estilo_nuevo()
+centrado.centrar = true
+centrado.justificar = "inicio"
+print(estilo_css("centro", centrado))
+
+print(estilo_css("vacio", estilo_nuevo()))
+
+mut peligroso = estilo_nuevo()
+peligroso.color = "red;}body{display:none"
+peligroso.fondo = "url(javascript:alert(1))"
+peligroso.alineacion = "derecha"
+print(estilo_css("peligro", peligroso))
+
+mut f = estilo_nuevo()
+f.direccion = "fila"
+f.relleno = "4px"
+f = responsive_columna_movil(f)
+f = responsive_tableta(f, "padding", "2rem")
+print(estilo_css("fila", f))
+
+# La variante responsive no modifica el estilo original (copia independiente).
+mut o = estilo_nuevo()
+o.direccion = "fila"
+p = responsive_columna_movil(o)
+print(estilo_css("original", o))
+print(estilo_css("derivado", p))

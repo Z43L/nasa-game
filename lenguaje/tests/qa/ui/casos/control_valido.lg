@@ -1,0 +1,3 @@
+# Control: programa válido. Si no compila, los casos de error de uso no son concluyentes.
+import render
+print(ui_render(ui_texto("ok")))

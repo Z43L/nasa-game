@@ -1,0 +1,7 @@
+# Proyecto de ejemplo: usa la dependencia utilidades por ruta.
+[proyecto]
+nombre = "proyecto_app"
+version = "0.1.0"
+
+[dependencias]
+utilidades = { ruta = "../utilidades" }

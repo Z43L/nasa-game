@@ -1,0 +1,14 @@
+# Prueba de estado.lg: incremento, lectura, escritura, reinicio y textos.
+import estado
+
+mut c = estado_nuevo(10)
+mut t = estado_nuevo_texto("hola")
+print("inicial " + str(estado_get(c)))
+print("sumar 5 -> " + str(estado_sumar(c, 5)))
+print("leer " + str(estado_get(c)))
+print("set 3 -> " + str(estado_set(c, 3)))
+print("reiniciar -> " + str(estado_reiniciar(c)))
+print("leer tras reiniciar " + str(estado_get(c)))
+print("texto " + estado_get_texto(t))
+print("set texto -> " + estado_set_texto(t, "adios"))
+print("texto tras set: " + estado_get_texto(t))

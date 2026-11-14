@@ -1,0 +1,2 @@
+import render
+print(ui_render(ui_boton(5, "x")))

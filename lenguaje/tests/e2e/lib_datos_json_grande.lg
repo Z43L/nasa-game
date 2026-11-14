@@ -1,0 +1,20 @@
+import lib_datos_modulos/json
+
+mut s = "["
+for i in 0..20000:
+    s = s + "1234,"
+s = s + "0]"
+print(len(s))
+v = json_parsear(s)
+print(json_tipo(v), json_longitud(v))
+mut canonico = "["
+for i in 0..20000:
+    canonico = canonico + "1234.0,"
+canonico = canonico + "0.0]"
+print(json_serializar(v) == canonico)
+mut t = ""
+for i in 0..20000:
+    t = t + "a\\n"
+print(len(t))
+c = json_parsear("\"" + t + "\"")
+print(json_tipo(c), len(json_texto(c)))

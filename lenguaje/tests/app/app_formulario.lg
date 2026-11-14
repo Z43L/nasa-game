@@ -1,0 +1,40 @@
+# Ejemplo de F3: formulario con una entrada (lib/app/primitivas.lg), un botón y un contador de cambios.
+# Cada tecla de la entrada llama a evento(2) (data-cambio en el div que la envuelve) y re-pinta todo el HTML;
+# app_puente.js conserva el texto, el foco y la selección de la entrada al re-pintar.
+# Sin rutas: solo los exports vista y evento.
+#
+# Exports (wasm):
+#   lgc --target wasm32 --export vista --export evento -I lib/app -I lib/ui -I stdlib \
+#       tests/app/app_formulario.lg -o app_formulario.wasm
+#   vista() -> str                HTML de la vista completa
+#   evento(id: int) -> int        1: pulsa "Contar" (devuelve pulsaciones); 2: cambio de la entrada (devuelve cambios)
+#
+# Nativo y wasm: el main solo imprime la vista inicial (iniciar() ejecuta el main en wasm, sin mutar el estado).
+
+import estado
+import estilo
+import html
+import primitivas
+import render
+
+mut pulsaciones_id = estado_nuevo(0)
+mut cambios_id = estado_nuevo(0)
+
+fn vista() -> str:
+    e = estilo_nuevo()
+    return ui_render(ui_elemento("main", ["class", "formulario"], [
+        ui_elemento("h1", [], [ui_texto("Formulario")]),
+        ui_elemento("div", ["data-cambio", "2"], [entrada(e, "nombre", "")]),
+        boton(e, "Contar", 1),
+        ui_elemento("p", ["id", "pulsos"], [ui_texto("Pulsaciones: " + str(estado_get(pulsaciones_id)))]),
+        ui_elemento("p", ["id", "cambios"], [ui_texto("Cambios: " + str(estado_get(cambios_id)))])
+    ]))
+
+fn evento(id: int) -> int:
+    if id == 1:
+        return estado_sumar(pulsaciones_id, 1)
+    if id == 2:
+        return estado_sumar(cambios_id, 1)
+    return 0
+
+print(vista())

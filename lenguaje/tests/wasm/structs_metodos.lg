@@ -1,0 +1,16 @@
+struct Punto:
+    x: int
+    y: int
+
+impl Punto:
+    fn suma(self) -> int:
+        return self.x + self.y
+
+    fn desplaza(mut self, d: int):
+        self.x = self.x + d
+
+mut p = Punto(x: 3, y: 4)
+print(p.suma())
+p.desplaza(10)
+print(p.x)
+print(p.suma())

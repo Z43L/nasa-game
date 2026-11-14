@@ -1,0 +1,7 @@
+import middleware
+import http
+
+print(web_limite_cuerpo(http_max_cuerpo(), http_max_cuerpo()))
+print(web_limite_cuerpo(http_max_cuerpo() + 1, http_max_cuerpo()))
+print(web_limite_cuerpo(0, 10))
+print(web_limite_cuerpo(-1, 10))

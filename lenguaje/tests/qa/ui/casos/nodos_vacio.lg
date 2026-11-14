@@ -1,0 +1,6 @@
+# Nodo sin hijos, texto vacío y árbol con un elemento vacío: deben renderizar sin fallo.
+import cadena
+import render
+a: List[str] = []
+print(buscar(ui_render(ui_elemento("div", a, [])), "</div>") >= 0)
+print(buscar(ui_render(ui_texto("")), "<script") < 0)

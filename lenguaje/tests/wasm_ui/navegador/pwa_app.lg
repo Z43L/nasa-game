@@ -1,0 +1,33 @@
+# Ejemplo PWA de lib/app: una vista con las cabeceras de pwa_cabeceras (manifest, iconos, registro).
+# Wasm:  lgc --target wasm32 --export vista -I lib/app -I lib/ui -I stdlib tests/wasm_ui/navegador/pwa_app.lg -o tests/wasm_ui/navegador/pwa_app.wasm
+#   vista(n: int) -> str   documento HTML completo. Las rutas son relativas a tests/wasm_ui/navegador/.
+# Lo sirve pwa_app.html; el service worker es pwa_sw.js (su ámbito es esta carpeta).
+
+import estilo
+import primitivas
+import app
+import pwa
+
+fn vista(n: int) -> str:
+    mut raiz = estilo_nuevo()
+    raiz.relleno = "16px"
+    raiz.fondo = "#f3f4f6"
+
+    mut titulo = estilo_nuevo()
+    titulo.tamano_letra = "1.5rem"
+    titulo.color = "#111827"
+
+    mut dato = estilo_nuevo()
+    dato.tamano_letra = "1.1rem"
+    dato.color = "#047857"
+
+    cuerpo = caja(raiz, [
+        texto(titulo, "App PWA en Lenguaje"),
+        texto(dato, "Visitas registradas: " + str(n)),
+        texto(dato, "Prueba offline: recarga con la red desconectada.")
+    ])
+
+    estilos: List[Estilo] = [raiz, titulo, dato]
+    return pagina_extra("App PWA", estilos, cuerpo, pwa_cabeceras("../../../lib/app/pwa/", "pwa_sw.js"))
+
+print(vista(0))

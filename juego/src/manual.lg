@@ -1,0 +1,88 @@
+# src/manual.lg: páginas de manual del juego.
+#   manual_comando(nombre) -> str   páginas de `man` (órdenes de la nave)
+#   manual_codigo(tema) -> str      páginas de `man-code` (lenguaje y API de scripts)
+#   manual_comandos() -> str        lista de órdenes con `man`
+#   manual_temas() -> str           lista de temas con `man-code`
+
+fn manual_unir(lineas: List[str]) -> str:
+    return texto_unir(lineas, "\n")
+
+fn manual_comandos() -> str:
+    return manual_unir(["Órdenes con página de manual (man ORDEN):", "  ayuda estado sensores valor diagnostico reparar encender apagar ajustar", "  mision misiones iniciar esperar ls cat editar ejecutar echo pwd limpiar", "  man, man-code", "", "Manual del lenguaje y de la API de scripts: man-code TEMA (ver 'man-code')."])
+
+fn manual_temas() -> str:
+    return manual_unir(["Temas de man-code:", "  sintaxis      estructura de un programa y bloques", "  variables     variables, mut y tipos", "  condiciones   if, elif, else", "  bucles        while, for y break de rangos", "  funciones     fn, retorno y parámetros", "  listas        List[T]: append, pop, len", "  diccionarios  Dict[K, V]: tiene, len", "  structs       struct e instancias con nombres de campo", "  cadenas       str, concatenación y funciones texto_*", "  nave          API de scripts: nave_estado, nave_reparar, etc.", "  scripts       cómo escribir, guardar y ejecutar un script"])
+
+fn manual_comando(nombre: str) -> str:
+    if nombre == "ayuda":
+        return manual_unir(["AYUDA(1)", "", "NOMBRE", "    ayuda - lista las órdenes disponibles", "", "SINOPSIS", "    ayuda", "", "DESCRIPCIÓN", "    Muestra un resumen de las órdenes. Para detalles usa: man ORDEN."])
+    if nombre == "man":
+        return manual_unir(["MAN(1)", "", "NOMBRE", "    man - muestra la página de manual de una orden", "", "SINOPSIS", "    man ORDEN", "", "DESCRIPCIÓN", "    Imprime la página de manual de la orden indicada. Sin argumentos lista las órdenes.", "    Para el lenguaje y la API de scripts usa man-code."])
+    if nombre == "man-code":
+        return manual_unir(["MAN-CODE(1)", "", "NOMBRE", "    man-code - manual del lenguaje Lenguaje y de la API de scripts", "", "SINOPSIS", "    man-code [TEMA]", "", "DESCRIPCIÓN", "    Sin argumentos lista los temas. Con un tema imprime su página.", "    Los scripts se escriben en Lenguaje y se compilan con lgc al ejecutarlos."])
+    if nombre == "estado" or nombre == "sensores":
+        return manual_unir(["ESTADO(1)", "", "NOMBRE", "    estado, sensores - lectura de los sistemas de la nave", "", "SINOPSIS", "    estado [SISTEMA]", "", "DESCRIPCIÓN", "    Sin argumentos muestra todos los sistemas: valor actual, objetivo, rango seguro y estado.", "    Con SISTEMA muestra solo ese. Los sistemas son: reactor, refrigeracion, energia, oxigeno, comunicaciones.", "    sensores es un alias de estado.", "", "EJEMPLOS", "    estado", "    estado reactor | grep AVERIA"])
+    if nombre == "valor":
+        return manual_unir(["VALOR(1)", "", "NOMBRE", "    valor - imprime solo el valor numérico de un sistema", "", "SINOPSIS", "    valor SISTEMA", "", "DESCRIPCIÓN", "    Útil en scripts: devuelve un entero (o 'error' si el sistema no existe)."])
+    if nombre == "diagnostico":
+        return manual_unir(["DIAGNOSTICO(1)", "", "NOMBRE", "    diagnostico - analiza un sistema para localizar su avería", "", "SINOPSIS", "    diagnostico SISTEMA", "", "DESCRIPCIÓN", "    Revela la avería y su velocidad de deriva. Sin diagnóstico no se puede reparar el sistema."])
+    if nombre == "reparar":
+        return manual_unir(["REPARAR(1)", "", "NOMBRE", "    reparar - repara un sistema averiado", "", "SINOPSIS", "    reparar SISTEMA", "", "DESCRIPCIÓN", "    Requiere haber ejecutado 'diagnostico' antes. Elimina la avería al instante."])
+    if nombre == "encender":
+        return manual_unir(["ENCENDER(1)", "", "NOMBRE", "    encender - activa un sistema", "", "SINOPSIS", "    encender SISTEMA", "", "DESCRIPCIÓN", "    Un sistema apagado no regula ni consume ni enfría. Una avería sigue activa al encender."])
+    if nombre == "apagar":
+        return manual_unir(["APAGAR(1)", "", "NOMBRE", "    apagar - desactiva un sistema", "", "SINOPSIS", "    apagar SISTEMA", "", "DESCRIPCIÓN", "    Apagar 'comunicaciones' reduce el consumo de energía. Apagar 'refrigeracion' deja de enfriar el reactor."])
+    if nombre == "ajustar":
+        return manual_unir(["AJUSTAR(1)", "", "NOMBRE", "    ajustar - fija el objetivo de un sistema regulado", "", "SINOPSIS", "    ajustar SISTEMA VALOR", "", "DESCRIPCIÓN", "    Sistemas regulados: refrigeracion (potencia %), oxigeno (kPa), comunicaciones (señal %).", "    El valor se acota al rango seguro del sistema."])
+    if nombre == "mision":
+        return manual_unir(["MISION(1)", "", "NOMBRE", "    mision - estado de la misión en curso", "", "SINOPSIS", "    mision", "", "DESCRIPCIÓN", "    Muestra la misión actual, el tiempo restante y su objetivo."])
+    if nombre == "misiones":
+        return manual_unir(["MISIONES(1)", "", "NOMBRE", "    misiones - lista las misiones y su estado", "", "SINOPSIS", "    misiones"])
+    if nombre == "iniciar":
+        return manual_unir(["INICIAR(1)", "", "NOMBRE", "    iniciar - empieza una misión", "", "SINOPSIS", "    iniciar N", "", "DESCRIPCIÓN", "    Empieza la misión N. Las misiones se desbloquean en orden; cada una tiene un límite de tiempo.", "    Una misión fallida puede repetirse."])
+    if nombre == "esperar":
+        return manual_unir(["ESPERAR(1)", "", "NOMBRE", "    esperar - deja pasar el tiempo", "", "SINOPSIS", "    esperar SEGUNDOS", "", "DESCRIPCIÓN", "    Espera entre 1 y 60 segundos reales, con la simulación en marcha. Útil en scripts."])
+    if nombre == "ls":
+        return manual_unir(["LS(1)", "", "NOMBRE", "    ls - lista los scripts guardados", "", "SINOPSIS", "    ls"])
+    if nombre == "cat":
+        return manual_unir(["CAT(1)", "", "NOMBRE", "    cat - muestra un script", "", "SINOPSIS", "    cat FICHERO.lg"])
+    if nombre == "editar":
+        return manual_unir(["EDITAR(1)", "", "NOMBRE", "    editar - abre un script en el editor", "", "SINOPSIS", "    editar FICHERO.lg", "", "DESCRIPCIÓN", "    Crea el fichero si no existe. El contenido se guarda en scripts/ al pulsar Guardar."])
+    if nombre == "ejecutar":
+        return manual_unir(["EJECUTAR(1)", "", "NOMBRE", "    ejecutar - compila y ejecuta un script", "", "SINOPSIS", "    ejecutar FICHERO.lg", "", "DESCRIPCIÓN", "    Compila el script con lgc y lo ejecuta. Sus llamadas a la nave (nave_*) actúan sobre los sistemas.", "    Los errores de compilación se muestran aquí. El script se detiene a los 60 s.", "    Ver man-code nave y man-code scripts."])
+    if nombre == "echo":
+        return manual_unir(["ECHO(1)", "", "NOMBRE", "    echo - escribe sus argumentos"])
+    if nombre == "pwd":
+        return manual_unir(["PWD(1)", "", "NOMBRE", "    pwd - muestra el directorio actual (siempre /nave)"])
+    if nombre == "limpiar":
+        return manual_unir(["LIMPIAR(1)", "", "NOMBRE", "    limpiar - borra la pantalla de la terminal"])
+    if nombre == "grep":
+        return manual_unir(["GREP(1)", "", "NOMBRE", "    grep - filtra líneas", "", "SINOPSIS", "    ORDEN | grep TEXTO", "", "DESCRIPCIÓN", "    Deja solo las líneas que contienen TEXTO. Se puede encadenar con más tuberías.", "    'contar' cuenta las líneas: estado | contar."])
+    return "No hay entrada de manual para '" + nombre + "'. Prueba 'man' sin argumentos."
+
+fn manual_codigo(tema: str) -> str:
+    if tema == "":
+        return manual_temas()
+    if tema == "sintaxis":
+        return manual_unir(["SINTAXIS DE LENGUAJE", "", "Un programa es una lista de sentencias que se ejecutan de arriba abajo.", "Los bloques empiezan tras una línea que termina en ':' y se indentan con 4 espacios.", "No hay punto y coma. Los comentarios empiezan con #.", "", "    # esto es un comentario", "    print(\"hola\")"])
+    if tema == "variables":
+        return manual_unir(["VARIABLES", "", "Una asignación crea la variable: x = 5. El tipo se infiere: int, float, bool, str.", "Para cambiar una variable debe ser mutable: mut x = 5, luego x = x + 1.", "Anotar el tipo es opcional: n: int = 5.", "Los tipos no se convierten solos: usa int(), float() o str().", "", "    mut n = 0", "    n = n + 1", "    print(n)"])
+    if tema == "condiciones":
+        return manual_unir(["CONDICIONES", "", "if CONDICION: ... elif OTRA: ... else: ...", "La condición debe ser bool: usa comparaciones (==, !=, <, <=, >, >=).", "Operadores lógicos: and, or, not.", "", "    if estado.valor < 10:", "        print(\"bajo\")", "    else:", "        print(\"ok\")"])
+    if tema == "bucles":
+        return manual_unir(["BUCLES", "", "while CONDICION: repite mientras sea verdadera (la variable debe ser mut).", "for i in 0..N: recorre 0, 1, ..., N-1 (el final no se incluye).", "", "    mut i = 0", "    while i < 3:", "        print(i)", "        i = i + 1", "", "    for k in 0..3:", "        print(k)"])
+    if tema == "funciones":
+        return manual_unir(["FUNCIONES", "", "fn nombre(parametro: tipo) -> tipo: ... return valor", "Sin '-> tipo' la función no devuelve nada.", "Las funciones se pueden llamar antes de declararse en el mismo archivo.", "", "    fn doble(x: int) -> int:", "        return x * 2", "", "    print(doble(21))"])
+    if tema == "listas":
+        return manual_unir(["LISTAS: List[T]", "", "l: List[int] = [] crea una lista vacía. Literal: [1, 2, 3].", "Métodos: l.append(x), l.pop() (quita el último), len(l), l[i].", "Para modificarla debe ser mut (en la lista, no en sus elementos).", "", "    mut l: List[str] = []", "    l.append(\"reactor\")", "    print(len(l), l[0])"])
+    if tema == "diccionarios":
+        return manual_unir(["DICCIONARIOS: Dict[K, V]", "", "d = {\"a\": 1}. Acceso: d[\"a\"]. Comprobar clave: d.tiene(\"a\").", "Las claves son int, str o bool. No se pueden recorrer con for: guarda las claves en una lista.", "", "    d: Dict[str, int] = {\"reactor\": 450}", "    if d.tiene(\"reactor\"):", "        print(d[\"reactor\"])"])
+    if tema == "structs":
+        return manual_unir(["STRUCTS", "", "struct Punto:", "    x: int", "    y: int", "", "Se crean con nombres de campo: p = Punto(x: 1, y: 2).", "Para cambiar un campo la variable debe ser mut: mut p = Punto(x: 1, y: 2); p.x = 5.", "", "    print(p.x)"])
+    if tema == "cadenas":
+        return manual_unir(["CADENAS: str", "", "Concatenación con +: \"a\" + \"b\". str(x) convierte un número a texto.", "Funciones de texto (import texto): texto_dividir(s, sep), texto_unir(l, sep),", "texto_contiene(s, aguja), texto_empieza_por(s, prefijo), texto_recortar_espacios(s).", "No se pueden indexar: usa recortar(s, ini, fin) (import cadena) para extraer.", "", "    partes = texto_dividir(\"a b c\", \" \")", "    print(len(partes))"])
+    if tema == "nave":
+        return manual_unir(["API DE SCRIPTS: import nave", "", "Cada función envía una orden a la terminal y devuelve su respuesta como texto.", "    nave_ejecutar(orden: str) -> str      cualquier orden de la terminal", "    nave_estado(sistema: str) -> str      estado de un sistema", "    nave_valor(sistema: str) -> int       valor numérico (-1 si no existe)", "    nave_diagnostico(sistema: str) -> str", "    nave_reparar(sistema: str) -> str", "    nave_encender(sistema: str) -> str", "    nave_apagar(sistema: str) -> str", "    nave_ajustar(sistema: str, valor: int) -> str", "    nave_esperar(segundos: int) -> str    deja pasar tiempo real", "    nave_mision() -> str                  misión en curso", "", "Lo que imprime print() aparece en la terminal como salida del script."])
+    if tema == "scripts":
+        return manual_unir(["SCRIPTS", "", "1. 'editar mi_script.lg' abre el editor. Escribe el código y pulsa Guardar.", "2. 'ejecutar mi_script.lg' lo compila con lgc y lo ejecuta.", "3. Si hay errores de compilación se muestran en la terminal.", "", "Ejemplo mínimo:", "", "    import nave", "    print(nave_estado(\"reactor\"))", "    print(nave_reparar(\"refrigeracion\"))"])
+    return "No hay tema '" + tema + "'. Lista de temas: man-code"

@@ -1,0 +1,3 @@
+import texto
+
+print(texto_repetir("a", -1))

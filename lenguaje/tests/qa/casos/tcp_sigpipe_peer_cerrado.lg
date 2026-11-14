@@ -1,0 +1,18 @@
+# Escribir a una conexión cuyo par ya cerró no mata el programa (sin SIGPIPE).
+import tcp
+s = escuchar(18762)
+c = aceptar(s)
+print("acepto", c >= 0)
+mut ok = 0
+mut falla = 0
+for i in 0..200:
+    r = escribir(c, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    if r < 0:
+        falla = falla + 1
+    else:
+        ok = ok + 1
+print("escrituras ok>0:", ok > 0, "fallidas>0:", falla > 0)
+cerrar(c)
+print("tras cerrar, escribir:", escribir(c, "hola"))
+cerrar(s)
+print("fin")

@@ -1,0 +1,26 @@
+{
+  "name": "Aplicación Lenguaje",
+  "short_name": "Lenguaje",
+  "description": "Aplicación escrita en Lenguaje (WebAssembly) con funcionamiento offline básico. Plantilla: cambiar nombre y colores.",
+  "start_url": "/tests/wasm_ui/navegador/pwa_app.html",
+  "scope": "/tests/wasm_ui/navegador/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2937",
+  "orientation": "portrait",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

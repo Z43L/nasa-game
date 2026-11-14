@@ -1,0 +1,5 @@
+x = 1
+if true:
+    y = x + 1
+    print(y)
+print(x)

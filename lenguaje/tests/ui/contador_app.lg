@@ -1,0 +1,29 @@
+# Contador con lib/ui: la vista se genera desde el árbol de nodos, sin HTML escrito a mano.
+# El estado (la cuenta) vive en JavaScript y se pasa como parámetro, porque las funciones no ven globales.
+#
+# Exports para wasm (ver lib/ui/README.md):
+#   lgc --target wasm32 --export vista --export despachar -I lib/ui -I stdlib tests/ui/contador_app.lg -o contador_app.wasm
+#   vista(cuenta: int) -> str                 HTML de la vista completa (JS la pone en innerHTML)
+#   despachar(accion: int, cuenta: int) -> int  nuevo estado tras pulsar el botón con data-accion = accion
+#
+# Nativo: compila y ejecuta, imprime la vista de la cuenta 3.
+
+import html
+import render
+
+fn vista(cuenta: int) -> str:
+    return ui_render(ui_elemento("main", ["class", "contador"], [
+        ui_elemento("h1", [], [ui_texto("Contador & amigos")]),
+        ui_elemento("p", ["id", "texto"], [ui_texto("Pulsaciones: " + str(cuenta))]),
+        ui_boton("+1", 1),
+        ui_boton("Reiniciar", 2)
+    ]))
+
+fn despachar(accion: int, cuenta: int) -> int:
+    if accion == 1:
+        return cuenta + 1
+    if accion == 2:
+        return 0
+    return cuenta
+
+print(vista(3))

@@ -1,0 +1,17 @@
+.base{box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;padding:16px;margin:8px 0;color:#111;background:rgb(255, 255, 255);font-size:1.5rem;text-align:center;width:50%;height:100vh;border-radius:12px;}
+
+.centro{box-sizing:border-box;display:flex;justify-content:center;align-items:center;}
+
+.vacio{box-sizing:border-box;}
+
+.peligro{box-sizing:border-box;color:redbodydisplaynone;background:url(javascriptalert(1));text-align:right;}
+
+.fila{box-sizing:border-box;display:flex;flex-direction:row;padding:4px;}
+@media (max-width: 599px){.fila{flex-direction:column;}}
+@media (min-width: 600px) and (max-width: 1023px){.fila{padding:2rem;}}
+
+.original{box-sizing:border-box;display:flex;flex-direction:row;}
+
+.derivado{box-sizing:border-box;display:flex;flex-direction:row;}
+@media (max-width: 599px){.derivado{flex-direction:column;}}
+

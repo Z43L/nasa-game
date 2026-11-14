@@ -1,0 +1,6 @@
+import lib_datos_modulos/json
+
+print(json_serializar(json_parsear("[]")), json_serializar(json_parsear("{}")))
+print(json_serializar(json_parsear(" [ ] ")), json_serializar(json_parsear("{ }")))
+print(json_longitud(json_parsear("[]")), json_longitud(json_parsear("{}")))
+print(json_serializar(json_parsear("[[], {}, [[]]]")))

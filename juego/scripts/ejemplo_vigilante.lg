@@ -1,0 +1,12 @@
+import nave
+import texto
+
+mut ciclos = 0
+while ciclos < 40:
+    e = nave_estado("comunicaciones")
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico("comunicaciones")
+        print(nave_reparar("comunicaciones"))
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

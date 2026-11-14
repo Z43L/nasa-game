@@ -1,0 +1,7 @@
+import respuesta
+import http
+
+r = web_respuesta_redireccion("/nuevo")
+print(r.estado)
+print(r.motivo)
+print(http_serializar_respuesta(r))

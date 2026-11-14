@@ -1,0 +1,4 @@
+fn a() -> int:
+    struct P:
+        x: int
+    return 1

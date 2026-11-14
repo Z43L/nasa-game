@@ -1,0 +1,7 @@
+struct P:
+    x: int
+impl P:
+    fn f(self) -> int:
+        return 1
+    fn f(self) -> int:
+        return 2

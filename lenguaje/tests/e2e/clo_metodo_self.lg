@@ -1,0 +1,14 @@
+struct Cnt:
+    n: int
+
+impl Cnt:
+    fn tick(mut self) -> int:
+        fn t() -> int:
+            self.n = self.n + 1
+            return self.n
+        t()
+        return t()
+
+mut q = Cnt(n: 0)
+print(q.tick())
+print(q.n)

@@ -1,0 +1,8 @@
+import datos
+
+escribir_texto("build/std_datos_e2e.txt", "1.5, 2\n3e1,\n -4.25 \n")
+print(leer_texto("build/std_datos_e2e.txt"))
+v = leer_csv_numeros("build/std_datos_e2e.txt")
+print(v)
+print(len(v))
+print(v[1] + v[3])

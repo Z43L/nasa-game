@@ -1,0 +1,171 @@
+# src/misiones.lg: misiones, reloj de misión y puntuación.
+#
+# El reloj es real: cada segundo transcurrido avanza un paso de simulación (sim_paso) y
+# comprueba el objetivo de la misión. Las misiones se desbloquean en orden.
+#
+# API (la usa shell.lg):
+#   mision_avanzar()              avanza el reloj; llamar antes de cada orden
+#   mision_iniciar(n: int) -> str  empieza la misión n (1-based); devuelve el texto o un error
+#   mision_info() -> str           estado de la misión actual
+#   mision_listar() -> str         todas las misiones con su estado
+#   mision_en_curso() -> bool
+#   mision_restante_s() -> int     segundos que quedan (0 si no hay misión en curso)
+
+import tiempo
+import sim
+
+struct Mision:
+    titulo: str
+    briefing: str
+    limite_s: int
+    racha_necesaria: int
+
+fn misiones_lista() -> List[Mision]:
+    mut l: List[Mision] = []
+    l.append(Mision(titulo: "Refrigeración de emergencia", briefing: "El reactor se calienta: la bomba de refrigerante está obstruida. Diagnostica 'refrigeracion' y repárala. Objetivo: reactor por debajo de 480 C con refrigeración sana.", limite_s: 120, racha_necesaria: 1))
+    l.append(Mision(titulo: "Fuga de oxígeno", briefing: "La presión de oxígeno cae. Localiza la avería en 'oxigeno' y repárala. Objetivo: presión de al menos 95 kPa con el sistema sano.", limite_s: 90, racha_necesaria: 1))
+    l.append(Mision(titulo: "Batería agotándose", briefing: "El reactor no recarga la batería. Diagnostica 'reactor', repáralo y mantén la energía por encima de 30%. Consejo: apagar 'comunicaciones' reduce el consumo.", limite_s: 150, racha_necesaria: 1))
+    l.append(Mision(titulo: "Piloto automático", briefing: "Las comunicaciones pierden señal y no puedes vigilarlas a mano. Escribe un script con 'editar' y ejecútalo con 'ejecutar'. Objetivo: todos los sistemas sanos durante 15 segundos seguidos.", limite_s: 180, racha_necesaria: 15))
+    return l
+
+mut lista_misiones: List[Mision] = misiones_lista()
+mut actual = -1
+mut estado = 0
+mut completadas = 0
+mut transcurrido_s = 0
+mut racha_s = 0
+mut motivo_fin = ""
+mut puntos = 0
+mut resto_ms = 0
+mut ultimo_ms = tiempo_monotonico_ms()
+
+fn mision_en_curso() -> bool:
+    return estado == 1
+
+fn mision_numero() -> int:
+    return actual + 1
+
+fn mision_estado_actual() -> int:
+    return estado
+
+fn mision_restante_s() -> int:
+    if estado != 1:
+        return 0
+    return lista_misiones[actual].limite_s - transcurrido_s
+
+# Objetivo de cada misión, comprobado cada segundo.
+fn mision_condicion(i: int) -> bool:
+    if i == 0:
+        ref = sim_s("refrigeracion")
+        return sim_sano(ref) and sim_s("reactor").valor <= 480
+    if i == 1:
+        oxi = sim_s("oxigeno")
+        return sim_sano(oxi) and oxi.valor >= 95
+    if i == 2:
+        rea = sim_s("reactor")
+        return sim_sano(rea) and sim_s("energia").valor >= 30
+    if i == 3:
+        return sim_todos_sanos()
+    return false
+
+fn mision_completar():
+    estado = 2
+    motivo_fin = "completada"
+    puntos = (lista_misiones[actual].limite_s - transcurrido_s) * 10 + 100
+    if actual == completadas:
+        completadas = completadas + 1
+
+fn mision_fallar(motivo: str):
+    estado = 3
+    motivo_fin = motivo
+
+# Un segundo de misión: simulación, objetivo y fallos.
+fn mision_segundo():
+    if estado != 1:
+        return
+    sim_paso()
+    transcurrido_s = transcurrido_s + 1
+    mut cumple = mision_condicion(actual)
+    if cumple:
+        racha_s = racha_s + 1
+    else:
+        racha_s = 0
+    rea = sim_s("reactor")
+    ene = sim_s("energia")
+    if racha_s >= lista_misiones[actual].racha_necesaria:
+        mision_completar()
+    elif rea.valor > rea.maximo:
+        mision_fallar("el reactor se ha fundido por sobrecalentamiento")
+    elif ene.valor <= 0:
+        mision_fallar("apagón total: la energía se ha agotado")
+    elif transcurrido_s >= lista_misiones[actual].limite_s:
+        mision_fallar("tiempo agotado")
+
+# Avanza el reloj real: un paso por cada segundo transcurrido (como mucho 300 por llamada).
+fn mision_avanzar():
+    ahora = tiempo_monotonico_ms()
+    resto_ms = resto_ms + (ahora - ultimo_ms)
+    ultimo_ms = ahora
+    mut pasos = 0
+    while resto_ms >= 1000 and pasos < 300:
+        resto_ms = resto_ms - 1000
+        pasos = pasos + 1
+        mision_segundo()
+
+# Fallos iniciales de cada misión.
+fn mision_preparar(i: int):
+    sim_reiniciar()
+    if i == 0:
+        mut rea0 = sim_s("reactor")
+        rea0.valor = 500
+        sim_averiar("refrigeracion", "bomba de refrigerante obstruida", 0)
+    elif i == 1:
+        sim_averiar("oxigeno", "fuga en la válvula principal", -4)
+    elif i == 2:
+        sim_averiar("reactor", "inyector de combustible atascado", 0)
+        mut ene = sim_s("energia")
+        ene.valor = 60
+    elif i == 3:
+        sim_averiar("comunicaciones", "antena desalineada", -3)
+
+fn mision_iniciar(n: int) -> str:
+    if estado == 1:
+        return "ya hay una misión en curso: " + lista_misiones[actual].titulo
+    i = n - 1
+    if i < 0 or i >= len(lista_misiones):
+        return "no existe la misión " + str(n) + " (hay " + str(len(lista_misiones)) + ")"
+    if i > completadas:
+        return "misión bloqueada: completa antes la " + str(completadas + 1)
+    mision_preparar(i)
+    actual = i
+    estado = 1
+    transcurrido_s = 0
+    racha_s = 0
+    motivo_fin = ""
+    resto_ms = 0
+    ultimo_ms = tiempo_monotonico_ms()
+    return "Misión " + str(n) + ": " + lista_misiones[i].titulo + "\n" + lista_misiones[i].briefing + "\nTiempo límite: " + str(lista_misiones[i].limite_s) + " s."
+
+fn mision_info() -> str:
+    if actual < 0:
+        return "No hay ninguna misión iniciada. Usa 'misiones' para ver la lista e 'iniciar N' para empezar."
+    m = lista_misiones[actual]
+    cabecera = "Misión " + str(actual + 1) + ": " + m.titulo
+    if estado == 1:
+        return cabecera + "\nEn curso. Tiempo restante: " + str(mision_restante_s()) + " s de " + str(m.limite_s) + ".\nObjetivo: " + m.briefing
+    if estado == 2:
+        return cabecera + "\nCOMPLETADA con " + str(puntos) + " puntos."
+    return cabecera + "\nFALLIDA: " + motivo_fin
+
+fn mision_listar() -> str:
+    mut partes: List[str] = []
+    for i in 0..len(lista_misiones):
+        mut e = "bloqueada"
+        if i < completadas:
+            e = "completada"
+        elif i == completadas and not (estado == 1 and actual == i):
+            e = "disponible"
+        if estado == 1 and actual == i:
+            e = "en curso"
+        partes.append(str(i + 1) + ". " + lista_misiones[i].titulo + " [" + e + "], límite " + str(lista_misiones[i].limite_s) + " s")
+    return texto_unir(partes, "\n")

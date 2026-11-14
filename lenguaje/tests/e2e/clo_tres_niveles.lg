@@ -1,0 +1,9 @@
+fn externa(base: int) -> int:
+    k = 10
+    fn medio(x: int) -> int:
+        fn interna(y: int) -> int:
+            return y + x + k + base
+        return interna(1)
+    return medio(100)
+
+print(externa(1000))

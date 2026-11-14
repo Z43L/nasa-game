@@ -1,0 +1,298 @@
+# lib/red/http.lg: parser de peticiones HTTP/1.1 y serializador de respuestas.
+#
+# Sobre los sockets de stdlib/tcp.lg (leer, escribir, cerrar) y la búsqueda de stdlib/cadena.lg
+# (buscar, recortar). Sin dependencias de C propias.
+#
+# Modelo:
+#   HttpCabecera(nombre: str, valor: str)
+#   Peticion(metodo, ruta, version, cabeceras: List[HttpCabecera], cuerpo, longitud: int,
+#            valida: bool, error: str)
+#   Respuesta(estado: int, motivo: str, cabeceras: List[HttpCabecera], cuerpo: str)
+#
+# API:
+#   http_parsear_peticion(texto: str) -> Peticion
+#       Analiza una petición completa en memoria. Si algo falla, valida = false y error explica por qué.
+#   http_leer_peticion(conexion: int) -> Peticion
+#       Lee de la conexión hasta cabeceras y cuerpo (Content-Length) y analiza. Nunca lanza error:
+#       ante límites superados o conexión cerrada devuelve valida = false.
+#   http_cabecera(p: Peticion, nombre: str) -> Option[str]
+#       Valor de la primera cabecera con ese nombre (sin distinguir mayúsculas), o None.
+#   http_serializar_respuesta(r: Respuesta) -> str
+#   http_responder(conexion: int, r: Respuesta) -> int
+#       Escribe la respuesta y cierra la conexión (siempre: una petición por conexión). Devuelve
+#       los bytes enviados o -1.
+#   http_respuesta_texto(estado: int, cuerpo: str) -> Respuesta
+#       Respuesta con Content-Type text/plain y el cuerpo dado.
+#
+# Límites: cabeceras (línea de petición incluida) máx. 8192 bytes; cuerpo máx. 1048576 bytes.
+#
+# Decisiones y costes (el lenguaje no tiene genéricos, tuplas ni iterar diccionarios):
+#   - Las cabeceras son List[HttpCabecera], no Dict: un Dict no se puede recorrer con for y
+#     necesitamos el orden y la lista completa para serializar. La búsqueda es lineal.
+#   - Duplicados: http_cabecera devuelve la primera aparición; no se fusionan.
+#   - Solo CRLF como fin de línea. Transfer-Encoding no se admite (error).
+#   - Una conexión = una petición: http_responder siempre añade Connection: close si no la hay.
+#   - No hay tiempo de espera: leer bloquea si el cliente no envía nada (limitación de tcp).
+#   - Los bytes de la cadena se cuentan en bytes (len), no en caracteres UTF-8.
+#
+# Uso: import http   (con -I lib/red, o desde un fichero en la misma carpeta)
+
+import tcp
+import cadena
+
+struct HttpCabecera:
+    nombre: str
+    valor: str
+
+struct Peticion:
+    metodo: str
+    ruta: str
+    version: str
+    cabeceras: List[HttpCabecera]
+    cuerpo: str
+    longitud: int
+    valida: bool
+    error: str
+
+struct Respuesta:
+    estado: int
+    motivo: str
+    cabeceras: List[HttpCabecera]
+    cuerpo: str
+
+fn http_max_cabeceras() -> int:
+    return 8192
+
+fn http_max_cuerpo() -> int:
+    return 1048576
+
+fn http_peticion_con_error(motivo: str) -> Peticion:
+    return Peticion(metodo: "", ruta: "", version: "", cabeceras: [], cuerpo: "", longitud: 0, valida: false, error: motivo)
+
+# Parte `s` por cada aparición de `sep` (no vacío). Siempre devuelve al menos una parte.
+fn http_dividir(s: str, sep: str) -> List[str]:
+    mut partes: List[str] = []
+    mut resto = s
+    mut seguir = true
+    while seguir:
+        k = buscar(resto, sep)
+        if k < 0:
+            partes.append(resto)
+            seguir = false
+        else:
+            partes.append(recortar(resto, 0, k))
+            resto = recortar(resto, k + len(sep), len(resto))
+    return partes
+
+fn http_es_blanco(c: str) -> bool:
+    return c == " " or c == "\t"
+
+fn http_recortar_blancos(s: str) -> str:
+    mut ini = 0
+    mut fin = len(s)
+    while ini < fin and http_es_blanco(recortar(s, ini, ini + 1)):
+        ini = ini + 1
+    while fin > ini and http_es_blanco(recortar(s, fin - 1, fin)):
+        fin = fin - 1
+    return recortar(s, ini, fin)
+
+# ASCII a minúsculas, carácter a carácter (no hay métodos de cadena en el lenguaje).
+fn http_minusculas(s: str) -> str:
+    mayus = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    minus = "abcdefghijklmnopqrstuvwxyz"
+    mut salida = ""
+    for i in 0..len(s):
+        c = recortar(s, i, i + 1)
+        k = buscar(mayus, c)
+        if k >= 0:
+            salida = salida + recortar(minus, k, k + 1)
+        else:
+            salida = salida + c
+    return salida
+
+fn http_igual_ci(a: str, b: str) -> bool:
+    return http_minusculas(a) == http_minusculas(b)
+
+# Entero decimal sin signo de hasta 15 cifras; -1 si no es válido.
+fn http_entero(s: str) -> int:
+    if len(s) == 0 or len(s) > 15:
+        return -1
+    digitos = "0123456789"
+    mut v = 0
+    for i in 0..len(s):
+        d = buscar(digitos, recortar(s, i, i + 1))
+        if d < 0:
+            return -1
+        v = v * 10 + d
+    return v
+
+fn http_metodo_valido(m: str) -> bool:
+    return m == "GET" or m == "HEAD" or m == "POST" or m == "PUT" or m == "DELETE" or m == "PATCH" or m == "OPTIONS"
+
+# Valor de la primera cabecera llamada `nombre` (sin distinguir mayúsculas), o None.
+fn http_cabecera(p: Peticion, nombre: str) -> Option[str]:
+    for c in p.cabeceras:
+        if http_igual_ci(c.nombre, nombre):
+            return Some(c.valor)
+    return None
+
+# Analiza la línea de petición y las cabeceras (sin el cuerpo). `head` no incluye el \r\n\r\n final.
+# Deja la Peticion con valida = true y longitud = Content-Length, o con el error.
+fn http_analizar_cabeceras(head: str) -> Peticion:
+    mut p = http_peticion_con_error("")
+    if len(head) > http_max_cabeceras():
+        p.error = "cabeceras demasiado grandes (máximo 8192 bytes)"
+        return p
+    lineas = http_dividir(head, "\r\n")
+    partes = http_dividir(lineas[0], " ")
+    if len(partes) != 3:
+        p.error = "línea de petición mal formada"
+        return p
+    if not http_metodo_valido(partes[0]):
+        p.error = "método desconocido: " + partes[0]
+        return p
+    if partes[1] == "":
+        p.error = "ruta vacía"
+        return p
+    if partes[2] != "HTTP/1.1" and partes[2] != "HTTP/1.0":
+        p.error = "versión HTTP no soportada: " + partes[2]
+        return p
+    p.metodo = partes[0]
+    p.ruta = partes[1]
+    p.version = partes[2]
+    for i in 1..len(lineas):
+        linea = lineas[i]
+        k = buscar(linea, ":")
+        if k < 0:
+            p.error = "cabecera sin ':' en la línea " + str(i + 1)
+            return p
+        nombre = recortar(linea, 0, k)
+        if len(nombre) == 0 or buscar(nombre, " ") >= 0 or buscar(nombre, "\t") >= 0:
+            p.error = "nombre de cabecera no válido en la línea " + str(i + 1)
+            return p
+        valor = http_recortar_blancos(recortar(linea, k + 1, len(linea)))
+        p.cabeceras.append(HttpCabecera(nombre: nombre, valor: valor))
+    if http_cabecera(p, "Transfer-Encoding").es_some():
+        p.error = "Transfer-Encoding no soportado"
+        return p
+    cl = http_cabecera(p, "Content-Length")
+    if cl.es_some():
+        n = http_entero(cl.desempacar_o(""))
+        if n < 0:
+            p.error = "Content-Length no válido"
+            return p
+        if n > http_max_cuerpo():
+            p.error = "cuerpo demasiado grande (máximo 1048576 bytes)"
+            return p
+        p.longitud = n
+    p.valida = true
+    return p
+
+# Rellena el cuerpo desde `texto` en `inicio`, según p.longitud.
+fn http_completar_cuerpo(p: Peticion, texto: str, inicio: int) -> Peticion:
+    mut q = p
+    if q.longitud == 0:
+        q.cuerpo = ""
+        return q
+    if len(texto) - inicio < q.longitud:
+        q.valida = false
+        q.error = "cuerpo incompleto: Content-Length mayor que los bytes recibidos"
+        return q
+    q.cuerpo = recortar(texto, inicio, inicio + q.longitud)
+    return q
+
+fn http_parsear_peticion(texto: str) -> Peticion:
+    fin = buscar(texto, "\r\n\r\n")
+    if fin < 0:
+        return http_peticion_con_error("petición incompleta: falta la línea vacía final")
+    if fin > http_max_cabeceras():
+        return http_peticion_con_error("cabeceras demasiado grandes (máximo 8192 bytes)")
+    p = http_analizar_cabeceras(recortar(texto, 0, fin))
+    if not p.valida:
+        return p
+    return http_completar_cuerpo(p, texto, fin + 4)
+
+fn http_leer_peticion(conexion: int) -> Peticion:
+    mut texto = ""
+    mut fin = -1
+    while fin < 0:
+        if len(texto) > http_max_cabeceras() + 4:
+            return http_peticion_con_error("cabeceras demasiado grandes (máximo 8192 bytes)")
+        trozo = leer(conexion, 4096)
+        if len(trozo) == 0:
+            return http_peticion_con_error("conexión cerrada antes de terminar las cabeceras")
+        texto = texto + trozo
+        fin = buscar(texto, "\r\n\r\n")
+    if fin > http_max_cabeceras():
+        return http_peticion_con_error("cabeceras demasiado grandes (máximo 8192 bytes)")
+    p = http_analizar_cabeceras(recortar(texto, 0, fin))
+    if not p.valida:
+        return p
+    while len(texto) - (fin + 4) < p.longitud:
+        trozo = leer(conexion, 65536)
+        if len(trozo) == 0:
+            return http_peticion_con_error("conexión cerrada antes de terminar el cuerpo")
+        texto = texto + trozo
+    return http_completar_cuerpo(p, texto, fin + 4)
+
+fn http_motivo_por_defecto(estado: int) -> str:
+    if estado == 200:
+        return "OK"
+    if estado == 201:
+        return "Created"
+    if estado == 204:
+        return "No Content"
+    if estado == 400:
+        return "Bad Request"
+    if estado == 302:
+        return "Found"
+    if estado == 401:
+        return "Unauthorized"
+    if estado == 403:
+        return "Forbidden"
+    if estado == 404:
+        return "Not Found"
+    if estado == 405:
+        return "Method Not Allowed"
+    if estado == 409:
+        return "Conflict"
+    if estado == 413:
+        return "Payload Too Large"
+    if estado == 431:
+        return "Request Header Fields Too Large"
+    if estado == 500:
+        return "Internal Server Error"
+    if estado == 503:
+        return "Service Unavailable"
+    return "Desconocido"
+
+# Nombre o valor con CR o LF rompería la respuesta (inyección de cabeceras): se descarta.
+fn http_linea_segura(s: str) -> bool:
+    return buscar(s, "\r") < 0 and buscar(s, "\n") < 0
+
+fn http_serializar_respuesta(r: Respuesta) -> str:
+    mut motivo = r.motivo
+    if motivo == "":
+        motivo = http_motivo_por_defecto(r.estado)
+    mut s = "HTTP/1.1 " + str(r.estado) + " " + motivo + "\r\n"
+    mut tiene_conexion = false
+    for c in r.cabeceras:
+        if not http_linea_segura(c.nombre) or not http_linea_segura(c.valor):
+            continue
+        if http_igual_ci(c.nombre, "Content-Length"):
+            continue
+        if http_igual_ci(c.nombre, "Connection"):
+            tiene_conexion = true
+        s = s + c.nombre + ": " + c.valor + "\r\n"
+    if not tiene_conexion:
+        s = s + "Connection: close\r\n"
+    s = s + "Content-Length: " + str(len(r.cuerpo)) + "\r\n"
+    return s + "\r\n" + r.cuerpo
+
+fn http_responder(conexion: int, r: Respuesta) -> int:
+    enviados = escribir(conexion, http_serializar_respuesta(r))
+    cerrar(conexion)
+    return enviados
+
+fn http_respuesta_texto(estado: int, cuerpo: str) -> Respuesta:
+    return Respuesta(estado: estado, motivo: "", cabeceras: [HttpCabecera(nombre: "Content-Type", valor: "text/plain; charset=utf-8")], cuerpo: cuerpo)

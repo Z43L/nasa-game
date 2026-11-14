@@ -1,0 +1,12 @@
+struct P:
+    x: int
+
+impl P:
+    fn eq(self, otro: P) -> bool:
+        return self.x == otro.x
+
+a = P(x: 1)
+b = P(x: 1)
+c = P(x: 2)
+print(a == b)
+print(a == c)

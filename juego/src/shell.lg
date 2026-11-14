@@ -1,0 +1,293 @@
+# src/shell.lg: intérprete de órdenes de la terminal y ejecución de scripts.
+#
+#   shell_ejecutar(linea: str) -> str   ejecuta una línea (puede llevar tuberías "|")
+#   shell_ejecutar_script(nombre) -> str compila scripts/NOMBRE con lgc y lo ejecuta
+#
+# Protocolo con un script (por FIFO, run/in y run/out):
+#   script -> servidor:  "@CMD orden" cuando llama a nave_ejecutar
+#   servidor -> script:  la respuesta, línea a línea, seguida de "@FIN"
+#   cualquier otra línea que imprime el script se muestra en la terminal.
+# El script se mata a los 60 s (perl alarm), así que nunca bloquea el servidor para siempre.
+
+import texto
+import cadena
+import tiempo
+import proceso
+import datos
+import manual
+import sim
+import misiones
+
+mut en_script = false
+mut ruta_lgc = "../lenguaje/build/bin/lgc"
+mut ruta_lib = "lib"
+mut ruta_nucleo = "../lenguaje/lib/nucleo"
+mut ruta_stdlib = "../lenguaje/stdlib"
+
+fn shell_palabras(s: str) -> List[str]:
+    mut out: List[str] = []
+    partes = texto_dividir(s, " ")
+    for i in 0..len(partes):
+        if partes[i] != "":
+            out.append(partes[i])
+    return out
+
+fn shell_relleno(s: str, n: int) -> str:
+    if len(s) >= n:
+        return s + " "
+    return s + texto_repetir(" ", n - len(s))
+
+fn shell_es_entero(s: str) -> bool:
+    if len(s) == 0:
+        return false
+    for i in 0..len(s):
+        c = recortar(s, i, i + 1)
+        if not texto_contiene("-0123456789", c):
+            return false
+    return true
+
+fn shell_nombre_valido(n: str) -> bool:
+    if len(n) < 4 or len(n) > 40:
+        return false
+    if not texto_termina_por(n, ".lg"):
+        return false
+    for i in 0..len(n):
+        c = recortar(n, i, i + 1)
+        if not texto_contiene("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.", c):
+            return false
+    return not texto_contiene(n, "..")
+
+# ---------- órdenes de la nave ----------
+
+fn shell_linea_sistema(s: Sistema) -> str:
+    return shell_relleno(s.nombre, 17) + shell_relleno(str(s.valor), 6) + shell_relleno("[" + str(s.minimo) + "-" + str(s.maximo) + "]", 12) + sim_estado(s)
+
+fn shell_estado(args: List[str]) -> str:
+    if len(args) == 0:
+        mut lineas: List[str] = [shell_relleno("SISTEMA", 17) + shell_relleno("VALOR", 6) + shell_relleno("RANGO", 12) + "ESTADO"]
+        nombres = ["reactor", "refrigeracion", "energia", "oxigeno", "comunicaciones"]
+        for i in 0..len(nombres):
+            lineas.append(shell_linea_sistema(sim_s(nombres[i])))
+        return texto_unir(lineas, "\n")
+    if not sim_existe(args[0]):
+        return "sistema desconocido: " + args[0]
+    s = sim_s(args[0])
+    mut estado_txt = ", apagado"
+    if s.activo:
+        estado_txt = ", activo"
+    return shell_linea_sistema(s) + "\n  objetivo " + str(s.objetivo) + estado_txt
+
+fn shell_valor(args: List[str]) -> str:
+    if len(args) == 0 or not sim_existe(args[0]):
+        return "error"
+    return str(sim_s(args[0]).valor)
+
+fn shell_diagnostico(args: List[str]) -> str:
+    if len(args) == 0 or not sim_existe(args[0]):
+        return "uso: diagnostico SISTEMA"
+    mut s = sim_s(args[0])
+    s.diagnosticado = true
+    if s.averia == "":
+        return s.nombre + ": sin averías detectadas."
+    return "Diagnóstico de " + s.nombre + ": AVERIA: " + s.averia + ". Deriva " + str(s.deriva) + " por segundo.\nRepárala con: reparar " + s.nombre
+
+fn shell_reparar(args: List[str]) -> str:
+    if len(args) == 0 or not sim_existe(args[0]):
+        return "uso: reparar SISTEMA"
+    mut s = sim_s(args[0])
+    if s.averia == "":
+        return s.nombre + " ya está operativo."
+    if not s.diagnosticado:
+        return "primero diagnostica el sistema: diagnostico " + s.nombre
+    s.averia = ""
+    s.deriva = 0
+    s.diagnosticado = false
+    return s.nombre + " reparado."
+
+fn shell_activar(args: List[str], activo: bool) -> str:
+    if len(args) == 0 or not sim_existe(args[0]):
+        return "uso: encender|apagar SISTEMA"
+    mut s = sim_s(args[0])
+    s.activo = activo
+    if activo:
+        return s.nombre + " encendido."
+    return s.nombre + " apagado."
+
+fn shell_ajustar(args: List[str]) -> str:
+    if len(args) < 2 or not sim_existe(args[0]) or not shell_es_entero(args[1]):
+        return "uso: ajustar SISTEMA VALOR"
+    mut s = sim_s(args[0])
+    if s.nombre != "refrigeracion" and s.nombre != "oxigeno" and s.nombre != "comunicaciones":
+        return s.nombre + " no es un sistema regulado."
+    s.objetivo = int(args[1])
+    if s.objetivo < s.minimo:
+        s.objetivo = s.minimo
+    if s.objetivo > s.maximo:
+        s.objetivo = s.maximo
+    return s.nombre + ": objetivo " + str(s.objetivo) + "."
+
+fn shell_iniciar(args: List[str]) -> str:
+    if len(args) == 0 or not shell_es_entero(args[0]):
+        return "uso: iniciar N (ver 'misiones')"
+    return mision_iniciar(int(args[0]))
+
+fn shell_esperar(args: List[str]) -> str:
+    if len(args) == 0 or not shell_es_entero(args[0]):
+        return "uso: esperar SEGUNDOS (1 a 60)"
+    s = int(args[0])
+    if s < 1 or s > 60:
+        return "esperar: entre 1 y 60 segundos"
+    tiempo_dormir_ms(s * 1000)
+    mision_avanzar()
+    return "esperados " + str(s) + " s."
+
+# ---------- ficheros del juego ----------
+
+fn shell_existe(ruta: str) -> bool:
+    return proceso_ejecutar("test -f " + ruta) == 0
+
+fn shell_ls() -> str:
+    proceso_ejecutar("mkdir -p run && ls scripts > run/ls.txt 2>/dev/null")
+    return texto_recortar_espacios(leer_texto("run/ls.txt"))
+
+fn shell_cat(args: List[str]) -> str:
+    if len(args) == 0 or not shell_nombre_valido(args[0]):
+        return "uso: cat FICHERO.lg"
+    ruta = "scripts/" + args[0]
+    if not shell_existe(ruta):
+        return "no existe: " + args[0]
+    return leer_texto(ruta)
+
+fn shell_grep_linea(linea: str, args: List[str]) -> bool:
+    if len(args) == 0:
+        return true
+    return texto_contiene(linea, args[0])
+
+# ---------- tuberías ----------
+
+fn shell_filtrar(orden: str, entrada: str) -> str:
+    p = shell_palabras(orden)
+    if len(p) == 0:
+        return entrada
+    mut args: List[str] = []
+    for i in 1..len(p):
+        args.append(p[i])
+    if p[0] == "grep":
+        mut out: List[str] = []
+        for l in texto_dividir(entrada, "\n"):
+            if len(args) > 0 and texto_contiene(l, args[0]):
+                out.append(l)
+        return texto_unir(out, "\n")
+    if p[0] == "contar":
+        if entrada == "":
+            return "0"
+        return str(len(texto_dividir(entrada, "\n")))
+    if p[0] == "mayus":
+        return texto_a_mayusculas(entrada)
+    return "tubería: orden no soportada '" + p[0] + "'"
+
+fn shell_una(linea: str) -> str:
+    p = shell_palabras(linea)
+    if len(p) == 0:
+        return ""
+    orden = p[0]
+    mut args: List[str] = []
+    for i in 1..len(p):
+        args.append(p[i])
+    if orden == "ayuda":
+        return manual_comandos()
+    if orden == "man":
+        if len(args) == 0:
+            return manual_comandos()
+        return manual_comando(args[0])
+    if orden == "man-code":
+        if len(args) == 0:
+            return manual_temas()
+        return manual_codigo(args[0])
+    if orden == "estado" or orden == "sensores":
+        return shell_estado(args)
+    if orden == "valor":
+        return shell_valor(args)
+    if orden == "diagnostico":
+        return shell_diagnostico(args)
+    if orden == "reparar":
+        return shell_reparar(args)
+    if orden == "encender":
+        return shell_activar(args, true)
+    if orden == "apagar":
+        return shell_activar(args, false)
+    if orden == "ajustar":
+        return shell_ajustar(args)
+    if orden == "mision":
+        return mision_info()
+    if orden == "misiones":
+        return mision_listar()
+    if orden == "iniciar":
+        return shell_iniciar(args)
+    if orden == "esperar":
+        return shell_esperar(args)
+    if orden == "ls":
+        return shell_ls()
+    if orden == "cat":
+        return shell_cat(args)
+    if orden == "editar":
+        mut nombre_ed = "FICHERO.lg"
+        if len(args) > 0:
+            nombre_ed = args[0]
+        return "el editor se abre desde la terminal web: editar " + nombre_ed
+    if orden == "ejecutar":
+        if len(args) == 0:
+            return "uso: ejecutar FICHERO.lg"
+        return shell_ejecutar_script(args[0])
+    if orden == "echo":
+        return texto_unir(args, " ")
+    if orden == "pwd":
+        return "/nave"
+    if orden == "whoami":
+        return "tripulante"
+    if orden == "limpiar":
+        return ""
+    return orden + ": orden no encontrada. Prueba 'ayuda'."
+
+# Ejecuta una línea completa, con tuberías (orden | grep X | contar).
+fn shell_ejecutar(linea: str) -> str:
+    mision_avanzar()
+    l = texto_recortar_espacios(linea)
+    if l == "":
+        return ""
+    tramos = texto_dividir(l, "|")
+    mut salida = shell_una(tramos[0])
+    for i in 1..len(tramos):
+        salida = shell_filtrar(tramos[i], salida)
+    return salida
+
+# ---------- scripts ----------
+
+fn shell_ejecutar_script(nombre: str) -> str:
+    if en_script:
+        return "un script no puede ejecutar otro script"
+    if not shell_nombre_valido(nombre):
+        return "nombre no válido: " + nombre + " (usa letras, números, _ y -, terminado en .lg)"
+    if not shell_existe("scripts/" + nombre):
+        return "no existe: scripts/" + nombre + " (créalo con 'editar " + nombre + "')"
+    proceso_ejecutar("mkdir -p run && rm -f run/in run/out && mkfifo run/in run/out")
+    orden_compilar = ruta_lgc + " scripts/" + nombre + " -I " + ruta_lib + " -I " + ruta_nucleo + " -I " + ruta_stdlib + " -o run/prog > run/compile.txt 2>&1"
+    if proceso_ejecutar(orden_compilar) != 0:
+        return "error al compilar " + nombre + ":\n" + leer_texto("run/compile.txt")
+    proceso_ejecutar("(perl -e 'alarm 60; exec @ARGV' ./run/prog < run/in > run/out 2>&1 &)")
+    en_script = true
+    w = proceso_abrir("run/in", "w")
+    r = proceso_abrir("run/out", "r")
+    mut salida = "[" + nombre + " en ejecución]\n"
+    while not proceso_fin(r):
+        l = proceso_leer_linea(r)
+        if texto_empieza_por(l, "@CMD "):
+            orden = texto_recortar_espacios(recortar(l, 5, len(l)))
+            resp = shell_ejecutar(orden)
+            proceso_escribir(w, resp + "\n@FIN\n")
+        elif l != "":
+            salida = salida + l + "\n"
+    proceso_cerrar(w)
+    proceso_cerrar(r)
+    en_script = false
+    return salida + "[" + nombre + " terminado]"

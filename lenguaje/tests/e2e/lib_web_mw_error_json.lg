@@ -1,0 +1,11 @@
+import middleware
+import json
+
+msg = "dice \"hola\" con barra \\ y salto\nfin"
+r = web_error_json(422, msg)
+print(r.estado)
+print(r.cabeceras[0].valor)
+print(r.cuerpo)
+print(json_es_valido(r.cuerpo))
+print(json_texto(json_obtener(json_parsear(r.cuerpo), "error")) == msg)
+print(json_tipo(json_obtener(json_parsear(r.cuerpo), "error")))

@@ -1,0 +1,10 @@
+import lib_datos_modulos/json
+
+print(json_es_valido("[1,]"), json_es_valido("{\"a\" 1}"), json_es_valido("tru"))
+print(json_es_valido("01"), json_es_valido("1."), json_es_valido(".5"))
+print(json_es_valido("\"abc"), json_es_valido("[1] x"), json_es_valido(""))
+print(json_es_valido("{\"a\":1,}"), json_es_valido("[1 2]"), json_es_valido("\"a\tb\""))
+print(json_es_valido("\"\\x\""), json_es_valido("{1:2}"), json_es_valido("nul"))
+print(json_es_valido("  42  "), json_es_valido("[]"))
+print(json_texto(json_parsear("[1,]")))
+print(json_texto(json_parsear("{\"a\" 1}")))

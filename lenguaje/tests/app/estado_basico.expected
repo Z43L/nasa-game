@@ -1,0 +1,9 @@
+inicial 10
+sumar 5 -> 15
+leer 15
+set 3 -> 3
+reiniciar -> 10
+leer tras reiniciar 10
+texto hola
+set texto -> adios
+texto tras set: adios

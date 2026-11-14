@@ -1,0 +1,49 @@
+import app
+
+e = web_nuevo_enrutador()
+web_agregar(e, "GET", "/", 1)
+web_agregar(e, "GET", "/cohetes", 2)
+web_agregar(e, "GET", "/cohetes/:id", 3)
+web_agregar(e, "POST", "/cohetes", 4)
+web_agregar(e, "GET", "/cohetes/:id/motor/:m", 5)
+
+# Ruta exacta.
+a = web_enrutar(e, "GET", "/cohetes")
+print(a.encontrada, a.id, len(a.parametros))
+
+# Ruta con parámetro.
+b = web_enrutar(e, "GET", "/cohetes/42")
+print(b.encontrada, b.id, b.parametros[0])
+
+# Dos parámetros, en orden.
+m = web_enrutar(e, "GET", "/cohetes/9/motor/rs25")
+print(m.encontrada, m.id, m.parametros[0], m.parametros[1])
+
+# Método distinto con la misma ruta: no coincide con GET, sí con POST.
+c = web_enrutar(e, "DELETE", "/cohetes")
+print(c.encontrada, c.id, len(c.parametros))
+p = web_enrutar(e, "POST", "/cohetes")
+print(p.encontrada, p.id)
+
+# Ruta que no existe, y número de segmentos distinto.
+d = web_enrutar(e, "GET", "/nada")
+print(d.encontrada, d.id, len(d.parametros))
+f = web_enrutar(e, "GET", "/cohetes/1/x")
+print(f.encontrada, f.id)
+
+# La query string se ignora al comparar y no cambia los parámetros.
+q = web_enrutar(e, "GET", "/cohetes?orden=asc&x=1")
+print(q.encontrada, q.id, len(q.parametros))
+q2 = web_enrutar(e, "GET", "/cohetes/7?x=1")
+print(q2.encontrada, q2.id, q2.parametros[0])
+
+# Raíz.
+r = web_enrutar(e, "GET", "/")
+print(r.encontrada, r.id)
+
+# Existencia de ruta con cualquier método (para elegir 405 frente a 404).
+print(web_ruta_existe(e, "/cohetes"), web_ruta_existe(e, "/nada"))
+
+# Respuestas de error.
+print(web_respuesta_error(404).estado, web_respuesta_error(405).estado, web_respuesta_error(400).estado)
+print(buscar(http_serializar_respuesta(web_respuesta_error(405)), "HTTP/1.1 405 Method Not Allowed\r\n") == 0)

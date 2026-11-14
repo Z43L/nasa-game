@@ -1,0 +1,10 @@
+# Cerrar dos veces el mismo fd: la segunda llamada falla en silencio (EBADF) y no crashea.
+import tcp
+s = escuchar(18764)
+cerrar(s)
+cerrar(s)
+print("cerrado dos veces")
+t = escuchar(18764)
+print(t >= 0)
+cerrar(t)
+print("fin")

@@ -1,0 +1,4 @@
+mut y = 4294967296
+print("antes")
+y = y * 4294967296
+print(y)

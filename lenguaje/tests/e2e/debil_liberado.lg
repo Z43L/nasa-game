@@ -1,0 +1,9 @@
+# Tras soltar el último fuerte, la referencia débil devuelve None.
+struct Caja:
+    v: int
+
+mut x = Caja(v: 5)
+d = debil(x)
+print(d.fuerte().es_some())
+x = Caja(v: 6)
+print(d.fuerte().es_none())

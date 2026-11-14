@@ -1,0 +1,1664 @@
+Start testing: Nov 14 03:23 CET
+----------------------------------------------------------
+1/12 Testing: unit
+1/12 Test: unit
+Command: "/Users/david/Desktop/nasa/lenguaje/build-f0/lg_unit_tests"
+Directory: /Users/david/Desktop/nasa/lenguaje/build-f0
+"unit" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20260810-2300-tbptpn/googletest-1.18.0/googletest/src/gtest_main.cc
+[==========] Running 170 tests from 27 test suites.
+[----------] Global test environment set-up.
+[----------] 7 tests from ConcurrenciaParser
+[ RUN      ] ConcurrenciaParser.HiloMarcaLaLlamada
+[       OK ] ConcurrenciaParser.HiloMarcaLaLlamada (0 ms)
+[ RUN      ] ConcurrenciaParser.HiloSoloAdmiteLlamadas
+[       OK ] ConcurrenciaParser.HiloSoloAdmiteLlamadas (0 ms)
+[ RUN      ] ConcurrenciaParser.AwaitEsUnaExpresion
+[       OK ] ConcurrenciaParser.AwaitEsUnaExpresion (0 ms)
+[ RUN      ] ConcurrenciaParser.AsyncFnSeMarca
+[       OK ] ConcurrenciaParser.AsyncFnSeMarca (0 ms)
+[ RUN      ] ConcurrenciaParser.AsyncSoloANivelSuperior
+[       OK ] ConcurrenciaParser.AsyncSoloANivelSuperior (0 ms)
+[ RUN      ] ConcurrenciaParser.CanalLlevaSuTipo
+[       OK ] ConcurrenciaParser.CanalLlevaSuTipo (0 ms)
+[ RUN      ] ConcurrenciaParser.TiposHiloCanalDebil
+[       OK ] ConcurrenciaParser.TiposHiloCanalDebil (0 ms)
+[----------] 7 tests from ConcurrenciaParser (0 ms total)
+
+[----------] 11 tests from ConcurrenciaSema
+[ RUN      ] ConcurrenciaSema.ProgramaCorrectoSinErrores
+[       OK ] ConcurrenciaSema.ProgramaCorrectoSinErrores (0 ms)
+[ RUN      ] ConcurrenciaSema.HiloRequiereFuncionDeNivelSuperior
+[       OK ] ConcurrenciaSema.HiloRequiereFuncionDeNivelSuperior (0 ms)
+[ RUN      ] ConcurrenciaSema.HiloRequiereValorDeRetorno
+[       OK ] ConcurrenciaSema.HiloRequiereValorDeRetorno (0 ms)
+[ RUN      ] ConcurrenciaSema.HiloCompruebaLosArgumentos
+[       OK ] ConcurrenciaSema.HiloCompruebaLosArgumentos (0 ms)
+[ RUN      ] ConcurrenciaSema.AwaitSoloDeHilo
+[       OK ] ConcurrenciaSema.AwaitSoloDeHilo (0 ms)
+[ RUN      ] ConcurrenciaSema.AsyncFnNecesitaRetorno
+[       OK ] ConcurrenciaSema.AsyncFnNecesitaRetorno (0 ms)
+[ RUN      ] ConcurrenciaSema.DebilSoloDeValoresHeap
+[       OK ] ConcurrenciaSema.DebilSoloDeValoresHeap (0 ms)
+[ RUN      ] ConcurrenciaSema.CanalTipaLosMensajes
+[       OK ] ConcurrenciaSema.CanalTipaLosMensajes (0 ms)
+[ RUN      ] ConcurrenciaSema.CanalSinTipoEsError
+[       OK ] ConcurrenciaSema.CanalSinTipoEsError (0 ms)
+[ RUN      ] ConcurrenciaSema.FuerteDevuelveOption
+[       OK ] ConcurrenciaSema.FuerteDevuelveOption (0 ms)
+[ RUN      ] ConcurrenciaSema.NombresReservados
+[       OK ] ConcurrenciaSema.NombresReservados (0 ms)
+[----------] 11 tests from ConcurrenciaSema (0 ms total)
+
+[----------] 9 tests from Lexer
+[ RUN      ] Lexer.PositionsAreOneBasedAndIndentTokensEmitted
+[       OK ] Lexer.PositionsAreOneBasedAndIndentTokensEmitted (0 ms)
+[ RUN      ] Lexer.RangeIsNotAFloat
+[       OK ] Lexer.RangeIsNotAFloat (0 ms)
+[ RUN      ] Lexer.FloatLiterals
+[       OK ] Lexer.FloatLiterals (0 ms)
+[ RUN      ] Lexer.StringEscapes
+[       OK ] Lexer.StringEscapes (0 ms)
+[ RUN      ] Lexer.CommentsAndBlankLinesDoNotChangeIndentation
+[       OK ] Lexer.CommentsAndBlankLinesDoNotChangeIndentation (0 ms)
+[ RUN      ] Lexer.TabIsAnError
+[       OK ] Lexer.TabIsAnError (0 ms)
+[ RUN      ] Lexer.InconsistentDedentIsAnError
+[       OK ] Lexer.InconsistentDedentIsAnError (0 ms)
+[ RUN      ] Lexer.UnterminatedStringIsAnError
+[       OK ] Lexer.UnterminatedStringIsAnError (0 ms)
+[ RUN      ] Lexer.SemicolonIsAnErrorWithHint
+[       OK ] Lexer.SemicolonIsAnErrorWithHint (0 ms)
+[----------] 9 tests from Lexer (0 ms total)
+
+[----------] 3 tests from ParserIndent
+[ RUN      ] ParserIndent.BlockEndsWithDedent
+[       OK ] ParserIndent.BlockEndsWithDedent (0 ms)
+[ RUN      ] ParserIndent.UnexpectedIndentIsReportedAndRecovered
+[       OK ] ParserIndent.UnexpectedIndentIsReportedAndRecovered (0 ms)
+[ RUN      ] ParserIndent.MissingBlockIsAnError
+[       OK ] ParserIndent.MissingBlockIsAnError (0 ms)
+[----------] 3 tests from ParserIndent (0 ms total)
+
+[----------] 5 tests from ParserControl
+[ RUN      ] ParserControl.IfElifElseDesugarsElifIntoElse
+[       OK ] ParserControl.IfElifElseDesugarsElifIntoElse (0 ms)
+[ RUN      ] ParserControl.ForWithRange
+[       OK ] ParserControl.ForWithRange (0 ms)
+[ RUN      ] ParserControl.ForOverList
+[       OK ] ParserControl.ForOverList (0 ms)
+[ RUN      ] ParserControl.WhileBreakContinue
+[       OK ] ParserControl.WhileBreakContinue (0 ms)
+[ RUN      ] ParserControl.RangeOutsideForIsAnError
+[       OK ] ParserControl.RangeOutsideForIsAnError (0 ms)
+[----------] 5 tests from ParserControl (0 ms total)
+
+[----------] 12 tests from ParserDecl
+[ RUN      ] ParserDecl.VarDeclMutAndTyped
+[       OK ] ParserDecl.VarDeclMutAndTyped (0 ms)
+[ RUN      ] ParserDecl.AssignToIndexAndMember
+[       OK ] ParserDecl.AssignToIndexAndMember (0 ms)
+[ RUN      ] ParserDecl.FnWithReturn
+[       OK ] ParserDecl.FnWithReturn (0 ms)
+[ RUN      ] ParserDecl.FnWithoutReturnType
+[       OK ] ParserDecl.FnWithoutReturnType (0 ms)
+[ RUN      ] ParserDecl.ImplWithSelf
+[       OK ] ParserDecl.ImplWithSelf (0 ms)
+[ RUN      ] ParserDecl.SelfOutsideImplIsAnError
+[       OK ] ParserDecl.SelfOutsideImplIsAnError (0 ms)
+[ RUN      ] ParserDecl.ExternHasNoBody
+[       OK ] ParserDecl.ExternHasNoBody (0 ms)
+[ RUN      ] ParserDecl.ExternWithColonIsAnError
+[       OK ] ParserDecl.ExternWithColonIsAnError (0 ms)
+[ RUN      ] ParserDecl.StructFields
+[       OK ] ParserDecl.StructFields (0 ms)
+[ RUN      ] ParserDecl.ImportsIncludingSubpath
+[       OK ] ParserDecl.ImportsIncludingSubpath (0 ms)
+[ RUN      ] ParserDecl.ImportInsideBlockIsAnError
+[       OK ] ParserDecl.ImportInsideBlockIsAnError (0 ms)
+[ RUN      ] ParserDecl.TopLevelMixesDeclsAndStatements
+[       OK ] ParserDecl.TopLevelMixesDeclsAndStatements (0 ms)
+[----------] 12 tests from ParserDecl (0 ms total)
+
+[----------] 3 tests from ParserTypes
+[ RUN      ] ParserTypes.TensorDimsAndListDict
+[       OK ] ParserTypes.TensorDimsAndListDict (0 ms)
+[ RUN      ] ParserTypes.TensorOfStrIsAnError
+[       OK ] ParserTypes.TensorOfStrIsAnError (0 ms)
+[ RUN      ] ParserTypes.TensorZeroDimIsAnError
+[       OK ] ParserTypes.TensorZeroDimIsAnError (0 ms)
+[----------] 3 tests from ParserTypes (0 ms total)
+
+[----------] 5 tests from ParserLiterals
+[ RUN      ] ParserLiterals.ListAndDict
+[       OK ] ParserLiterals.ListAndDict (0 ms)
+[ RUN      ] ParserLiterals.CallWithNamedArgs
+[       OK ] ParserLiterals.CallWithNamedArgs (0 ms)
+[ RUN      ] ParserLiterals.PositionalAfterNamedIsAnError
+[       OK ] ParserLiterals.PositionalAfterNamedIsAnError (0 ms)
+[ RUN      ] ParserLiterals.StringEscapesReachTheAst
+[       OK ] ParserLiterals.StringEscapesReachTheAst (0 ms)
+[ RUN      ] ParserLiterals.MethodCallAndIndexChain
+[       OK ] ParserLiterals.MethodCallAndIndexChain (0 ms)
+[----------] 5 tests from ParserLiterals (0 ms total)
+
+[----------] 7 tests from ParserPrecedence
+[ RUN      ] ParserPrecedence.MulBindsTighterThanAdd
+[       OK ] ParserPrecedence.MulBindsTighterThanAdd (0 ms)
+[ RUN      ] ParserPrecedence.OrIsLowerThanAnd
+[       OK ] ParserPrecedence.OrIsLowerThanAnd (0 ms)
+[ RUN      ] ParserPrecedence.NotAppliesToComparison
+[       OK ] ParserPrecedence.NotAppliesToComparison (0 ms)
+[ RUN      ] ParserPrecedence.ComparisonBindsTighterThanAnd
+[       OK ] ParserPrecedence.ComparisonBindsTighterThanAnd (0 ms)
+[ RUN      ] ParserPrecedence.UnaryMinusBindsTighterThanMul
+[       OK ] ParserPrecedence.UnaryMinusBindsTighterThanMul (0 ms)
+[ RUN      ] ParserPrecedence.MatMulSameLevelAsMul
+[       OK ] ParserPrecedence.MatMulSameLevelAsMul (0 ms)
+[ RUN      ] ParserPrecedence.PostfixBindsTighterThanUnary
+[       OK ] ParserPrecedence.PostfixBindsTighterThanUnary (0 ms)
+[----------] 7 tests from ParserPrecedence (0 ms total)
+
+[----------] 9 tests from ParserErrors
+[ RUN      ] ParserErrors.MissingColonAfterIfReportsLineAndColumn
+[       OK ] ParserErrors.MissingColonAfterIfReportsLineAndColumn (0 ms)
+[ RUN      ] ParserErrors.MissingColonAfterWhileAndFn
+[       OK ] ParserErrors.MissingColonAfterWhileAndFn (0 ms)
+[ RUN      ] ParserErrors.ElseWithoutIf
+[       OK ] ParserErrors.ElseWithoutIf (0 ms)
+[ RUN      ] ParserErrors.MultipleErrorsAreRecovered
+[       OK ] ParserErrors.MultipleErrorsAreRecovered (0 ms)
+[ RUN      ] ParserErrors.ErrorInsideBlockDoesNotLoseNextBlock
+[       OK ] ParserErrors.ErrorInsideBlockDoesNotLoseNextBlock (0 ms)
+[ RUN      ] ParserErrors.MissingStatementEndHasHint
+[       OK ] ParserErrors.MissingStatementEndHasHint (0 ms)
+[ RUN      ] ParserErrors.TabInsideProgramStillProducesTree
+[       OK ] ParserErrors.TabInsideProgramStillProducesTree (0 ms)
+[ RUN      ] ParserErrors.UnclosedParenIsReported
+[       OK ] ParserErrors.UnclosedParenIsReported (0 ms)
+[ RUN      ] ParserErrors.EmptySourceIsValid
+[       OK ] ParserErrors.EmptySourceIsValid (0 ms)
+[----------] 9 tests from ParserErrors (0 ms total)
+
+[----------] 5 tests from ParserLimits
+[ RUN      ] ParserLimits.DeepParenthesesDoNotCrashAndRecoverOnce
+[       OK ] ParserLimits.DeepParenthesesDoNotCrashAndRecoverOnce (6 ms)
+[ RUN      ] ParserLimits.DeepListsAndUnaryDoNotCrash
+[       OK ] ParserLimits.DeepListsAndUnaryDoNotCrash (9 ms)
+[ RUN      ] ParserLimits.OneThousandNestedListsAreAccepted
+[       OK ] ParserLimits.OneThousandNestedListsAreAccepted (0 ms)
+[ RUN      ] ParserLimits.DeepBlocksDoNotCrashAndReportOnce
+[       OK ] ParserLimits.DeepBlocksDoNotCrashAndReportOnce (1 ms)
+[ RUN      ] ParserLimits.LongElifChainDoesNotCrash
+[       OK ] ParserLimits.LongElifChainDoesNotCrash (0 ms)
+[----------] 5 tests from ParserLimits (18 ms total)
+
+[----------] 1 test from LexerBom
+[ RUN      ] LexerBom.Utf8ByteOrderMarkIsIgnored
+[       OK ] LexerBom.Utf8ByteOrderMarkIsIgnored (0 ms)
+[----------] 1 test from LexerBom (0 ms total)
+
+[----------] 4 tests from LexerNumbers
+[ RUN      ] LexerNumbers.WellFormedLiteralsAreAccepted
+[       OK ] LexerNumbers.WellFormedLiteralsAreAccepted (0 ms)
+[ RUN      ] LexerNumbers.MalformedLiteralsReadWholeTokenWithPosition
+[       OK ] LexerNumbers.MalformedLiteralsReadWholeTokenWithPosition (0 ms)
+[ RUN      ] LexerNumbers.MalformedLiteralHintsSuggestTheFix
+[       OK ] LexerNumbers.MalformedLiteralHintsSuggestTheFix (0 ms)
+[ RUN      ] LexerNumbers.MalformedLiteralDoesNotCascadeIntoParserErrors
+[       OK ] LexerNumbers.MalformedLiteralDoesNotCascadeIntoParserErrors (0 ms)
+[----------] 4 tests from LexerNumbers (0 ms total)
+
+[----------] 2 tests from ParserNamedArgs
+[ RUN      ] ParserNamedArgs.EqualsInArgumentSuggestsColon
+[       OK ] ParserNamedArgs.EqualsInArgumentSuggestsColon (0 ms)
+[ RUN      ] ParserNamedArgs.ColonSyntaxStillParses
+[       OK ] ParserNamedArgs.ColonSyntaxStillParses (0 ms)
+[----------] 2 tests from ParserNamedArgs (0 ms total)
+
+[----------] 2 tests from DiagnosticsPrint
+[ RUN      ] DiagnosticsPrint.AtMostTwentyErrorsArePrinted
+[       OK ] DiagnosticsPrint.AtMostTwentyErrorsArePrinted (1 ms)
+[ RUN      ] DiagnosticsPrint.FewErrorsPrintWithoutOmissionLine
+[       OK ] DiagnosticsPrint.FewErrorsPrintWithoutOmissionLine (0 ms)
+[----------] 2 tests from DiagnosticsPrint (1 ms total)
+
+[----------] 3 tests from SemaImmutability
+[ RUN      ] SemaImmutability.ReassignWithoutMutIsError
+[       OK ] SemaImmutability.ReassignWithoutMutIsError (0 ms)
+[ RUN      ] SemaImmutability.ReassignWithMutIsOk
+[       OK ] SemaImmutability.ReassignWithMutIsOk (0 ms)
+[ RUN      ] SemaImmutability.FieldAssignNeedsMutBase
+[       OK ] SemaImmutability.FieldAssignNeedsMutBase (0 ms)
+[----------] 3 tests from SemaImmutability (0 ms total)
+
+[----------] 4 tests from SemaInference
+[ RUN      ] SemaInference.AssignDeclaresWithInferredType
+[       OK ] SemaInference.AssignDeclaresWithInferredType (0 ms)
+[ RUN      ] SemaInference.DeclaredVarHasInitType
+[       OK ] SemaInference.DeclaredVarHasInitType (0 ms)
+[ RUN      ] SemaInference.EmptyListWithoutAnnotationIsError
+[       OK ] SemaInference.EmptyListWithoutAnnotationIsError (0 ms)
+[ RUN      ] SemaInference.EmptyListWithAnnotationIsOk
+[       OK ] SemaInference.EmptyListWithAnnotationIsOk (0 ms)
+[----------] 4 tests from SemaInference (0 ms total)
+
+[----------] 8 tests from SemaTypes
+[ RUN      ] SemaTypes.MismatchIntStr
+[       OK ] SemaTypes.MismatchIntStr (0 ms)
+[ RUN      ] SemaTypes.MixedIntFloatIsErrorWithHint
+[       OK ] SemaTypes.MixedIntFloatIsErrorWithHint (0 ms)
+[ RUN      ] SemaTypes.IntDivisionYieldsInt
+[       OK ] SemaTypes.IntDivisionYieldsInt (0 ms)
+[ RUN      ] SemaTypes.ModRequiresInt
+[       OK ] SemaTypes.ModRequiresInt (0 ms)
+[ RUN      ] SemaTypes.FunctionParamMismatch
+[       OK ] SemaTypes.FunctionParamMismatch (0 ms)
+[ RUN      ] SemaTypes.ParamWithoutTypeIsError
+[       OK ] SemaTypes.ParamWithoutTypeIsError (0 ms)
+[ RUN      ] SemaTypes.ReturnMissingValueIsError
+[       OK ] SemaTypes.ReturnMissingValueIsError (0 ms)
+[ RUN      ] SemaTypes.NonVoidFunctionMustReturn
+[       OK ] SemaTypes.NonVoidFunctionMustReturn (0 ms)
+[----------] 8 tests from SemaTypes (0 ms total)
+
+[----------] 7 tests from SemaTensor
+[ RUN      ] SemaTensor.IncompatibleDeclaredShapeIsCompileError
+[       OK ] SemaTensor.IncompatibleDeclaredShapeIsCompileError (0 ms)
+[ RUN      ] SemaTensor.CompatibleDeclaredShapeIsOk
+[       OK ] SemaTensor.CompatibleDeclaredShapeIsOk (0 ms)
+[ RUN      ] SemaTensor.NonLiteralDimIsUnknownAndCompatible
+[       OK ] SemaTensor.NonLiteralDimIsUnknownAndCompatible (0 ms)
+[ RUN      ] SemaTensor.MatMulKnownShapesMismatchIsCompileError
+[       OK ] SemaTensor.MatMulKnownShapesMismatchIsCompileError (0 ms)
+[ RUN      ] SemaTensor.MatMulResultShape
+[       OK ] SemaTensor.MatMulResultShape (0 ms)
+[ RUN      ] SemaTensor.FromListCountMismatchIsError
+[       OK ] SemaTensor.FromListCountMismatchIsError (0 ms)
+[ RUN      ] SemaTensor.TransposeInvertsShape
+[       OK ] SemaTensor.TransposeInvertsShape (0 ms)
+[----------] 7 tests from SemaTensor (0 ms total)
+
+[----------] 4 tests from SemaStruct
+[ RUN      ] SemaStruct.CtorWithAllFieldsIsOk
+[       OK ] SemaStruct.CtorWithAllFieldsIsOk (0 ms)
+[ RUN      ] SemaStruct.CtorMissingFieldIsError
+[       OK ] SemaStruct.CtorMissingFieldIsError (0 ms)
+[ RUN      ] SemaStruct.CtorWrongFieldTypeIsError
+[       OK ] SemaStruct.CtorWrongFieldTypeIsError (0 ms)
+[ RUN      ] SemaStruct.FieldAccessIsField
+[       OK ] SemaStruct.FieldAccessIsField (0 ms)
+[----------] 4 tests from SemaStruct (0 ms total)
+
+[----------] 6 tests from SemaMethod
+[ RUN      ] SemaMethod.SelfFieldAssignNeedsMutSelf
+[       OK ] SemaMethod.SelfFieldAssignNeedsMutSelf (0 ms)
+[ RUN      ] SemaMethod.MutSelfAllowsFieldAssign
+[       OK ] SemaMethod.MutSelfAllowsFieldAssign (0 ms)
+[ RUN      ] SemaMethod.MethodCallResolvesToMangledName
+[       OK ] SemaMethod.MethodCallResolvesToMangledName (0 ms)
+[ RUN      ] SemaMethod.MutMethodOnImmutableVarIsError
+[       OK ] SemaMethod.MutMethodOnImmutableVarIsError (0 ms)
+[ RUN      ] SemaMethod.MethodArgCountIsChecked
+[       OK ] SemaMethod.MethodArgCountIsChecked (0 ms)
+[ RUN      ] SemaMethod.SelfMustBeFirstParam
+[       OK ] SemaMethod.SelfMustBeFirstParam (0 ms)
+[----------] 6 tests from SemaMethod (0 ms total)
+
+[----------] 8 tests from SemaBuiltins
+[ RUN      ] SemaBuiltins.LenAndConversionsTypes
+[       OK ] SemaBuiltins.LenAndConversionsTypes (0 ms)
+[ RUN      ] SemaBuiltins.PrintAcceptsAnyArgsAndIsVoid
+[       OK ] SemaBuiltins.PrintAcceptsAnyArgsAndIsVoid (0 ms)
+[ RUN      ] SemaBuiltins.LenOfIntIsError
+[       OK ] SemaBuiltins.LenOfIntIsError (0 ms)
+[ RUN      ] SemaBuiltins.ZerosWithLiteralAndUnknownDims
+[       OK ] SemaBuiltins.ZerosWithLiteralAndUnknownDims (0 ms)
+[ RUN      ] SemaBuiltins.FromListTypeFollowsElement
+[       OK ] SemaBuiltins.FromListTypeFollowsElement (0 ms)
+[ RUN      ] SemaBuiltins.ListAppendRequiresMutList
+[       OK ] SemaBuiltins.ListAppendRequiresMutList (0 ms)
+[ RUN      ] SemaBuiltins.ListAppendWithMutIsOk
+[       OK ] SemaBuiltins.ListAppendWithMutIsOk (0 ms)
+[ RUN      ] SemaBuiltins.DictTieneAndLen
+[       OK ] SemaBuiltins.DictTieneAndLen (0 ms)
+[----------] 8 tests from SemaBuiltins (0 ms total)
+
+[----------] 11 tests from SemaScopes
+[ RUN      ] SemaScopes.FunctionCanReadMutGlobalVariable
+[       OK ] SemaScopes.FunctionCanReadMutGlobalVariable (0 ms)
+[ RUN      ] SemaScopes.FunctionCannotReadImmutableGlobalVariable
+[       OK ] SemaScopes.FunctionCannotReadImmutableGlobalVariable (0 ms)
+[ RUN      ] SemaScopes.AssignInFunctionDoesNotSeeGlobal
+[       OK ] SemaScopes.AssignInFunctionDoesNotSeeGlobal (0 ms)
+[ RUN      ] SemaScopes.ForwardCallsAreResolved
+[       OK ] SemaScopes.ForwardCallsAreResolved (0 ms)
+[ RUN      ] SemaScopes.DuplicateFunctionIsError
+[       OK ] SemaScopes.DuplicateFunctionIsError (0 ms)
+[ RUN      ] SemaScopes.BreakOutsideLoopIsError
+[       OK ] SemaScopes.BreakOutsideLoopIsError (0 ms)
+[ RUN      ] SemaScopes.ForRangeVarIsInt
+[       OK ] SemaScopes.ForRangeVarIsInt (0 ms)
+[ RUN      ] SemaScopes.ForOverListGivesElementType
+[       OK ] SemaScopes.ForOverListGivesElementType (0 ms)
+[ RUN      ] SemaScopes.IfConditionMustBeBool
+[       OK ] SemaScopes.IfConditionMustBeBool (0 ms)
+[ RUN      ] SemaScopes.ErrorRecoveryDoesNotCascade
+[       OK ] SemaScopes.ErrorRecoveryDoesNotCascade (0 ms)
+[ RUN      ] SemaScopes.ReservedFunctionNameIsError
+[       OK ] SemaScopes.ReservedFunctionNameIsError (0 ms)
+[----------] 11 tests from SemaScopes (0 ms total)
+
+[----------] 10 tests from SemaTensorIndex
+[ RUN      ] SemaTensorIndex.FullIndexYieldsElementType
+[       OK ] SemaTensorIndex.FullIndexYieldsElementType (0 ms)
+[ RUN      ] SemaTensorIndex.PartialIndexYieldsSubTensor
+[       OK ] SemaTensorIndex.PartialIndexYieldsSubTensor (0 ms)
+[ RUN      ] SemaTensorIndex.NegativeLiteralInRangeIsOk
+[       OK ] SemaTensorIndex.NegativeLiteralInRangeIsOk (0 ms)
+[ RUN      ] SemaTensorIndex.LiteralOutOfRangeIsCompileError
+[       OK ] SemaTensorIndex.LiteralOutOfRangeIsCompileError (0 ms)
+[ RUN      ] SemaTensorIndex.TooManyIndicesIsError
+[       OK ] SemaTensorIndex.TooManyIndicesIsError (0 ms)
+[ RUN      ] SemaTensorIndex.FloatIndexIsError
+[       OK ] SemaTensorIndex.FloatIndexIsError (0 ms)
+[ RUN      ] SemaTensorIndex.AssignWithoutMutIsError
+[       OK ] SemaTensorIndex.AssignWithoutMutIsError (0 ms)
+[ RUN      ] SemaTensorIndex.AssignWithMutIsOk
+[       OK ] SemaTensorIndex.AssignWithMutIsOk (0 ms)
+[ RUN      ] SemaTensorIndex.AssignElementTypeMustMatch
+[       OK ] SemaTensorIndex.AssignElementTypeMustMatch (0 ms)
+[ RUN      ] SemaTensorIndex.PartialAssignIsError
+[       OK ] SemaTensorIndex.PartialAssignIsError (0 ms)
+[----------] 10 tests from SemaTensorIndex (0 ms total)
+
+[----------] 5 tests from SemaTensorScalar
+[ RUN      ] SemaTensorScalar.ScalarTimesTensorIsTensor
+[       OK ] SemaTensorScalar.ScalarTimesTensorIsTensor (0 ms)
+[ RUN      ] SemaTensorScalar.IntScalarWithIntTensorIsTensor
+[       OK ] SemaTensorScalar.IntScalarWithIntTensorIsTensor (0 ms)
+[ RUN      ] SemaTensorScalar.FloatScalarWithIntTensorIsErrorWithHint
+[       OK ] SemaTensorScalar.FloatScalarWithIntTensorIsErrorWithHint (0 ms)
+[ RUN      ] SemaTensorScalar.IntScalarWithFloatTensorIsError
+[       OK ] SemaTensorScalar.IntScalarWithFloatTensorIsError (0 ms)
+[ RUN      ] SemaTensorScalar.MatMulWithScalarIsError
+[       OK ] SemaTensorScalar.MatMulWithScalarIsError (0 ms)
+[----------] 5 tests from SemaTensorScalar (0 ms total)
+
+[----------] 10 tests from SemaOption
+[ RUN      ] SemaOption.SomeInfersOptionType
+[       OK ] SemaOption.SomeInfersOptionType (0 ms)
+[ RUN      ] SemaOption.AnnotatedTypeIsOptionOfElem
+[       OK ] SemaOption.AnnotatedTypeIsOptionOfElem (0 ms)
+[ RUN      ] SemaOption.NoneWithoutTypeIsErrorWithHint
+[       OK ] SemaOption.NoneWithoutTypeIsErrorWithHint (0 ms)
+[ RUN      ] SemaOption.NoneWithAnnotationIsOk
+[       OK ] SemaOption.NoneWithAnnotationIsOk (0 ms)
+[ RUN      ] SemaOption.NoneComparisonIsAllowed
+[       OK ] SemaOption.NoneComparisonIsAllowed (0 ms)
+[ RUN      ] SemaOption.OptionEqualityWithOptionIsError
+[       OK ] SemaOption.OptionEqualityWithOptionIsError (0 ms)
+[ RUN      ] SemaOption.SomeWithFloatHintRejectsInt
+[       OK ] SemaOption.SomeWithFloatHintRejectsInt (0 ms)
+[ RUN      ] SemaOption.DesempacarOTypesAndEsSome
+[       OK ] SemaOption.DesempacarOTypesAndEsSome (0 ms)
+[ RUN      ] SemaOption.DesempacarOWithWrongDefaultIsError
+[       OK ] SemaOption.DesempacarOWithWrongDefaultIsError (0 ms)
+[ RUN      ] SemaOption.UncheckedAccessDoesNotExist
+[       OK ] SemaOption.UncheckedAccessDoesNotExist (0 ms)
+[----------] 10 tests from SemaOption (0 ms total)
+
+[----------] 9 tests from SemaClosure
+[ RUN      ] SemaClosure.ThreeLevelCaptureIsOk
+[       OK ] SemaClosure.ThreeLevelCaptureIsOk (0 ms)
+[ RUN      ] SemaClosure.MutCaptureIsByReferenceAndMarksVariable
+[       OK ] SemaClosure.MutCaptureIsByReferenceAndMarksVariable (0 ms)
+[ RUN      ] SemaClosure.UseOutsideEndedScopeIsClearError
+[       OK ] SemaClosure.UseOutsideEndedScopeIsClearError (0 ms)
+[ RUN      ] SemaClosure.NestedNameNotVisibleOutsideItsBlock
+[       OK ] SemaClosure.NestedNameNotVisibleOutsideItsBlock (0 ms)
+[ RUN      ] SemaClosure.AssignToImmutableCaptureIsError
+[       OK ] SemaClosure.AssignToImmutableCaptureIsError (0 ms)
+[ RUN      ] SemaClosure.ReturnedClosureTypeIsFunctionType
+[       OK ] SemaClosure.ReturnedClosureTypeIsFunctionType (0 ms)
+[ RUN      ] SemaClosure.ClosureCallArityIsChecked
+[       OK ] SemaClosure.ClosureCallArityIsChecked (0 ms)
+[ RUN      ] SemaClosure.TopLevelFunctionIsNotAValue
+[       OK ] SemaClosure.TopLevelFunctionIsNotAValue (0 ms)
+[ RUN      ] SemaClosure.GlobalVariableNotVisibleFromNestedFn
+[       OK ] SemaClosure.GlobalVariableNotVisibleFromNestedFn (0 ms)
+[----------] 9 tests from SemaClosure (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 170 tests from 27 test suites ran. (20 ms total)
+[  PASSED  ] 170 tests.
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"unit" end time: Nov 14 03:23 CET
+"unit" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/12 Testing: e2e
+2/12 Test: e2e
+Command: "/Users/david/Desktop/nasa/lenguaje/tests/e2e/run_e2e.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"e2e" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+PASS  bool_ops
+PASS  clo_bucle_captura_valor
+PASS  clo_devuelta
+PASS  clo_metodo_self
+PASS  clo_mut_ambos_lados
+PASS  clo_recursiva
+PASS  clo_tres_niveles
+PASS  conc_async
+PASS  conc_canal_cerrado
+PASS  conc_canal_enviar_cerrado
+PASS  conc_cuatro_hilos_canal
+PASS  conc_hilo_error
+PASS  conc_hilo_heap
+PASS  debil_ciclo
+PASS  debil_liberado
+PASS  debil_str
+PASS  dict_basico
+PASS  err_break
+PASS  err_clo_captura_inmutable
+PASS  err_clo_fuera_ambito
+PASS  err_clo_nombre_no_visible
+PASS  err_inmutable
+PASS  err_modulo_no_encontrado
+PASS  err_option_desempacar_tipo
+PASS  err_option_none_sin_tipo
+PASS  err_tensor_asignacion_inmutable
+PASS  err_tensor_escalar_mezcla
+PASS  err_tensor_indice_literal
+PASS  err_tipos
+PASS  escape_retorno
+PASS  extern_sqrt
+PASS  factorial
+PASS  fase0_globales_anidada
+PASS  fase0_globales_contador
+PASS  fase0_globales_hilo_directo
+PASS  fase0_globales_hilo_error
+PASS  fase0_globales_hilo_params
+PASS  fase0_globales_lista_texto
+PASS  fase0_globales_metodo
+PASS  fase0_globales_orden
+PASS  floats
+PASS  for_break_continue
+PASS  for_lista
+PASS  for_rango
+PASS  funcion_suma
+PASS  import_lg_path
+PASS  import_modulo
+PASS  int_de_float_validos
+PASS  lib_datos_csv_cabecera
+PASS  lib_datos_csv_comillas
+PASS  lib_datos_csv_lineas
+PASS  lib_datos_json_anidado
+PASS  lib_datos_json_escalar
+PASS  lib_datos_json_escapes
+PASS  lib_datos_json_grande
+PASS  lib_datos_json_invalido
+PASS  lib_datos_json_listas_vacias
+PASS  lib_datos_json_numeros
+PASS  lib_datos_json_profundidad
+PASS  lib_datos_json_roundtrip
+PASS  lib_http_cabeceras_grandes
+PASS  lib_http_cuerpo_grande
+PASS  lib_http_cuerpo_incompleto
+PASS  lib_http_error_cabecera_sin_dos_puntos
+PASS  lib_http_error_metodo
+PASS  lib_http_error_sin_fin
+PASS  lib_http_linea_vacia_basura
+PASS  lib_http_parseo_get
+PASS  lib_http_parseo_post
+PASS  lib_http_red_fd_invalido
+PASS  lib_http_serializa_200
+PASS  lib_http_serializa_404_500
+PASS  lib_nucleo_aleatorio_entrada_invertida
+PASS  lib_nucleo_aleatorio_limites
+PASS  lib_nucleo_aleatorio_normal
+PASS  lib_nucleo_aleatorio_tipo_incorrecto
+PASS  lib_nucleo_terminal_color
+PASS  lib_nucleo_terminal_eof
+PASS  lib_nucleo_terminal_tipo_incorrecto
+PASS  lib_nucleo_texto_estres
+PASS  lib_nucleo_texto_limites
+PASS  lib_nucleo_texto_normal
+PASS  lib_nucleo_texto_repetir_negativo
+PASS  lib_nucleo_texto_separador_vacio
+PASS  lib_nucleo_texto_tipo_incorrecto
+PASS  lib_nucleo_tiempo_limites
+PASS  lib_nucleo_tiempo_normal
+PASS  lib_nucleo_tiempo_tipo_incorrecto
+PASS  lib_ui_contador
+PASS  lib_ui_escapar
+PASS  lib_ui_grande
+PASS  lib_ui_render
+PASS  lib_web_mw_cabeceras
+PASS  lib_web_mw_error_json
+PASS  lib_web_mw_limite
+PASS  lib_web_mw_redireccion
+PASS  lib_web_mw_registro
+PASS  lib_web_mw_requiere_json
+PASS  lib_web_mw_respuestas
+PASS  lib_web_nucleo_basura
+PASS  lib_web_nucleo_enrutar
+PASS  lib_web_nucleo_integracion
+PASS  lista_anidada
+PASS  lista_basica
+PASS  lista_cuadrados
+PASS  lista_metodos
+PASS  ns_ambiguo
+PASS  ns_err_miembro
+PASS  ns_namespaces
+PASS  ns_std_red
+PASS  ns_stdlib_alias
+PASS  option_some_none
+PASS  option_texto_y_reasigna
+PASS  print_multi
+PASS  rt_div_cero
+PASS  rt_indice
+PASS  rt_int_de_float
+PASS  rt_overflow
+PASS  rt_pila_profunda
+PASS  rt_tensor_div_cero
+PASS  rt_tensor_indice
+PASS  scope_bloques
+PASS  std_datos
+PASS  std_datos_csv_invalido
+PASS  std_datos_no_existe
+PASS  std_mat
+PASS  std_red
+PASS  strings
+PASS  struct_eq
+PASS  struct_metodos
+PASS  tensor_asignacion
+PASS  tensor_escalar
+PASS  tensor_forma
+PASS  tensor_indice_completo
+PASS  tensor_indice_negativo
+PASS  tensor_indice_parcial
+PASS  tensor_producto
+PASS  tensor_transpose
+PASS  var_basica
+PASS  var_mut
+PASS  var_tipada
+PASS  while_suma
+
+Resumen: 142 PASS, 0 FAIL
+<end of output>
+Test time =  20.12 sec
+----------------------------------------------------------
+Test Passed.
+"e2e" end time: Nov 14 03:23 CET
+"e2e" time elapsed: 00:00:20
+----------------------------------------------------------
+
+3/12 Testing: debug_lldb
+3/12 Test: debug_lldb
+Command: "/bin/bash" "/Users/david/Desktop/nasa/lenguaje/tests/v2/debug/run_debug_tests.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"debug_lldb" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+ok: la salida del programa con -g es 120
+(lldb) target create "./fact_g"
+Current executable set to '/var/folders/d_/8rrrn40552q_tsn8b_zg_3q80000gn/T/lg_debug.Ri5Ymc/fact_g' (arm64).
+(lldb) breakpoint set -f factorial_dbg.lg -l 5
+Breakpoint 1: where = fact_g`u_factorial + 76 at factorial_dbg.lg:5:15, address = 0x0000000100000634
+(lldb) run
+Process 63837 launched: '/var/folders/d_/8rrrn40552q_tsn8b_zg_3q80000gn/T/lg_debug.Ri5Ymc/fact_g' (arm64)
+Process 63837 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x0000000100000634 fact_g`u_factorial(n=5) at factorial_dbg.lg:5:15
+   2   	    mut acc = 1
+   3   	    mut i = 2
+   4   	    while i <= n:
+-> 5   	        acc = acc * i
+    	              ^
+   6   	        i = i + 1
+   7   	    return acc
+   8   	
+Target 0: (fact_g) stopped.
+(lldb) frame variable
+(long) n = 5
+(long) acc = 1
+(long) i = 2
+(lldb) continue
+Process 63837 resuming
+Process 63837 stopped
+* thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 1.1
+    frame #0: 0x0000000100000634 fact_g`u_factorial(n=5) at factorial_dbg.lg:5:15
+   2   	    mut acc = 1
+   3   	    mut i = 2
+   4   	    while i <= n:
+-> 5   	        acc = acc * i
+    	              ^
+   6   	        i = i + 1
+   7   	    return acc
+   8   	
+Target 0: (fact_g) stopped.
+(lldb) frame variable
+(long) n = 5
+(long) acc = 2
+(long) i = 3
+ok: el breakpoint de la línea 5 se resuelve
+ok: el programa para en la línea 5
+ok: la parada muestra la línea 5 del .lg
+ok: primera parada: n = 5
+ok: primera parada: acc = 1
+ok: primera parada: i = 2
+ok: segunda parada: acc = 2
+ok: segunda parada: i = 3
+ok: sin -g el breakpoint por línea no resuelve
+debug: todas las comprobaciones pasan
+<end of output>
+Test time =   0.94 sec
+----------------------------------------------------------
+Test Passed.
+"debug_lldb" end time: Nov 14 03:23 CET
+"debug_lldb" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/12 Testing: wasm
+4/12 Test: wasm
+Command: "/Users/david/Desktop/nasa/lenguaje/tests/wasm/run_wasm.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"wasm" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+PASS  aritmetica
+PASS  err_hilos
+PASS  err_tcp
+PASS  fase0_globales_contador
+PASS  fase0_globales_lista_texto
+PASS  hola
+PASS  listas_cadenas
+PASS  mat_modulo
+PASS  mult_grande
+PASS  rt_desbordamiento
+PASS  rt_div_cero
+PASS  rt_indice
+PASS  structs_metodos
+wasm: 13 pasaron, 0 fallaron
+<end of output>
+Test time =   2.96 sec
+----------------------------------------------------------
+Test Passed.
+"wasm" end time: Nov 14 03:23 CET
+"wasm" time elapsed: 00:00:02
+----------------------------------------------------------
+
+5/12 Testing: wasm_ui
+5/12 Test: wasm_ui
+Command: "/opt/homebrew/bin/node" "--no-warnings" "/Users/david/Desktop/nasa/lenguaje/tests/wasm_ui/run_ui.js" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"wasm_ui" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+PASS  contador: exports con nombre del .lg
+PASS  contador: 3 pulsaciones -> "Pulsaciones: 3"
+PASS  largo: compilar con exports
+PASS  largo: str de 100000 caracteres completo y correcto
+PASS  largo: UTF-8 (ñ, ú, ✓) y tipos bool/float
+PASS  error: export inexistente
+PASS  error: nombre con caracteres raros
+PASS  error: nombre reservado lg_
+PASS  error: --export sin --target wasm32
+FAIL  ir nativo idéntico a build/bin/lgc: código distinto en /Users/david/Desktop/nasa/lenguaje/tests/wasm/fase0_globales_contador.lg
+wasm_ui: 9 pasaron, 1 fallaron
+<end of output>
+Test time =   0.28 sec
+----------------------------------------------------------
+Test Failed.
+"wasm_ui" end time: Nov 14 03:23 CET
+"wasm_ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: qa
+6/12 Test: qa
+Command: "/Users/david/Desktop/nasa/lenguaje/tests/qa/run_qa.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"qa" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+== Casos de stdlib y compilador ==
+PASS  cadena_1mb_estres
+PASS  cadena_bordes
+PASS  compilador_anidamiento_10000
+PASS  compilador_cadena_sin_cerrar
+PASS  compilador_extern_abi_desconocida
+PASS  compilador_import_circular
+PASS  compilador_import_inexistente
+PASS  compilador_indentacion_rota
+PASS  compilador_parentesis_sin_cerrar
+PASS  datos_campo_no_numerico
+PASS  datos_csv_crlf_campos_vacios
+PASS  datos_fichero_vacio
+PASS  datos_no_existe
+PASS  mat_red_documentados
+PASS  tcp_cerrar_dos_veces
+PASS  tcp_escribir_fd_cerrado
+PASS  tcp_leer_maximo_no_positivo
+PASS  tcp_puertos_invalidos
+PASS  tcp_sigpipe_peer_cerrado
+
+== Fuzzing de cadena (referencia en Python) ==
+PASS  cadena_fuzz
+
+== Fuzzing del compilador (mutaciones de tests/e2e) ==
+PASS  fuzz_compilador
+fuzz compilador: 300 entradas, 0 fallos
+
+== Bugs conocidos (BUG_*), ejecutados aparte ==
+PASS  BUG_tcp_escuchar_puerto_cero
+PASS  BUG_tcp_leer_maximo_grande
+
+Resumen: 23 PASS, 0 FAIL (0 de ellos BUG_ conocidos)
+<end of output>
+Test time =  11.68 sec
+----------------------------------------------------------
+Test Passed.
+"qa" end time: Nov 14 03:23 CET
+"qa" time elapsed: 00:00:11
+----------------------------------------------------------
+
+7/12 Testing: qa_web
+7/12 Test: qa_web
+Command: "/Users/david/Desktop/nasa/lenguaje/tests/qa/web/run_web_qa.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"qa_web" start time: Nov 14 03:23 CET
+Output:
+----------------------------------------------------------
+== 1. Robustez HTTP (lib/red/http.lg, servidor sin framework) ==
+      METRICA garbage conexiones=1000 resets=109 estados={'400': 736, '404': 85, '200': 70} ping=200
+PASS  garbage_http
+      METRICA timeout_inactivo=1.002s limite=2.000s
+      METRICA timeout_valido_tras_inactivo=1.003s estado=200
+PASS  timeout_http
+      METRICA carga n=2000 ok=2000 rps=11714.4 duracion=0.17s fds_antes=7 fds_despues=7
+PASS  carga_http
+      METRICA grande ruta_1MB estado=400
+      METRICA grande cabecera_1MB estado=400
+      METRICA grande cuerpo_1MB estado=200
+PASS  grande_http
+
+== 2. Robustez del framework (lib/web) ==
+      METRICA garbage conexiones=1000 resets=109 estados={'400': 736, '404': 155} ping=200
+PASS  garbage_web
+      METRICA timeout_inactivo=1.002s limite=2.000s
+      METRICA timeout_valido_tras_inactivo=1.003s estado=200
+PASS  timeout_web
+      METRICA carga n=2000 ok=2000 rps=11414.9 duracion=0.18s fds_antes=7 fds_despues=7
+PASS  carga_web
+      METRICA grande ruta_1MB estado=400
+      METRICA grande cabecera_1MB estado=400
+      METRICA grande cuerpo_1MB estado=404
+PASS  grande_web
+
+== 3. Fuzz de enrutamiento contra referencia Python ==
+      METRICA fuzz_rutas consultas=5000 encontradas=668 no_encontradas=4332
+PASS  fuzz_rutas
+
+== 4. Compilador: errores de uso y casos de salida ==
+PASS  compil_http_responder_aridad
+PASS  compil_http_responder_tipo
+PASS  compil_import_sin_I
+PASS  compil_web_responder_tipo
+PASS  web_ruta_enorme
+PASS  compil_basura_binaria
+
+RESUMEN: pasan=15 fallan=0 (pendientes=0)
+<end of output>
+Test time =  11.20 sec
+----------------------------------------------------------
+Test Passed.
+"qa_web" end time: Nov 14 03:24 CET
+"qa_web" time elapsed: 00:00:11
+----------------------------------------------------------
+
+8/12 Testing: adversarial
+8/12 Test: adversarial
+Command: "/opt/homebrew/bin/python3" "/Users/david/Desktop/nasa/lenguaje/tests/adversarial/run_adversarial.py" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"adversarial" start time: Nov 14 03:24 CET
+Output:
+----------------------------------------------------------
+PASS  parser/and_or_mezcla_ok.lg
+PASS  parser/anidados_dedent_eof_ok.lg
+PASS  parser/archivo_50k_error_ultima.lg
+PASS  parser/archivo_50k_fn_ok.lg
+PASS  parser/archivo_50k_lineas_ok.lg
+PASS  parser/archivo_50k_mut_ok.lg
+PASS  parser/archivo_50k_tab_en_medio.lg
+PASS  parser/archivo_vacio_ok.lg
+PASS  parser/asignacion_en_expresion.lg
+PASS  parser/bloque_vacio_con_comentario.lg
+PASS  parser/bloque_vacio_eof.lg
+PASS  parser/bloque_vacio_siguiente_nivel.lg
+PASS  parser/bom_inicio_archivo.lg
+PASS  parser/break_en_fn_sin_bucle.lg
+PASS  parser/bytes_no_ascii_fuera.lg
+PASS  parser/cadena_comilla_simple.lg
+PASS  parser/cadena_nul_crudo.lg
+PASS  parser/cadena_nul_uso.lg
+PASS  parser/cadena_salto_crudo.lg
+PASS  parser/cadena_sin_cerrar.lg
+PASS  parser/cadena_sin_cerrar_eof.lg
+PASS  parser/cadena_string_no_cerrado_con_corchete.lg
+PASS  parser/cadena_unicode_ok.lg
+PASS  parser/cadena_vacia_ok.lg
+PASS  parser/comentario_columna_0_en_bloque_ok.lg
+PASS  parser/comentario_dentro_parentesis_ok.lg
+PASS  parser/comentario_en_medio_expr.lg
+PASS  parser/comentario_final_bloque_ok.lg
+PASS  parser/comparacion_encadenada.lg
+PASS  parser/control_fuera_cadena.lg
+PASS  parser/corchete_multilinea_ok.lg
+PASS  parser/corchete_sin_cerrar_eof.lg
+PASS  parser/cr_suelto_error.lg
+PASS  parser/crlf_ok.lg
+PASS  parser/dict_anidado_ok.lg
+PASS  parser/dict_clave_lista.lg
+PASS  parser/dict_coma_final_ok.lg
+PASS  parser/dict_sin_cerrar.lg
+PASS  parser/dict_sin_valor.lg
+PASS  parser/dict_tipo_incompleto.lg
+PASS  parser/dict_vacio_sin_tipo.lg
+PASS  parser/dict_vacio_tipado_ok.lg
+PASS  parser/elif_sin_else_ok.lg
+PASS  parser/elif_sin_if.lg
+PASS  parser/else_con_linea_blanco_ok.lg
+PASS  parser/else_mal_indentado.lg
+PASS  parser/else_sin_if.lg
+PASS  parser/else_tras_comentario_ok.lg
+PASS  parser/eof_dentro_parentesis.lg
+PASS  parser/eof_sin_salto_bloque_ok.lg
+PASS  parser/eof_sin_salto_comentario_ok.lg
+PASS  parser/eof_sin_salto_ok.lg
+PASS  parser/error_linea_12_col.lg
+PASS  parser/escape_al_eof.lg
+PASS  parser/escape_cero.lg
+PASS  parser/escape_desconocido.lg
+PASS  parser/escape_quote_final_sin_cerrar.lg
+PASS  parser/escapes_validos_ok.lg
+PASS  parser/expr_de_multiples_lineas_sin_parentesis.lg
+PASS  parser/fn_50k_reasigna_inmutable.lg
+PASS  parser/fn_anidada_ok.lg
+PASS  parser/fn_sin_tipo_retorno.lg
+PASS  parser/fn_tipo_desconocido.lg
+PASS  parser/for_sin_in.lg
+PASS  parser/ident_empieza_digito.lg
+PASS  parser/ident_guion_bajo_ok.lg
+PASS  parser/ident_largo_ok.lg
+PASS  parser/ident_mayus_ok.lg
+PASS  parser/ident_unicode.lg
+PASS  parser/ident_unicode_en_comentario_ok.lg
+PASS  parser/if_anidado_200_con_else_ok.lg
+PASS  parser/if_anidado_200_dos_espacios_ok.lg
+PASS  parser/if_anidado_200_ok.lg
+PASS  parser/if_bloque_con_linea_extra_ok.lg
+PASS  parser/if_una_linea_sin_bloque.lg
+PASS  parser/import_sin_nombre.lg
+PASS  parser/indent_inconsistente.lg
+PASS  parser/indent_inicio_archivo.lg
+PASS  parser/keyword_como_ident.lg
+PASS  parser/lineas_blanco_espacios_ok.lg
+PASS  parser/list_tipo_vacio.lg
+PASS  parser/lista_anidada_1000.lg
+PASS  parser/lista_anidada_20000.lg
+PASS  parser/lista_coma_doble.lg
+PASS  parser/lista_multilinea_mal_indentada_ok.lg
+PASS  parser/lista_solo_coma.lg
+PASS  parser/lista_vacia_sin_tipo.lg
+PASS  parser/lista_vacia_tipada_ok.lg
+PASS  parser/llamada_coma_final.lg
+PASS  parser/llamada_doble_coma.lg
+PASS  parser/llamada_vacia_ok.lg
+PASS  parser/menos_unario_200_ok.lg
+PASS  parser/menos_unario_cadena_ok.lg
+PASS  parser/mezcla_tab_espacios.lg
+PASS  parser/mut_sin_nombre.lg
+PASS  parser/named_antes_posicional.lg
+PASS  parser/named_duplicado.lg
+PASS  parser/named_igual_doble.lg
+PASS  parser/named_inexistente.lg
+PASS  parser/named_keyword.lg
+PASS  parser/named_mixto_sema.lg
+PASS  parser/named_sin_valor.lg
+PASS  parser/named_todos_sema.lg
+PASS  parser/not_not_ok.lg
+PASS  parser/not_precedencia_ok.lg
+PASS  parser/nul_fuera_cadena.lg
+PASS  parser/num_1E_minus_ok.lg
+PASS  parser/num_1_2_3.lg
+PASS  parser/num_1e.lg
+PASS  parser/num_1e400_ok.lg
+PASS  parser/num_1e5_ok.lg
+PASS  parser/num_1e_plus_ok.lg
+PASS  parser/num_1e_plus_sin_digito.lg
+PASS  parser/num_con_guion_bajo.lg
+PASS  parser/num_entero_overflow.lg
+PASS  parser/num_hex.lg
+PASS  parser/num_leading_zero_ok.lg
+PASS  parser/num_pegado_ident.lg
+PASS  parser/num_punto_final.lg
+PASS  parser/num_punto_inicial.lg
+PASS  parser/operador_bang.lg
+PASS  parser/operador_doble.lg
+PASS  parser/operador_multiplicacion_inicio.lg
+PASS  parser/parentesis_anidados_200_ok.lg
+PASS  parser/parentesis_anidados_5000.lg
+PASS  parser/parentesis_anidados_50000.lg
+PASS  parser/parentesis_de_mas.lg
+PASS  parser/parentesis_sin_cerrar_multilinea.lg
+PASS  parser/punto_y_coma.lg
+PASS  parser/rango_asignado.lg
+PASS  parser/rango_con_punto_1_0.lg
+PASS  parser/rango_en_lista.lg
+PASS  parser/rango_en_print.lg
+PASS  parser/rango_for_expr_ok.lg
+PASS  parser/rango_numero_decimal.lg
+PASS  parser/rango_sin_extremo.lg
+PASS  parser/rango_sin_inicio.lg
+PASS  parser/rango_triple.lg
+PASS  parser/return_nivel_superior.lg
+PASS  parser/solo_comentarios_ok.lg
+PASS  parser/solo_espacios_ok.lg
+PASS  parser/solo_saltos_ok.lg
+PASS  parser/struct_anidada.lg
+PASS  parser/struct_sin_campos_eof.lg
+PASS  parser/tab_en_bloque.lg
+PASS  parser/tab_en_cadena_ok.lg
+PASS  parser/tab_en_comentario_ok.lg
+PASS  parser/tab_en_linea_en_blanco.lg
+PASS  parser/tab_fin_de_linea.lg
+PASS  parser/tensor_dim_cero.lg
+PASS  parser/tensor_dim_enorme.lg
+PASS  parser/tensor_dim_float.lg
+PASS  parser/tensor_dim_identificador.lg
+PASS  parser/tensor_dim_negativa.lg
+PASS  parser/tensor_dim_uno_ok.lg
+PASS  parser/tensor_elem_str.lg
+PASS  parser/tensor_sin_cerrar.lg
+PASS  parser/tensor_sin_coma.lg
+PASS  parser/tensor_sin_dims.lg
+PASS  parser/unario_anidado_20000.lg
+PASS  parser/var_sin_valor.lg
+PASS  parser/while_anidado_200_ok.lg
+PASS  parser/while_sin_cuerpo_eof.lg
+PASS  parser/while_sin_dos_puntos.lg
+PASS  semantica/ambito_else_no_ve_if.lg
+PASS  semantica/ambito_fn_no_ve_global.lg
+PASS  semantica/ambito_for_var_fuera.lg
+PASS  semantica/ambito_mut_interno_no_filtra.lg
+PASS  semantica/ambito_nace_en_if.lg
+PASS  semantica/ambito_nace_en_while.lg
+PASS  semantica/ambito_shadow_nested_decl.lg
+PASS  semantica/break_en_fn_sin_bucle.lg
+PASS  semantica/continue_fuera.lg
+PASS  semantica/dict_clave_ausente.lg
+PASS  semantica/dict_in.lg
+PASS  semantica/dict_inmutable_asigna.lg
+PASS  semantica/dict_sobrescribir.lg
+PASS  semantica/dict_tiene_ausente.lg
+PASS  semantica/div_cero.lg
+PASS  semantica/div_cero_constante.lg
+PASS  semantica/extern_aridad.lg
+PASS  semantica/extern_inexistente_enlace.lg
+PASS  semantica/extern_sqrt_compuesto.lg
+PASS  semantica/extern_tipo_int_a_float.lg
+PASS  semantica/fn_aridad_muchos.lg
+PASS  semantica/fn_aridad_pocos.lg
+PASS  semantica/fn_forward_reference.lg
+PASS  semantica/fn_no_retorna_elif.lg
+PASS  semantica/fn_no_retorna_for.lg
+PASS  semantica/fn_no_retorna_if_solo.lg
+PASS  semantica/fn_nombre_duplicado.lg
+PASS  semantica/fn_param_duplicado.lg
+PASS  semantica/fn_retorna_if_elif_else_ok.lg
+PASS  semantica/fn_retorna_if_else_ok.lg
+PASS  semantica/fn_void_con_valor.lg
+PASS  semantica/for_lista_mutada_durante_iter.lg
+PASS  semantica/for_lista_str.lg
+PASS  semantica/for_rango_vacio_invertido.lg
+PASS  semantica/for_rango_variable.lg
+PASS  semantica/for_shadow_var_externa.lg
+PASS  semantica/import_circular.lg
+PASS  semantica/import_inexistente.lg
+PASS  semantica/import_mismo_dos_veces.lg
+PASS  semantica/import_modulo_roto.lg
+PASS  semantica/in_dict_tipo_incorrecto.lg
+PASS  semantica/in_lista_tras_append.lg
+PASS  semantica/indice_fuera.lg
+PASS  semantica/indice_negativo.lg
+PASS  semantica/indice_negativo_fuera.lg
+PASS  semantica/indice_tras_pop.lg
+PASS  semantica/inm_mut_en_if_ok.lg
+PASS  semantica/inm_mut_ok.lg
+PASS  semantica/inm_mut_parametro_sintaxis.lg
+PASS  semantica/inm_parametro.lg
+PASS  semantica/inm_reasig_ambito_if.lg
+PASS  semantica/inm_reasig_ambito_while.lg
+PASS  semantica/inm_reasig_basico.lg
+PASS  semantica/inm_reasig_en_for.lg
+PASS  semantica/inm_var_for_i.lg
+PASS  semantica/int_de_float_fuera_rango.lg
+PASS  semantica/int_de_str_invalido.lg
+PASS  semantica/int_min_div_menos1.lg
+PASS  semantica/int_min_literal.lg
+PASS  semantica/int_min_mod_menos1.lg
+PASS  semantica/int_min_unario_menos.lg
+PASS  semantica/lista_anidada_inmutable.lg
+PASS  semantica/lista_append_inmutable.lg
+PASS  semantica/lista_append_tipo_malo.lg
+PASS  semantica/lista_de_listas_append.lg
+PASS  semantica/lista_de_listas_asigna.lg
+PASS  semantica/lista_in.lg
+PASS  semantica/lista_no_mutable_asigna_elem.lg
+PASS  semantica/mem_for_str_concat_1M.lg
+PASS  semantica/mem_lista_str_temp_1M.lg
+PASS  semantica/mem_struct_anidado_1M.lg
+PASS  semantica/mem_struct_str_list_1M.lg
+PASS  semantica/metodo_mut_self_modifica.lg
+PASS  semantica/metodo_mut_sobre_inmutable.lg
+PASS  semantica/metodo_sin_mut_self_asigna.lg
+PASS  semantica/mod_cero.lg
+PASS  semantica/nombre_builtin_len_var.lg
+PASS  semantica/nombre_campo_duplicado.lg
+PASS  semantica/nombre_fn_colisiona_con_builtin.lg
+PASS  semantica/nombre_metodo_duplicado.lg
+PASS  semantica/nombre_struct_duplicado.lg
+PASS  semantica/nombre_struct_y_fn.lg
+PASS  semantica/nombre_var_y_fn.lg
+PASS  semantica/ovf_mul.lg
+PASS  semantica/ovf_mul_borde_ok.lg
+PASS  semantica/ovf_mul_neg.lg
+PASS  semantica/ovf_resta.lg
+PASS  semantica/ovf_resta_borde_ok.lg
+PASS  semantica/ovf_suma.lg
+PASS  semantica/pop_vacio.lg
+PASS  semantica/print_dict_con_listas.lg
+PASS  semantica/print_lista_de_dicts.lg
+PASS  semantica/print_lista_floats_bools.lg
+PASS  semantica/print_profundo.lg
+PASS  semantica/print_sin_args.lg
+PASS  semantica/rec_fact20.lg
+PASS  semantica/rec_fact21_desborda.lg
+PASS  semantica/rec_fib25.lg
+PASS  semantica/rec_profunda_100k.lg
+PASS  semantica/rec_profunda_10M.lg
+PASS  semantica/return_fuera_fn.lg
+PASS  semantica/str_concat_bucle.lg
+PASS  semantica/str_igualdad_concat.lg
+PASS  semantica/str_igualdad_distinta.lg
+PASS  semantica/str_orden_lt_gap.lg
+PASS  semantica/struct_campo_anidado_inmut.lg
+PASS  semantica/struct_campo_anidado_mut.lg
+PASS  semantica/struct_campo_inexistente.lg
+PASS  semantica/struct_campo_struct.lg
+PASS  semantica/struct_ctor_campo_extra.lg
+PASS  semantica/struct_ctor_falta_campo.lg
+PASS  semantica/struct_ctor_sin_nombre.lg
+PASS  semantica/struct_ctor_tipo_malo.lg
+PASS  semantica/struct_eq_metodo.lg
+PASS  semantica/struct_sin_eq_compara.lg
+PASS  semantica/tensor_anotacion_forma_mala.lg
+PASS  semantica/tensor_from_list_longitud_ct.lg
+PASS  semantica/tensor_from_list_longitud_rt.lg
+PASS  semantica/tensor_from_list_ok.lg
+PASS  semantica/tensor_matmul_dims_dinamicas.lg
+PASS  semantica/tensor_matmul_dtype_mixto.lg
+PASS  semantica/tensor_matmul_incompat_ct.lg
+PASS  semantica/tensor_matmul_incompat_rt.lg
+PASS  semantica/tensor_matmul_ok.lg
+PASS  semantica/tensor_transpose_ok.lg
+PASS  semantica/tensor_transpose_rango3.lg
+PASS  semantica/tensor_transpose_rango3_dinamico.lg
+PASS  semantica/tensor_zeros_dim_cero.lg
+PASS  semantica/tensor_zeros_dim_negativa.lg
+PASS  semantica/tensor_zeros_dims_variables.lg
+PASS  semantica/while_break_anidado.lg
+
+Resumen adversarial: 295 PASS, 0 FAIL
+<end of output>
+Test time =  12.93 sec
+----------------------------------------------------------
+Test Passed.
+"adversarial" end time: Nov 14 03:24 CET
+"adversarial" time elapsed: 00:00:12
+----------------------------------------------------------
+
+9/12 Testing: lgfmt
+9/12 Test: lgfmt
+Command: "/bin/bash" "/Users/david/Desktop/nasa/lenguaje/tests/v2/fmt/run_fmt_tests.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgfmt" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"lgfmt" start time: Nov 14 03:24 CET
+Output:
+----------------------------------------------------------
+PASS  golden basico
+PASS  --check acepta basico.expected
+PASS  idempotencia basico
+PASS  --check detecta basico.lg sin formatear
+PASS  -i basico
+PASS  golden bloques
+PASS  --check acepta bloques.expected
+PASS  idempotencia bloques
+PASS  --check detecta bloques.lg sin formatear
+PASS  -i bloques
+PASS  golden comentarios
+PASS  --check acepta comentarios.expected
+PASS  idempotencia comentarios
+PASS  --check detecta comentarios.lg sin formatear
+PASS  -i comentarios
+PASS  golden declaraciones
+PASS  --check acepta declaraciones.expected
+PASS  idempotencia declaraciones
+PASS  --check detecta declaraciones.lg sin formatear
+PASS  -i declaraciones
+PASS  golden literales
+PASS  --check acepta literales.expected
+PASS  idempotencia literales
+PASS  --check detecta literales.lg sin formatear
+PASS  -i literales
+PASS  golden precedencia
+PASS  --check acepta precedencia.expected
+PASS  idempotencia precedencia
+PASS  --check detecta precedencia.lg sin formatear
+PASS  -i precedencia
+PASS  golden ya_formateado
+PASS  --check acepta ya_formateado.expected
+PASS  idempotencia ya_formateado
+PASS  -i ya_formateado
+PASS  error de parseo err_parseo
+PASS  -i no toca err_parseo con errores
+PASS  AST sin cambios examples/factorial.lg
+PASS  idempotencia examples/factorial.lg
+PASS  IR idéntico examples/factorial.lg
+PASS  AST sin cambios examples/http_hola.lg
+PASS  idempotencia examples/http_hola.lg
+PASS  AST sin cambios examples/matrices.lg
+PASS  idempotencia examples/matrices.lg
+PASS  IR idéntico examples/matrices.lg
+PASS  AST sin cambios examples/red_neuronal.lg
+PASS  idempotencia examples/red_neuronal.lg
+PASS  IR idéntico examples/red_neuronal.lg
+PASS  AST sin cambios examples/std_datos.lg
+PASS  idempotencia examples/std_datos.lg
+PASS  AST sin cambios examples/std_red.lg
+PASS  idempotencia examples/std_red.lg
+PASS  AST sin cambios stdlib/cadena.lg
+PASS  idempotencia stdlib/cadena.lg
+PASS  AST sin cambios stdlib/datos.lg
+PASS  idempotencia stdlib/datos.lg
+PASS  AST sin cambios stdlib/mat.lg
+PASS  idempotencia stdlib/mat.lg
+PASS  IR idéntico stdlib/mat.lg
+PASS  AST sin cambios stdlib/red.lg
+PASS  idempotencia stdlib/red.lg
+PASS  AST sin cambios stdlib/tcp.lg
+PASS  idempotencia stdlib/tcp.lg
+PASS  AST sin cambios tests/e2e/bool_ops.lg
+PASS  idempotencia tests/e2e/bool_ops.lg
+PASS  IR idéntico tests/e2e/bool_ops.lg
+PASS  AST sin cambios tests/e2e/clo_bucle_captura_valor.lg
+PASS  idempotencia tests/e2e/clo_bucle_captura_valor.lg
+PASS  IR idéntico tests/e2e/clo_bucle_captura_valor.lg
+PASS  AST sin cambios tests/e2e/clo_devuelta.lg
+PASS  idempotencia tests/e2e/clo_devuelta.lg
+PASS  IR idéntico tests/e2e/clo_devuelta.lg
+PASS  AST sin cambios tests/e2e/clo_metodo_self.lg
+PASS  idempotencia tests/e2e/clo_metodo_self.lg
+PASS  IR idéntico tests/e2e/clo_metodo_self.lg
+PASS  AST sin cambios tests/e2e/clo_mut_ambos_lados.lg
+PASS  idempotencia tests/e2e/clo_mut_ambos_lados.lg
+PASS  IR idéntico tests/e2e/clo_mut_ambos_lados.lg
+PASS  AST sin cambios tests/e2e/clo_recursiva.lg
+PASS  idempotencia tests/e2e/clo_recursiva.lg
+PASS  IR idéntico tests/e2e/clo_recursiva.lg
+PASS  AST sin cambios tests/e2e/clo_tres_niveles.lg
+PASS  idempotencia tests/e2e/clo_tres_niveles.lg
+PASS  IR idéntico tests/e2e/clo_tres_niveles.lg
+PASS  AST sin cambios tests/e2e/conc_async.lg
+PASS  idempotencia tests/e2e/conc_async.lg
+PASS  IR idéntico tests/e2e/conc_async.lg
+PASS  AST sin cambios tests/e2e/conc_canal_cerrado.lg
+PASS  idempotencia tests/e2e/conc_canal_cerrado.lg
+PASS  IR idéntico tests/e2e/conc_canal_cerrado.lg
+PASS  AST sin cambios tests/e2e/conc_canal_enviar_cerrado.lg
+PASS  idempotencia tests/e2e/conc_canal_enviar_cerrado.lg
+PASS  IR idéntico tests/e2e/conc_canal_enviar_cerrado.lg
+PASS  AST sin cambios tests/e2e/conc_cuatro_hilos_canal.lg
+PASS  idempotencia tests/e2e/conc_cuatro_hilos_canal.lg
+PASS  IR idéntico tests/e2e/conc_cuatro_hilos_canal.lg
+PASS  AST sin cambios tests/e2e/conc_hilo_error.lg
+PASS  idempotencia tests/e2e/conc_hilo_error.lg
+PASS  IR idéntico tests/e2e/conc_hilo_error.lg
+PASS  AST sin cambios tests/e2e/conc_hilo_heap.lg
+PASS  idempotencia tests/e2e/conc_hilo_heap.lg
+PASS  IR idéntico tests/e2e/conc_hilo_heap.lg
+PASS  AST sin cambios tests/e2e/debil_ciclo.lg
+PASS  idempotencia tests/e2e/debil_ciclo.lg
+PASS  IR idéntico tests/e2e/debil_ciclo.lg
+PASS  AST sin cambios tests/e2e/debil_liberado.lg
+PASS  idempotencia tests/e2e/debil_liberado.lg
+PASS  IR idéntico tests/e2e/debil_liberado.lg
+PASS  AST sin cambios tests/e2e/debil_str.lg
+PASS  idempotencia tests/e2e/debil_str.lg
+PASS  IR idéntico tests/e2e/debil_str.lg
+PASS  AST sin cambios tests/e2e/dict_basico.lg
+PASS  idempotencia tests/e2e/dict_basico.lg
+PASS  IR idéntico tests/e2e/dict_basico.lg
+PASS  AST sin cambios tests/e2e/err_break.lg
+PASS  idempotencia tests/e2e/err_break.lg
+PASS  AST sin cambios tests/e2e/err_clo_captura_inmutable.lg
+PASS  idempotencia tests/e2e/err_clo_captura_inmutable.lg
+PASS  AST sin cambios tests/e2e/err_clo_fuera_ambito.lg
+PASS  idempotencia tests/e2e/err_clo_fuera_ambito.lg
+PASS  AST sin cambios tests/e2e/err_clo_nombre_no_visible.lg
+PASS  idempotencia tests/e2e/err_clo_nombre_no_visible.lg
+PASS  AST sin cambios tests/e2e/err_inmutable.lg
+PASS  idempotencia tests/e2e/err_inmutable.lg
+PASS  AST sin cambios tests/e2e/err_modulo_no_encontrado.lg
+PASS  idempotencia tests/e2e/err_modulo_no_encontrado.lg
+PASS  AST sin cambios tests/e2e/err_option_desempacar_tipo.lg
+PASS  idempotencia tests/e2e/err_option_desempacar_tipo.lg
+PASS  AST sin cambios tests/e2e/err_option_none_sin_tipo.lg
+PASS  idempotencia tests/e2e/err_option_none_sin_tipo.lg
+PASS  AST sin cambios tests/e2e/err_tensor_asignacion_inmutable.lg
+PASS  idempotencia tests/e2e/err_tensor_asignacion_inmutable.lg
+PASS  AST sin cambios tests/e2e/err_tensor_escalar_mezcla.lg
+PASS  idempotencia tests/e2e/err_tensor_escalar_mezcla.lg
+PASS  AST sin cambios tests/e2e/err_tensor_indice_literal.lg
+PASS  idempotencia tests/e2e/err_tensor_indice_literal.lg
+PASS  AST sin cambios tests/e2e/err_tipos.lg
+PASS  idempotencia tests/e2e/err_tipos.lg
+PASS  AST sin cambios tests/e2e/escape_retorno.lg
+PASS  idempotencia tests/e2e/escape_retorno.lg
+PASS  IR idéntico tests/e2e/escape_retorno.lg
+PASS  AST sin cambios tests/e2e/extern_sqrt.lg
+PASS  idempotencia tests/e2e/extern_sqrt.lg
+PASS  IR idéntico tests/e2e/extern_sqrt.lg
+PASS  AST sin cambios tests/e2e/factorial.lg
+PASS  idempotencia tests/e2e/factorial.lg
+PASS  IR idéntico tests/e2e/factorial.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_anidada.lg
+PASS  idempotencia tests/e2e/fase0_globales_anidada.lg
+PASS  IR idéntico tests/e2e/fase0_globales_anidada.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_contador.lg
+PASS  idempotencia tests/e2e/fase0_globales_contador.lg
+PASS  IR idéntico tests/e2e/fase0_globales_contador.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_hilo_directo.lg
+PASS  idempotencia tests/e2e/fase0_globales_hilo_directo.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_hilo_error.lg
+PASS  idempotencia tests/e2e/fase0_globales_hilo_error.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_hilo_params.lg
+PASS  idempotencia tests/e2e/fase0_globales_hilo_params.lg
+PASS  IR idéntico tests/e2e/fase0_globales_hilo_params.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_lista_texto.lg
+PASS  idempotencia tests/e2e/fase0_globales_lista_texto.lg
+PASS  IR idéntico tests/e2e/fase0_globales_lista_texto.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_metodo.lg
+PASS  idempotencia tests/e2e/fase0_globales_metodo.lg
+PASS  IR idéntico tests/e2e/fase0_globales_metodo.lg
+PASS  AST sin cambios tests/e2e/fase0_globales_orden.lg
+PASS  idempotencia tests/e2e/fase0_globales_orden.lg
+PASS  IR idéntico tests/e2e/fase0_globales_orden.lg
+PASS  AST sin cambios tests/e2e/floats.lg
+PASS  idempotencia tests/e2e/floats.lg
+PASS  IR idéntico tests/e2e/floats.lg
+PASS  AST sin cambios tests/e2e/for_break_continue.lg
+PASS  idempotencia tests/e2e/for_break_continue.lg
+PASS  IR idéntico tests/e2e/for_break_continue.lg
+PASS  AST sin cambios tests/e2e/for_lista.lg
+PASS  idempotencia tests/e2e/for_lista.lg
+PASS  IR idéntico tests/e2e/for_lista.lg
+PASS  AST sin cambios tests/e2e/for_rango.lg
+PASS  idempotencia tests/e2e/for_rango.lg
+PASS  IR idéntico tests/e2e/for_rango.lg
+PASS  AST sin cambios tests/e2e/funcion_suma.lg
+PASS  idempotencia tests/e2e/funcion_suma.lg
+PASS  IR idéntico tests/e2e/funcion_suma.lg
+PASS  AST sin cambios tests/e2e/import_lg_path.lg
+PASS  idempotencia tests/e2e/import_lg_path.lg
+PASS  AST sin cambios tests/e2e/import_modulo.lg
+PASS  idempotencia tests/e2e/import_modulo.lg
+PASS  AST sin cambios tests/e2e/int_de_float_validos.lg
+PASS  idempotencia tests/e2e/int_de_float_validos.lg
+PASS  IR idéntico tests/e2e/int_de_float_validos.lg
+PASS  AST sin cambios tests/e2e/lg_path/ruta_extra/valor.lg
+PASS  idempotencia tests/e2e/lg_path/ruta_extra/valor.lg
+PASS  IR idéntico tests/e2e/lg_path/ruta_extra/valor.lg
+PASS  AST sin cambios tests/e2e/lib_datos_csv_cabecera.lg
+PASS  idempotencia tests/e2e/lib_datos_csv_cabecera.lg
+PASS  AST sin cambios tests/e2e/lib_datos_csv_comillas.lg
+PASS  idempotencia tests/e2e/lib_datos_csv_comillas.lg
+PASS  AST sin cambios tests/e2e/lib_datos_csv_lineas.lg
+PASS  idempotencia tests/e2e/lib_datos_csv_lineas.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_anidado.lg
+PASS  idempotencia tests/e2e/lib_datos_json_anidado.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_escalar.lg
+PASS  idempotencia tests/e2e/lib_datos_json_escalar.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_escapes.lg
+PASS  idempotencia tests/e2e/lib_datos_json_escapes.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_grande.lg
+PASS  idempotencia tests/e2e/lib_datos_json_grande.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_invalido.lg
+PASS  idempotencia tests/e2e/lib_datos_json_invalido.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_listas_vacias.lg
+PASS  idempotencia tests/e2e/lib_datos_json_listas_vacias.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_numeros.lg
+PASS  idempotencia tests/e2e/lib_datos_json_numeros.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_profundidad.lg
+PASS  idempotencia tests/e2e/lib_datos_json_profundidad.lg
+PASS  AST sin cambios tests/e2e/lib_datos_json_roundtrip.lg
+PASS  idempotencia tests/e2e/lib_datos_json_roundtrip.lg
+PASS  AST sin cambios tests/e2e/lib_datos_modulos/csv.lg
+PASS  idempotencia tests/e2e/lib_datos_modulos/csv.lg
+PASS  AST sin cambios tests/e2e/lib_datos_modulos/json.lg
+PASS  idempotencia tests/e2e/lib_datos_modulos/json.lg
+PASS  AST sin cambios tests/e2e/lib_http_cabeceras_grandes.lg
+PASS  idempotencia tests/e2e/lib_http_cabeceras_grandes.lg
+PASS  AST sin cambios tests/e2e/lib_http_cuerpo_grande.lg
+PASS  idempotencia tests/e2e/lib_http_cuerpo_grande.lg
+PASS  AST sin cambios tests/e2e/lib_http_cuerpo_incompleto.lg
+PASS  idempotencia tests/e2e/lib_http_cuerpo_incompleto.lg
+PASS  AST sin cambios tests/e2e/lib_http_error_cabecera_sin_dos_puntos.lg
+PASS  idempotencia tests/e2e/lib_http_error_cabecera_sin_dos_puntos.lg
+PASS  AST sin cambios tests/e2e/lib_http_error_metodo.lg
+PASS  idempotencia tests/e2e/lib_http_error_metodo.lg
+PASS  AST sin cambios tests/e2e/lib_http_error_sin_fin.lg
+PASS  idempotencia tests/e2e/lib_http_error_sin_fin.lg
+PASS  AST sin cambios tests/e2e/lib_http_linea_vacia_basura.lg
+PASS  idempotencia tests/e2e/lib_http_linea_vacia_basura.lg
+PASS  AST sin cambios tests/e2e/lib_http_mod/http.lg
+PASS  idempotencia tests/e2e/lib_http_mod/http.lg
+PASS  AST sin cambios tests/e2e/lib_http_parseo_get.lg
+PASS  idempotencia tests/e2e/lib_http_parseo_get.lg
+PASS  AST sin cambios tests/e2e/lib_http_parseo_post.lg
+PASS  idempotencia tests/e2e/lib_http_parseo_post.lg
+PASS  AST sin cambios tests/e2e/lib_http_red_fd_invalido.lg
+PASS  idempotencia tests/e2e/lib_http_red_fd_invalido.lg
+PASS  AST sin cambios tests/e2e/lib_http_serializa_200.lg
+PASS  idempotencia tests/e2e/lib_http_serializa_200.lg
+PASS  AST sin cambios tests/e2e/lib_http_serializa_404_500.lg
+PASS  idempotencia tests/e2e/lib_http_serializa_404_500.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_aleatorio_entrada_invertida.lg
+PASS  idempotencia tests/e2e/lib_nucleo_aleatorio_entrada_invertida.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_aleatorio_limites.lg
+PASS  idempotencia tests/e2e/lib_nucleo_aleatorio_limites.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_aleatorio_normal.lg
+PASS  idempotencia tests/e2e/lib_nucleo_aleatorio_normal.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_aleatorio_tipo_incorrecto.lg
+PASS  idempotencia tests/e2e/lib_nucleo_aleatorio_tipo_incorrecto.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_terminal_color.lg
+PASS  idempotencia tests/e2e/lib_nucleo_terminal_color.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_terminal_eof.lg
+PASS  idempotencia tests/e2e/lib_nucleo_terminal_eof.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_terminal_tipo_incorrecto.lg
+PASS  idempotencia tests/e2e/lib_nucleo_terminal_tipo_incorrecto.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_texto_estres.lg
+PASS  idempotencia tests/e2e/lib_nucleo_texto_estres.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_texto_limites.lg
+PASS  idempotencia tests/e2e/lib_nucleo_texto_limites.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_texto_normal.lg
+PASS  idempotencia tests/e2e/lib_nucleo_texto_normal.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_texto_repetir_negativo.lg
+PASS  idempotencia tests/e2e/lib_nucleo_texto_repetir_negativo.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_texto_separador_vacio.lg
+PASS  idempotencia tests/e2e/lib_nucleo_texto_separador_vacio.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_texto_tipo_incorrecto.lg
+PASS  idempotencia tests/e2e/lib_nucleo_texto_tipo_incorrecto.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_tiempo_limites.lg
+PASS  idempotencia tests/e2e/lib_nucleo_tiempo_limites.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_tiempo_normal.lg
+PASS  idempotencia tests/e2e/lib_nucleo_tiempo_normal.lg
+PASS  AST sin cambios tests/e2e/lib_nucleo_tiempo_tipo_incorrecto.lg
+PASS  idempotencia tests/e2e/lib_nucleo_tiempo_tipo_incorrecto.lg
+PASS  AST sin cambios tests/e2e/lib_ui_contador.lg
+PASS  idempotencia tests/e2e/lib_ui_contador.lg
+PASS  AST sin cambios tests/e2e/lib_ui_escapar.lg
+PASS  idempotencia tests/e2e/lib_ui_escapar.lg
+PASS  AST sin cambios tests/e2e/lib_ui_grande.lg
+PASS  idempotencia tests/e2e/lib_ui_grande.lg
+PASS  AST sin cambios tests/e2e/lib_ui_render.lg
+PASS  idempotencia tests/e2e/lib_ui_render.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_cabeceras.lg
+PASS  idempotencia tests/e2e/lib_web_mw_cabeceras.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_error_json.lg
+PASS  idempotencia tests/e2e/lib_web_mw_error_json.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_limite.lg
+PASS  idempotencia tests/e2e/lib_web_mw_limite.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_redireccion.lg
+PASS  idempotencia tests/e2e/lib_web_mw_redireccion.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_registro.lg
+PASS  idempotencia tests/e2e/lib_web_mw_registro.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_requiere_json.lg
+PASS  idempotencia tests/e2e/lib_web_mw_requiere_json.lg
+PASS  AST sin cambios tests/e2e/lib_web_mw_respuestas.lg
+PASS  idempotencia tests/e2e/lib_web_mw_respuestas.lg
+PASS  AST sin cambios tests/e2e/lib_web_nucleo_basura.lg
+PASS  idempotencia tests/e2e/lib_web_nucleo_basura.lg
+PASS  AST sin cambios tests/e2e/lib_web_nucleo_enrutar.lg
+PASS  idempotencia tests/e2e/lib_web_nucleo_enrutar.lg
+PASS  AST sin cambios tests/e2e/lib_web_nucleo_integracion.lg
+PASS  idempotencia tests/e2e/lib_web_nucleo_integracion.lg
+PASS  AST sin cambios tests/e2e/lista_anidada.lg
+PASS  idempotencia tests/e2e/lista_anidada.lg
+PASS  IR idéntico tests/e2e/lista_anidada.lg
+PASS  AST sin cambios tests/e2e/lista_basica.lg
+PASS  idempotencia tests/e2e/lista_basica.lg
+PASS  IR idéntico tests/e2e/lista_basica.lg
+PASS  AST sin cambios tests/e2e/lista_cuadrados.lg
+PASS  idempotencia tests/e2e/lista_cuadrados.lg
+PASS  IR idéntico tests/e2e/lista_cuadrados.lg
+PASS  AST sin cambios tests/e2e/lista_metodos.lg
+PASS  idempotencia tests/e2e/lista_metodos.lg
+PASS  IR idéntico tests/e2e/lista_metodos.lg
+PASS  AST sin cambios tests/e2e/modulos/mates.lg
+PASS  idempotencia tests/e2e/modulos/mates.lg
+PASS  IR idéntico tests/e2e/modulos/mates.lg
+PASS  AST sin cambios tests/e2e/ns_ambiguo.lg
+PASS  idempotencia tests/e2e/ns_ambiguo.lg
+PASS  AST sin cambios tests/e2e/ns_err_miembro.lg
+PASS  idempotencia tests/e2e/ns_err_miembro.lg
+PASS  AST sin cambios tests/e2e/ns_mods/alfa.lg
+PASS  idempotencia tests/e2e/ns_mods/alfa.lg
+PASS  IR idéntico tests/e2e/ns_mods/alfa.lg
+PASS  AST sin cambios tests/e2e/ns_mods/beta.lg
+PASS  idempotencia tests/e2e/ns_mods/beta.lg
+PASS  IR idéntico tests/e2e/ns_mods/beta.lg
+PASS  AST sin cambios tests/e2e/ns_mods/unico.lg
+PASS  idempotencia tests/e2e/ns_mods/unico.lg
+PASS  IR idéntico tests/e2e/ns_mods/unico.lg
+PASS  AST sin cambios tests/e2e/ns_namespaces.lg
+PASS  idempotencia tests/e2e/ns_namespaces.lg
+PASS  AST sin cambios tests/e2e/ns_std_red.lg
+PASS  idempotencia tests/e2e/ns_std_red.lg
+PASS  AST sin cambios tests/e2e/ns_stdlib_alias.lg
+PASS  idempotencia tests/e2e/ns_stdlib_alias.lg
+PASS  AST sin cambios tests/e2e/option_some_none.lg
+PASS  idempotencia tests/e2e/option_some_none.lg
+PASS  IR idéntico tests/e2e/option_some_none.lg
+PASS  AST sin cambios tests/e2e/option_texto_y_reasigna.lg
+PASS  idempotencia tests/e2e/option_texto_y_reasigna.lg
+PASS  AST sin cambios tests/e2e/print_multi.lg
+PASS  idempotencia tests/e2e/print_multi.lg
+PASS  IR idéntico tests/e2e/print_multi.lg
+PASS  AST sin cambios tests/e2e/rt_div_cero.lg
+PASS  idempotencia tests/e2e/rt_div_cero.lg
+PASS  IR idéntico tests/e2e/rt_div_cero.lg
+PASS  AST sin cambios tests/e2e/rt_indice.lg
+PASS  idempotencia tests/e2e/rt_indice.lg
+PASS  IR idéntico tests/e2e/rt_indice.lg
+PASS  AST sin cambios tests/e2e/rt_int_de_float.lg
+PASS  idempotencia tests/e2e/rt_int_de_float.lg
+PASS  IR idéntico tests/e2e/rt_int_de_float.lg
+PASS  AST sin cambios tests/e2e/rt_overflow.lg
+PASS  idempotencia tests/e2e/rt_overflow.lg
+PASS  IR idéntico tests/e2e/rt_overflow.lg
+PASS  AST sin cambios tests/e2e/rt_pila_profunda.lg
+PASS  idempotencia tests/e2e/rt_pila_profunda.lg
+PASS  AST sin cambios tests/e2e/rt_tensor_div_cero.lg
+PASS  idempotencia tests/e2e/rt_tensor_div_cero.lg
+PASS  IR idéntico tests/e2e/rt_tensor_div_cero.lg
+PASS  AST sin cambios tests/e2e/rt_tensor_indice.lg
+PASS  idempotencia tests/e2e/rt_tensor_indice.lg
+PASS  IR idéntico tests/e2e/rt_tensor_indice.lg
+PASS  AST sin cambios tests/e2e/scope_bloques.lg
+PASS  idempotencia tests/e2e/scope_bloques.lg
+PASS  IR idéntico tests/e2e/scope_bloques.lg
+PASS  AST sin cambios tests/e2e/std_datos.lg
+PASS  idempotencia tests/e2e/std_datos.lg
+PASS  AST sin cambios tests/e2e/std_datos_csv_invalido.lg
+PASS  idempotencia tests/e2e/std_datos_csv_invalido.lg
+PASS  AST sin cambios tests/e2e/std_datos_no_existe.lg
+PASS  idempotencia tests/e2e/std_datos_no_existe.lg
+PASS  AST sin cambios tests/e2e/std_mat.lg
+PASS  idempotencia tests/e2e/std_mat.lg
+PASS  AST sin cambios tests/e2e/std_red.lg
+PASS  idempotencia tests/e2e/std_red.lg
+PASS  AST sin cambios tests/e2e/strings.lg
+PASS  idempotencia tests/e2e/strings.lg
+PASS  IR idéntico tests/e2e/strings.lg
+PASS  AST sin cambios tests/e2e/struct_eq.lg
+PASS  idempotencia tests/e2e/struct_eq.lg
+PASS  IR idéntico tests/e2e/struct_eq.lg
+PASS  AST sin cambios tests/e2e/struct_metodos.lg
+PASS  idempotencia tests/e2e/struct_metodos.lg
+PASS  IR idéntico tests/e2e/struct_metodos.lg
+PASS  AST sin cambios tests/e2e/tensor_asignacion.lg
+PASS  idempotencia tests/e2e/tensor_asignacion.lg
+PASS  IR idéntico tests/e2e/tensor_asignacion.lg
+PASS  AST sin cambios tests/e2e/tensor_escalar.lg
+PASS  idempotencia tests/e2e/tensor_escalar.lg
+PASS  IR idéntico tests/e2e/tensor_escalar.lg
+PASS  AST sin cambios tests/e2e/tensor_forma.lg
+PASS  idempotencia tests/e2e/tensor_forma.lg
+PASS  IR idéntico tests/e2e/tensor_forma.lg
+PASS  AST sin cambios tests/e2e/tensor_indice_completo.lg
+PASS  idempotencia tests/e2e/tensor_indice_completo.lg
+PASS  IR idéntico tests/e2e/tensor_indice_completo.lg
+PASS  AST sin cambios tests/e2e/tensor_indice_negativo.lg
+PASS  idempotencia tests/e2e/tensor_indice_negativo.lg
+PASS  IR idéntico tests/e2e/tensor_indice_negativo.lg
+PASS  AST sin cambios tests/e2e/tensor_indice_parcial.lg
+PASS  idempotencia tests/e2e/tensor_indice_parcial.lg
+PASS  IR idéntico tests/e2e/tensor_indice_parcial.lg
+PASS  AST sin cambios tests/e2e/tensor_producto.lg
+PASS  idempotencia tests/e2e/tensor_producto.lg
+PASS  IR idéntico tests/e2e/tensor_producto.lg
+PASS  AST sin cambios tests/e2e/tensor_transpose.lg
+PASS  idempotencia tests/e2e/tensor_transpose.lg
+PASS  IR idéntico tests/e2e/tensor_transpose.lg
+PASS  AST sin cambios tests/e2e/var_basica.lg
+PASS  idempotencia tests/e2e/var_basica.lg
+PASS  IR idéntico tests/e2e/var_basica.lg
+PASS  AST sin cambios tests/e2e/var_mut.lg
+PASS  idempotencia tests/e2e/var_mut.lg
+PASS  IR idéntico tests/e2e/var_mut.lg
+PASS  AST sin cambios tests/e2e/var_tipada.lg
+PASS  idempotencia tests/e2e/var_tipada.lg
+PASS  IR idéntico tests/e2e/var_tipada.lg
+PASS  AST sin cambios tests/e2e/while_suma.lg
+PASS  idempotencia tests/e2e/while_suma.lg
+PASS  IR idéntico tests/e2e/while_suma.lg
+lgfmt: 427 pasaron, 0 fallaron
+<end of output>
+Test time =   5.13 sec
+----------------------------------------------------------
+Test Passed.
+"lgfmt" end time: Nov 14 03:24 CET
+"lgfmt" time elapsed: 00:00:05
+----------------------------------------------------------
+
+10/12 Testing: lsp_json
+10/12 Test: lsp_json
+Command: "/Users/david/Desktop/nasa/lenguaje/build-f0/tests/lglsp_json_test"
+Directory: /Users/david/Desktop/nasa/lenguaje/build-f0/src/tools/lsp
+"lsp_json" start time: Nov 14 03:24 CET
+Output:
+----------------------------------------------------------
+json_test: 43 comprobaciones, 0 fallos
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"lsp_json" end time: Nov 14 03:24 CET
+"lsp_json" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: lsp_protocol
+11/12 Test: lsp_protocol
+Command: "/opt/homebrew/bin/python3" "/Users/david/Desktop/nasa/lenguaje/tests/v2/lsp/lsp_test.py" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lglsp"
+Directory: /Users/david/Desktop/nasa/lenguaje/build-f0/src/tools/lsp
+"lsp_protocol" start time: Nov 14 03:24 CET
+Output:
+----------------------------------------------------------
+PASS initialize devuelve capacidades
+PASS didSave publica el error de inmutabilidad
+PASS diagnóstico en línea 5 (0-based 4)
+PASS diagnóstico en columna 1 (0-based 0)
+PASS severidad error (1)
+PASS mensaje menciona inmutable
+PASS definition de función suma -> línea 1, col 4 (0-based 0,3)
+PASS definition de variable x -> línea 4
+PASS definition de parámetro a -> firma de suma
+PASS hover de suma muestra la firma
+PASS completion incluye 'fn', 'print', 'suma' y 'x'
+PASS definition de método norma -> línea 5, col 8
+PASS definition de campo self.x -> declaración del campo
+PASS definition de struct Punto -> línea 1
+PASS completion tras 'p.' ofrece campos y métodos
+PASS JSON mal formado -> error -32700 y el servidor sigue
+PASS método desconocido -> error -32601
+PASS petición sin método -> error de petición inválida
+PASS hover sobre documento no abierto responde null
+PASS shutdown responde null
+PASS exit tras shutdown termina con código 0
+
+21 comprobaciones, 0 fallos
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"lsp_protocol" end time: Nov 14 03:24 CET
+"lsp_protocol" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/12 Testing: pkg
+12/12 Test: pkg
+Command: "/Users/david/Desktop/nasa/lenguaje/tests/v2/pkg/run_pkg_test.sh" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgc" "/Users/david/Desktop/nasa/lenguaje/build-f0/bin/lgpm"
+Directory: /Users/david/Desktop/nasa/lenguaje
+"pkg" start time: Nov 14 03:24 CET
+Output:
+----------------------------------------------------------
+PASS  nuevo
+PASS  ruta_resolver
+PASS  ruta_construir
+PASS  ruta_ejecutar
+PASS  anadir_ruta
+PASS  anadir_duplicada
+PASS  git_anadir
+PASS  git_ejecutar
+PASS  git_lock
+PASS  err_dependencia_ruta
+PASS  err_modulo_no_encontrado
+
+Resumen: 11 PASS, 0 FAIL
+<end of output>
+Test time =   1.40 sec
+----------------------------------------------------------
+Test Passed.
+"pkg" end time: Nov 14 03:24 CET
+"pkg" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Nov 14 03:24 CET

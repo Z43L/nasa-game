@@ -1,0 +1,6 @@
+a = "hola"
+b = a + " mundo"
+print(b)
+print(len(b))
+print(a == "hola")
+print(str(42) + "!")

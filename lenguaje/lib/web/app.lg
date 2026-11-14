@@ -1,0 +1,75 @@
+# lib/web/app.lg: servidor HTTP del framework web. Acepta, lee, enruta y responde.
+#
+# Uso: import app   (con -I lib/red -I lib/web, o LG_PATH con esas carpetas)
+#
+# El lenguaje no admite funciones como valor en el nivel principal, así que el bucle del
+# servidor lo escribe el usuario. Esta función hace una vuelta: acepta una conexión, la lee,
+# la enruta y devuelve la Solicitud. Después, el usuario despacha por id y responde.
+#
+# Patrón de uso completo:
+#
+#   import app
+#
+#   e = web_nuevo_enrutador()
+#   web_agregar(e, "GET", "/", 1)
+#   web_agregar(e, "GET", "/cohetes/:id", 2)
+#   web_agregar(e, "POST", "/cohetes", 3)
+#
+#   srv = escuchar(8080)
+#   if srv < 0:
+#       print("no se pudo escuchar")
+#   else:
+#       mut atendidas = 0
+#       while atendidas < 100:
+#           s = web_recibir(srv, e, 5000)
+#           if s.conexion < 0:
+#               continue                            # aceptar falló: nada que responder
+#           if not s.peticion.valida:
+#               web_responder(s, web_respuesta_error(400))
+#           elif s.id == 1:
+#               web_responder(s, http_respuesta_texto(200, "inicio\n"))
+#           elif s.id == 2:
+#               web_responder(s, http_respuesta_texto(200, "cohete " + s.parametros[0] + "\n"))
+#           elif s.id == 3:
+#               web_responder(s, http_respuesta_texto(201, "creado\n"))
+#           elif web_ruta_existe(e, s.peticion.ruta):
+#               web_responder(s, web_respuesta_error(405))
+#           else:
+#               web_responder(s, web_respuesta_error(404))
+#           atendidas = atendidas + 1
+#       cerrar(srv)
+#
+# Reglas:
+#   - Una conexión es una petición: web_responder escribe y cierra siempre. Toda conexión
+#     que devuelva web_recibir con conexion >= 0 debe responderse (o cerrarse con cerrar()),
+#     si no el descriptor queda abierto.
+#   - Una petición inválida (basura, cabeceras mal formadas, cliente que cierra antes de
+#     terminar, timeout) llega con peticion.valida = false e id = -1. Responde 400.
+#   - El tiempo de espera de web_recibir se aplica a la lectura y a la escritura de la conexión.
+#     Un cliente lento o mudo se corta con 400 y no bloquea el bucle para siempre.
+#   - Ante un fallo de aceptar, web_recibir devuelve conexion = -1 y web_responder no hace nada.
+#   - Concurrencia: el bucle es secuencial (una conexión a la vez). Para atender en paralelo,
+#     lanza el procesamiento de cada Solicitud con `hilo` (ver docs/referencia/hilos.md).
+#   - Nunca lanza error por datos de red: los errores de red llegan como peticion.valida = false.
+
+import tcp
+import http
+import router
+
+fn web_recibir(servidor: int, e: Enrutador, timeout_ms: int) -> Solicitud:
+    c = aceptar(servidor)
+    if c < 0:
+        return Solicitud(peticion: Peticion(metodo: "", ruta: "", version: "", cabeceras: [], cuerpo: "", longitud: 0, valida: false, error: "no se pudo aceptar la conexión"), id: -1, parametros: [], encontrada: false, conexion: -1)
+    fijar_tiempo(c, timeout_ms)
+    p = http_leer_peticion(c)
+    if not p.valida:
+        return Solicitud(peticion: p, id: -1, parametros: [], encontrada: false, conexion: c)
+    mut s = web_enrutar(e, p.metodo, p.ruta)
+    s.peticion = p
+    s.conexion = c
+    return s
+
+fn web_responder(s: Solicitud, r: Respuesta) -> int:
+    if s.conexion < 0:
+        return -1
+    return http_responder(s.conexion, r)

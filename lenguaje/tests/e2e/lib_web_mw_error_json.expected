@@ -1,0 +1,6 @@
+422
+application/json
+{"error":"dice \"hola\" con barra \\ y salto\nfin"}
+true
+true
+cadena

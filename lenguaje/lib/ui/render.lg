@@ -1,0 +1,89 @@
+# lib/ui/render.lg: serializa un Nodo (de html.lg) a HTML.
+#
+# Reglas:
+#   - texto: se escapa con ui_escapar;
+#   - atributos: nombre saneado con ui_nombre_seguro, valor escapado y entre comillas dobles;
+#   - elementos void (br, img, input, ...): solo la etiqueta de apertura, sin cierre;
+#   - etiqueta vacía tras sanear: se usa "div";
+#   - no se añade ningún nodo ni texto que no esté en el árbol.
+#
+# API:
+#   ui_render(n: Nodo) -> str
+#   ui_es_void(etiqueta: str) -> bool
+#
+# Uso: import render   (importa html; con -I lib/ui -I stdlib)
+
+import cadena
+import html
+
+fn ui_es_void(etiqueta: str) -> bool:
+    voids = " area base br col embed hr img input link meta source track wbr "
+    return buscar(voids, " " + etiqueta + " ") >= 0
+
+# Minúsculas ASCII (no hay chr/ord: se recorre el alfabeto mayúsculas en paralelo).
+fn ui_minusculas(s: str) -> str:
+    mayus = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    minus = "abcdefghijklmnopqrstuvwxyz"
+    mut partes: List[str] = []
+    for i in 0..len(s):
+        c = recortar(s, i, i + 1)
+        k = buscar(mayus, c)
+        if k >= 0:
+            partes.append(recortar(minus, k, k + 1))
+        else:
+            partes.append(c)
+    return ui_unir(partes, 0, len(partes))
+
+# Atributos que el render no emite nunca: manejadores de eventos (on*) y srcdoc (HTML embebido).
+fn ui_atributo_peligroso(nombre: str) -> bool:
+    m = ui_minusculas(nombre)
+    return buscar(m, "on") == 0 or m == "srcdoc"
+
+# Atributos cuyo valor es una URL.
+fn ui_atributo_url(nombre: str) -> bool:
+    m = " " + ui_minusculas(nombre) + " "
+    return buscar(" href src action formaction xlink:href data poster ", m) >= 0
+
+# URL con esquema peligroso. Se conservan solo letras, dígitos y ':' tras minúsculas, porque los
+# navegadores ignoran espacios y caracteres de control dentro del esquema ("java\tscript:").
+fn ui_url_peligrosa(v: str) -> bool:
+    f = ui_minusculas(v)
+    alfa = "abcdefghijklmnopqrstuvwxyz0123456789:"
+    mut partes: List[str] = []
+    for i in 0..len(f):
+        c = recortar(f, i, i + 1)
+        if buscar(alfa, c) >= 0:
+            partes.append(c)
+    limpia = ui_unir(partes, 0, len(partes))
+    return buscar(limpia, "javascript:") == 0 or buscar(limpia, "vbscript:") == 0 or buscar(limpia, "data:") == 0
+
+fn ui_atributos(atributos: List[str]) -> str:
+    mut partes: List[str] = []
+    n = len(atributos)
+    mut i = 0
+    while i < n:
+        nombre = ui_nombre_seguro(atributos[i])
+        if len(nombre) > 0 and ui_atributo_peligroso(nombre) == false:
+            partes.append(" " + nombre)
+            if i + 1 < n:
+                mut v = atributos[i + 1]
+                if ui_atributo_url(nombre) and ui_url_peligrosa(v):
+                    v = "#"
+                partes.append("=\"" + ui_escapar(v) + "\"")
+        i = i + 2
+    return ui_unir(partes, 0, len(partes))
+
+fn ui_render(n: Nodo) -> str:
+    if n.tipo == 1:
+        return ui_escapar(n.texto)
+    mut etiqueta = ui_nombre_seguro(n.etiqueta)
+    if len(etiqueta) == 0:
+        etiqueta = "div"
+    mut partes: List[str] = []
+    partes.append("<" + etiqueta + ui_atributos(n.atributos) + ">")
+    if ui_es_void(etiqueta):
+        return partes[0]
+    for h in n.hijos:
+        partes.append(ui_render(h))
+    partes.append("</" + etiqueta + ">")
+    return ui_unir(partes, 0, len(partes))

@@ -1,0 +1,19 @@
+# Ejemplo de stdlib/datos y stdlib/mat: escribe un CSV, lo lee y calcula estadísticas.
+# Ejecutar desde la raíz del repositorio (las rutas son relativas al directorio de trabajo).
+import datos
+import mat
+
+escribir_texto("build/ejemplo_ventas.csv", "10.5, 12.0\n9.0,\n11.5\n")
+ventas = leer_csv_numeros("build/ejemplo_ventas.csv")
+print("ventas:", ventas)
+print("cuántas:", len(ventas))
+
+mut total = 0.0
+for v in ventas:
+    total = total + v
+print("total:", total)
+
+cuadricula = from_list([1.0, 2.0, 3.0, 6.0], 2, 2)
+print("media de la cuadrícula:", media(cuadricula))
+print("texto leído:")
+print(leer_texto("build/ejemplo_ventas.csv"))

@@ -1,0 +1,6 @@
+import lib_datos_modulos/json
+
+print(json_tipo(json_parsear("null")), json_serializar(json_parsear("null")))
+print(json_booleano(json_parsear("true")), json_serializar(json_parsear("false")))
+print(json_numero(json_parsear("-7")), json_serializar(json_parsear(" 3.25 ")))
+print(json_texto(json_parsear("\"hola\"")), json_serializar(json_parsear("\"hola\"")))

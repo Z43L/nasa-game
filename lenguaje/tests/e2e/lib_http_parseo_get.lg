@@ -1,0 +1,15 @@
+import lib_http_mod/http
+
+p = http_parsear_peticion("GET /inicio?q=1 HTTP/1.1\r\nHost: ejemplo.com\r\nAccept:  text/html \r\nX-Vacia:\r\n\r\n")
+print(p.valida)
+print(p.metodo)
+print(p.ruta)
+print(p.version)
+print(p.longitud)
+print(len(p.cabeceras))
+print(p.cabeceras[0].nombre, "=", p.cabeceras[0].valor)
+print(http_cabecera(p, "host").desempacar_o("-"))
+print(http_cabecera(p, "ACCEPT").desempacar_o("-"))
+print(http_cabecera(p, "X-Vacia").desempacar_o("-") == "")
+print(http_cabecera(p, "Ausente").es_none())
+print(p.cuerpo == "")

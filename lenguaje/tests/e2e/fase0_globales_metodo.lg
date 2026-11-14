@@ -1,0 +1,18 @@
+mut total = 0
+
+struct Caja:
+    valor: int
+
+impl Caja:
+    fn sumar_total(self, n: int) -> int:
+        total = total + n + self.valor
+        return total
+
+fn leer_total() -> int:
+    return total
+
+c = Caja(valor: 10)
+print(c.sumar_total(1))
+print(c.sumar_total(2))
+print(total)
+print(leer_total())

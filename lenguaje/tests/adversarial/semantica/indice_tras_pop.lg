@@ -1,0 +1,3 @@
+mut l = [1]
+l.pop()
+print(l[0])

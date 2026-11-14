@@ -1,0 +1,10 @@
+mut cuenta = 0
+
+fn leer() -> int:
+    return cuenta
+
+fn f(x: int) -> int:
+    return leer() + x
+
+h = hilo f(1)
+print(h.esperar())

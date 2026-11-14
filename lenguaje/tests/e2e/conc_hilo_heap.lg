@@ -1,0 +1,11 @@
+# Argumentos heap (List[str]) pasan al hilo con retain; el hilo los libera al terminar.
+fn une(xs: List[str]) -> str:
+    mut s = ""
+    for x in xs:
+        s = s + x
+    return s
+
+xs: List[str] = ["uno", "dos", "tres"]
+h = hilo une(xs)
+print(h.esperar())
+print(len(xs))

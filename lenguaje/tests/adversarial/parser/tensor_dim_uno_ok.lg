@@ -1,0 +1,2 @@
+t: Tensor[float, (1)] = zeros(1)
+print(t.numel())

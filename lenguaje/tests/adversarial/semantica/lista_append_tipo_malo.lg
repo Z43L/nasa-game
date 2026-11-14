@@ -1,0 +1,2 @@
+mut l = [1]
+l.append("x")

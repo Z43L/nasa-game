@@ -1,0 +1,2 @@
+a: Option[int] = Some(1)
+print(a.desempacar_o("cero"))

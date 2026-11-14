@@ -1,0 +1,3 @@
+import ruta_extra/valor
+
+print(valor_externo() * 6)

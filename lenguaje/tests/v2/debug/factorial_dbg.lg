@@ -1,0 +1,9 @@
+fn factorial(n: int) -> int:
+    mut acc = 1
+    mut i = 2
+    while i <= n:
+        acc = acc * i
+        i = i + 1
+    return acc
+
+print(factorial(5))

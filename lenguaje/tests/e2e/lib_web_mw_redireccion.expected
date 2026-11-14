@@ -1,0 +1,8 @@
+302
+Found
+HTTP/1.1 302 Found
+Location: /nuevo
+Connection: close
+Content-Length: 0
+
+

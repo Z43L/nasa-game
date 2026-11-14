@@ -1,0 +1,3 @@
+# Fichero inexistente: termina con error de ejecución.
+import datos
+print(leer_csv_numeros("no_existe_qa.csv"))

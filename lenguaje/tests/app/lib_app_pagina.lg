@@ -1,0 +1,10 @@
+# lib/app: pagina produce un documento completo con viewport móvil, título escapado y una sola <style>.
+import estilo
+import primitivas
+import app
+
+mut e = estilo_nuevo()
+e.relleno = "16px"
+e.fondo = "#eee"
+cuerpo = caja(e, [texto(e, "Hola <mundo> & amigos")])
+print(pagina("Tienda \"Lenguaje\" & <co>", [e, e], cuerpo))

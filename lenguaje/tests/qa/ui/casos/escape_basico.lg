@@ -1,0 +1,8 @@
+# Escape básico de ui_escapar (html.lg). Comilla simple: &#39; (html.escape usa &#x27;; son equivalentes).
+import html
+print(ui_escapar("<script>alert(1)</script>"))
+print(ui_escapar("a & b"))
+print(ui_escapar("\"doble\" y 'simple'"))
+print(ui_escapar("&amp;"))
+print(ui_escapar(""))
+print(ui_escapar("<img src=x onerror=alert(1)>"))

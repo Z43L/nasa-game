@@ -1,0 +1,80 @@
+# lib/ui/html.lg: árbol de nodos HTML y constructores. La serialización está en render.lg.
+#
+# Un Nodo es un elemento (tipo 0) o un texto (tipo 1). Los atributos van en una lista plana
+# alternando nombre y valor: ["class", "caja", "id", "x"]. Un nombre sin valor (atributo
+# booleano) se admite al final de la lista.
+#
+# API:
+#   ui_elemento(etiqueta: str, atributos: List[str], hijos: List[Nodo]) -> Nodo
+#   ui_texto(s: str) -> Nodo                       texto; se escapa al renderizar
+#   ui_boton(texto: str, accion: int) -> Nodo      <button type="button" data-accion="N">texto</button>
+#   ui_escapar(s: str) -> str                      & < > " ' -> &amp; &lt; &gt; &quot; &#39;
+#   ui_nombre_seguro(s: str) -> str                conserva solo letras, dígitos, '-', '_' y ':'
+#   ui_unir(partes: List[str], ini: int, fin: int) -> str   concatena partes[ini:fin] en O(n log n)
+#
+# Uso: import html   (con -I lib/ui -I stdlib)
+
+import cadena
+
+struct Nodo:
+    tipo: int
+    etiqueta: str
+    atributos: List[str]
+    texto: str
+    hijos: List[Nodo]
+
+fn ui_elemento(etiqueta: str, atributos: List[str], hijos: List[Nodo]) -> Nodo:
+    return Nodo(tipo: 0, etiqueta: etiqueta, atributos: atributos, texto: "", hijos: hijos)
+
+fn ui_texto(s: str) -> Nodo:
+    return Nodo(tipo: 1, etiqueta: "", atributos: [], texto: s, hijos: [])
+
+fn ui_boton(texto: str, accion: int) -> Nodo:
+    return ui_elemento("button", ["type", "button", "data-accion", str(accion)], [ui_texto(texto)])
+
+fn ui_alfabeto_especiales() -> str:
+    return "&<>\"'"
+
+fn ui_alfabeto_nombre() -> str:
+    return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_:"
+
+fn ui_entidad(c: str) -> str:
+    if c == "&":
+        return "&amp;"
+    if c == "<":
+        return "&lt;"
+    if c == ">":
+        return "&gt;"
+    if c == "\"":
+        return "&quot;"
+    return "&#39;"
+
+fn ui_unir(partes: List[str], ini: int, fin: int) -> str:
+    # Mitades recursivas: cada byte se copia O(log n) veces, no O(n).
+    if fin - ini <= 0:
+        return ""
+    if fin - ini == 1:
+        return partes[ini]
+    mid = ini + (fin - ini) / 2
+    return ui_unir(partes, ini, mid) + ui_unir(partes, mid, fin)
+
+fn ui_escapar(s: str) -> str:
+    mut partes: List[str] = []
+    mut ini = 0
+    n = len(s)
+    for i in 0..n:
+        c = recortar(s, i, i + 1)
+        if buscar(ui_alfabeto_especiales(), c) >= 0:
+            partes.append(recortar(s, ini, i))
+            partes.append(ui_entidad(c))
+            ini = i + 1
+    partes.append(recortar(s, ini, n))
+    return ui_unir(partes, 0, len(partes))
+
+fn ui_nombre_seguro(s: str) -> str:
+    mut partes: List[str] = []
+    for i in 0..len(s):
+        c = recortar(s, i, i + 1)
+        if buscar(ui_alfabeto_nombre(), c) >= 0:
+            partes.append(c)
+    return ui_unir(partes, 0, len(partes))

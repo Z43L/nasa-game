@@ -1,0 +1,2 @@
+extern "C" fn no_existe_xyz(x: float) -> float
+print(no_existe_xyz(1.0))

@@ -1,0 +1,28 @@
+import aleatorio
+
+print(aleatorio_entero(5, 5), aleatorio_entero(-7, -7))
+aleatorio_sembrar(1)
+mut dentro = true
+mut vistos_min = false
+mut vistos_max = false
+mut i = 0
+while i < 2000:
+    x = aleatorio_entero(-3, -1)
+    if x < -3 or x > -1:
+        dentro = false
+    if x == -3:
+        vistos_min = true
+    if x == -1:
+        vistos_max = true
+    i = i + 1
+print(dentro, vistos_min, vistos_max)
+x = aleatorio_entero(-9223372036854775807, 9223372036854775807)
+print("ok")
+mut todo = true
+i = 0
+while i < 1000:
+    r = aleatorio_real()
+    if r < 0.0 or r >= 1.0:
+        todo = false
+    i = i + 1
+print(todo)

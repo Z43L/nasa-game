@@ -1,0 +1,4 @@
+if true:
+    mut t = 7
+    t = t + 1
+print(t)

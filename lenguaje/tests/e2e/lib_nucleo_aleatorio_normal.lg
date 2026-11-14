@@ -1,0 +1,23 @@
+import aleatorio
+
+aleatorio_sembrar(42)
+mut i = 0
+while i < 5:
+    print(aleatorio_entero(1, 6))
+    i = i + 1
+aleatorio_sembrar(7)
+mut primera: List[int] = []
+i = 0
+while i < 4:
+    primera.append(aleatorio_entero(0, 1000))
+    i = i + 1
+aleatorio_sembrar(7)
+mut igual = true
+i = 0
+while i < 4:
+    if aleatorio_entero(0, 1000) != primera[i]:
+        igual = false
+    i = i + 1
+print(igual)
+r = aleatorio_real()
+print(r >= 0.0, r < 1.0)

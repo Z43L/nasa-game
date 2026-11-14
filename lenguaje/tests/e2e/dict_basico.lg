@@ -1,0 +1,6 @@
+mut d = {"ana": 30}
+d["luis"] = 25
+print(d)
+print(d["ana"])
+print(d.tiene("luis"))
+print(len(d))

@@ -1,0 +1,11 @@
+mut i = 0
+while true:
+    mut j = 0
+    while true:
+        j = j + 1
+        if j == 3:
+            break
+    i = i + 1
+    if i == 4:
+        break
+print(i)

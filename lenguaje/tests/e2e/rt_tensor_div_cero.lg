@@ -1,0 +1,4 @@
+t = from_list([1.0, 2.0], 2)
+z = 0.0
+r = t / z
+print(r[0])

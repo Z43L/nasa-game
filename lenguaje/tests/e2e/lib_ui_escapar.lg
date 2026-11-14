@@ -1,0 +1,10 @@
+# lib/ui: ui_escapar convierte & < > " ' en entidades; el resto de texto (incluido UTF-8) pasa intacto.
+import html
+
+print(ui_escapar("a & b < c > d \" e ' f"))
+print(ui_escapar("<script>alert(1)</script>"))
+print(ui_escapar("sin especiales"))
+print(ui_escapar("") == "")
+print(ui_escapar("ñandú & ✓"))
+print(ui_escapar("&amp; ya escapado"))
+print(ui_nombre_seguro("on\"load=x y"))

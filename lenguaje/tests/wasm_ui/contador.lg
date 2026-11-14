@@ -1,0 +1,9 @@
+# Contador de pulsaciones para la UI. Las funciones no ven variables globales (regla del lenguaje),
+# así que el estado (la cuenta) vive en JavaScript y se pasa como parámetro en cada pulsación.
+# Compilar: lgc --target wasm32 --export contador_pulsar --export contador_texto contador.lg -o contador.wasm
+
+fn contador_pulsar(cuenta: int) -> int:
+    return cuenta + 1
+
+fn contador_texto(cuenta: int) -> str:
+    return "Pulsaciones: " + str(cuenta)

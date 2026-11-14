@@ -1,0 +1,19 @@
+# Ejemplos de docs/referencia/stdlib.md (mat y red) con los valores documentados.
+import mat
+import red
+i2 = identidad2()
+print(i2)
+print(suma_total(i2))
+print(media(i2))
+print(identidad3().forma())
+print(producto_punto(from_list([1.0, 2.0, 3.0], 3), from_list([4.0, 5.0, 6.0], 3)))
+print(media(from_list([1.0, 2.0, 3.0, 6.0], 2, 2)))
+entrada = from_list([1.0, 0.5], 1, 2)
+pesos = from_list([0.5, -0.5, 0.25, 1.0], 2, 2)
+sesgo = from_list([0.0, 0.1], 1, 2)
+capa = Lineal(pesos: pesos, sesgo: sesgo)
+z = capa.adelante(entrada)
+print("salida lineal:", z)
+print("sigmoide:", sigmoide(z))
+print("relu:", relu(z))
+print("pérdida MSE:", perdida_mse(z, from_list([0.5, 0.5], 1, 2)))

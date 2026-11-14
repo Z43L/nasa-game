@@ -1,0 +1,4 @@
+import b
+
+fn fa() -> int:
+    return 1

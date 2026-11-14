@@ -1,0 +1,6 @@
+struct P:
+    x: int
+    y: int
+
+a = P(x: 1)
+print(a.x)

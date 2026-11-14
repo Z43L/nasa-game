@@ -1,0 +1,4 @@
+import middleware
+
+print(web_registro("GET", "/api/items", 404))
+print(web_registro("POST", "/", 201))

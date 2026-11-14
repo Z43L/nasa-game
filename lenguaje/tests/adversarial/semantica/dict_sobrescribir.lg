@@ -1,0 +1,4 @@
+mut d = {"a": 1}
+d["a"] = 2
+print(d["a"])
+print(len(d))

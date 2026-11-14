@@ -1,0 +1,7 @@
+fn a() -> int:
+    if true:
+        y = 5
+    fn g() -> int:
+        return y
+    return g()
+print(a())

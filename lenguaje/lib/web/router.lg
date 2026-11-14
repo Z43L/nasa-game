@@ -1,0 +1,126 @@
+# lib/web/router.lg: enrutamiento por método y ruta para el framework web.
+#
+# Uso: import router   (o import app, que lo importa; con -I lib/red -I lib/web)
+#
+# Modelo:
+#   Ruta(metodo, patron, id)           una regla: método exacto + patrón de ruta
+#   Enrutador(rutas)                   lista de reglas, en orden de registro (gana la primera)
+#   Solicitud(peticion, id, parametros, encontrada, conexion)
+#       id: id de la ruta, -1 si no hay coincidencia
+#       parametros: valores capturados por los segmentos ":nombre", en orden
+#       conexion: descriptor de la conexión (lo rellena web_recibir de app.lg), -1 si no hay
+#
+# Reglas de coincidencia:
+#   - El método se compara exacto (distingue mayúsculas, como HTTP).
+#   - La ruta se divide en segmentos por "/". Los segmentos vacíos se ignoran, así que
+#     "/cohetes/" y "/cohetes" son equivalentes, y "/" no tiene segmentos.
+#   - La query string ("?x=1") se quita antes de comparar. El "#" no se trata.
+#   - Un segmento ":nombre" del patrón coincide con cualquier segmento no vacío de la ruta
+#     y captura su valor. Cualquier otro segmento debe ser igual.
+#   - El número de segmentos debe ser el mismo: "/cohetes/:id" no coincide con "/cohetes/1/x".
+#
+# Nota: el lenguaje no tiene namespaces; todas las funciones son globales al importar.
+
+import http
+
+struct Ruta:
+    metodo: str
+    patron: str
+    id: int
+
+struct Enrutador:
+    rutas: List[Ruta]
+
+struct Solicitud:
+    peticion: Peticion
+    id: int
+    parametros: List[str]
+    encontrada: bool
+    conexion: int
+
+fn web_nuevo_enrutador() -> Enrutador:
+    return Enrutador(rutas: [])
+
+# Los parámetros son inmutables, pero las structs y listas son objetos compartidos: el `mut`
+# local apunta a la misma lista del enrutador, así que el append la modifica para el llamador.
+fn web_agregar(e: Enrutador, metodo: str, patron: str, id: int):
+    mut rutas = e.rutas
+    rutas.append(Ruta(metodo: metodo, patron: patron, id: id))
+
+# Parte `s` por "/" y descarta los segmentos vacíos.
+fn web_partir(s: str) -> List[str]:
+    mut partes: List[str] = []
+    mut resto = s
+    mut seguir = true
+    while seguir:
+        k = buscar(resto, "/")
+        if k < 0:
+            if len(resto) > 0:
+                partes.append(resto)
+            seguir = false
+        else:
+            if k > 0:
+                partes.append(recortar(resto, 0, k))
+            resto = recortar(resto, k + 1, len(resto))
+    return partes
+
+# Quita la query string (todo desde el primer "?").
+fn web_sin_query(ruta: str) -> str:
+    k = buscar(ruta, "?")
+    if k < 0:
+        return ruta
+    return recortar(ruta, 0, k)
+
+fn web_es_captura(segmento: str) -> bool:
+    return len(segmento) > 1 and recortar(segmento, 0, 1) == ":"
+
+# True si el patrón coincide con la ruta (ya sin query string).
+fn web_coincide(patron: str, ruta: str) -> bool:
+    ps = web_partir(patron)
+    rs = web_partir(ruta)
+    if len(ps) != len(rs):
+        return false
+    for i in 0..len(ps):
+        if not web_es_captura(ps[i]) and ps[i] != rs[i]:
+            return false
+    return true
+
+# Valores de los segmentos capturados, en orden. Solo tiene sentido si web_coincide es true.
+fn web_capturas(patron: str, ruta: str) -> List[str]:
+    ps = web_partir(patron)
+    rs = web_partir(ruta)
+    mut valores: List[str] = []
+    for i in 0..len(ps):
+        if web_es_captura(ps[i]):
+            valores.append(rs[i])
+    return valores
+
+fn web_sin_coincidencia() -> Solicitud:
+    mut vacios: List[str] = []
+    return Solicitud(peticion: Peticion(metodo: "", ruta: "", version: "", cabeceras: [], cuerpo: "", longitud: 0, valida: true, error: ""), id: -1, parametros: vacios, encontrada: false, conexion: -1)
+
+# Busca la primera ruta con ese método y patrón que coincida con `ruta`.
+# La Solicitud devuelta trae una Peticion mínima (método y ruta); web_recibir pone la real.
+fn web_enrutar(e: Enrutador, metodo: str, ruta: str) -> Solicitud:
+    r = web_sin_query(ruta)
+    for rt in e.rutas:
+        if rt.metodo == metodo and web_coincide(rt.patron, r):
+            return Solicitud(peticion: Peticion(metodo: metodo, ruta: ruta, version: "", cabeceras: [], cuerpo: "", longitud: 0, valida: true, error: ""), id: rt.id, parametros: web_capturas(rt.patron, r), encontrada: true, conexion: -1)
+    return web_sin_coincidencia()
+
+# True si alguna ruta tiene esa ruta con cualquier método. Sirve para elegir 405 frente a 404.
+fn web_ruta_existe(e: Enrutador, ruta: str) -> bool:
+    r = web_sin_query(ruta)
+    for rt in e.rutas:
+        if web_coincide(rt.patron, r):
+            return true
+    return false
+
+fn web_respuesta_error(estado: int) -> Respuesta:
+    if estado == 400:
+        return http_respuesta_texto(400, "400 Bad Request: petición no válida\n")
+    if estado == 404:
+        return http_respuesta_texto(404, "404 Not Found: no existe la ruta\n")
+    if estado == 405:
+        return http_respuesta_texto(405, "405 Method Not Allowed: método no permitido para esta ruta\n")
+    return http_respuesta_texto(500, "500 Internal Server Error\n")

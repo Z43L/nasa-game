@@ -1,0 +1,10 @@
+struct Punto:
+    x: float
+    y: float
+
+impl Punto:
+    fn eq(self, otro: Punto) -> bool:
+        return self.x == otro.x and self.y == otro.y
+
+print(Punto(x: 1.0, y: 2.0) == Punto(x: 1.0, y: 2.0))
+print(Punto(x: 1.0, y: 2.0) == Punto(x: 1.0, y: 5.0))

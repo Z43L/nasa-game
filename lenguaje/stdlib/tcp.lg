@@ -1,0 +1,44 @@
+# stdlib/tcp.lg: sockets TCP/IPv4 para servidores. Nativos en C (src/runtime/std/tcp.c).
+#
+# Los errores no detienen el programa: escuchar, aceptar y escribir devuelven -1; leer devuelve ""
+# si no hay datos o la conexión se cerró. Quien llama decide qué hacer.
+#
+# API:
+#   escuchar(puerto: int) -> int          socket en escucha en todas las interfaces (1-65535), o -1
+#   aceptar(servidor: int) -> int         conexión nueva (fd), o -1
+#   leer(conexion: int, maximo: int) -> str   hasta `maximo` bytes (acotado a 1 MiB) de una lectura; "" si no hay nada
+#   escribir(conexion: int, texto: str) -> int   bytes enviados, o -1
+#   conectar(host: str, puerto: int) -> int   conexión TCP cliente (IPv4; "localhost" o dirección numérica), o -1
+#   fijar_tiempo(conexion: int, ms: int) -> int   tiempo máximo de lectura y escritura; -1 si falla
+#   cerrar(conexion: int)                 cierra un socket
+#
+# Uso: import tcp
+
+extern "C" fn lg_std_tcp_escuchar(puerto: int) -> int
+extern "C" fn lg_std_tcp_aceptar(servidor: int) -> int
+extern "C" fn lg_std_tcp_leer(conexion: int, maximo: int) -> str
+extern "C" fn lg_std_tcp_escribir(conexion: int, texto: str) -> int
+extern "C" fn lg_std_tcp_conectar(host: str, puerto: int) -> int
+extern "C" fn lg_std_tcp_fijar_tiempo(conexion: int, ms: int) -> int
+extern "C" fn lg_std_tcp_cerrar(conexion: int)
+
+fn escuchar(puerto: int) -> int:
+    return lg_std_tcp_escuchar(puerto)
+
+fn aceptar(servidor: int) -> int:
+    return lg_std_tcp_aceptar(servidor)
+
+fn leer(conexion: int, maximo: int) -> str:
+    return lg_std_tcp_leer(conexion, maximo)
+
+fn escribir(conexion: int, texto: str) -> int:
+    return lg_std_tcp_escribir(conexion, texto)
+
+fn conectar(host: str, puerto: int) -> int:
+    return lg_std_tcp_conectar(host, puerto)
+
+fn fijar_tiempo(conexion: int, ms: int) -> int:
+    return lg_std_tcp_fijar_tiempo(conexion, ms)
+
+fn cerrar(conexion: int):
+    lg_std_tcp_cerrar(conexion)

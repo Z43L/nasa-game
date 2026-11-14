@@ -1,0 +1,10 @@
+mut l: List[int] = [1, 2, 3]
+l.append(4)
+print(len(l))
+print(l[3])
+s = "ab" + "cd"
+print(s)
+print(len(s))
+print("n=" + str(42))
+for x in l:
+    print(x * 10)

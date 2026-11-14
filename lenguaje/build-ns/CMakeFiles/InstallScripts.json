@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/david/Desktop/nasa/lenguaje/build-ns/cmake_install.cmake",
+		"/Users/david/Desktop/nasa/lenguaje/build-ns/src/tools/fmt/cmake_install.cmake",
+		"/Users/david/Desktop/nasa/lenguaje/build-ns/src/tools/lsp/cmake_install.cmake",
+		"/Users/david/Desktop/nasa/lenguaje/build-ns/src/tools/pkg/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

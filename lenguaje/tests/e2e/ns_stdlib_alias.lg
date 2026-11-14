@@ -1,0 +1,17 @@
+# La stdlib también se usa por alias: red.Lineal, red.sigmoide, red.relu, red.perdida_mse.
+import red
+
+entrada = from_list([1.0, 0.5], 1, 2)
+pesos = from_list([0.5, -0.5, 0.25, 1.0], 2, 2)
+sesgo = from_list([0.0, 0.1], 1, 2)
+capa = red.Lineal(pesos: pesos, sesgo: sesgo)
+
+fn pasar(c: red.Lineal) -> red.Lineal:
+    return c
+
+c2 = pasar(capa)
+z = c2.adelante(entrada)
+print(z)
+print(red.sigmoide(from_list([0.0, 0.0], 1, 2)))
+print(red.relu(from_list([-1.0, 2.5], 1, 2)))
+print(red.perdida_mse(from_list([1.0, 2.0], 1, 2), from_list([0.0, 0.0], 1, 2)))

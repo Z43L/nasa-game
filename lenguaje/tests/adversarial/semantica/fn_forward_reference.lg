@@ -1,0 +1,5 @@
+fn a(n: int) -> int:
+    return b(n) + 1
+fn b(n: int) -> int:
+    return n * 2
+print(a(3))

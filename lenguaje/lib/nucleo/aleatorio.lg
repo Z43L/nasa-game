@@ -1,0 +1,28 @@
+# lib/nucleo/aleatorio.lg: generador pseudoaleatorio con semilla explícita. Nativos en src/runtime/std/nucleo.c.
+#
+# El generador es xorshift64* con estado propio (no usa rand() global). Misma semilla, misma secuencia,
+# en cualquier plataforma. Sin sembrar, la secuencia es fija y reproducible.
+# NO es criptográfico.
+#
+# API:
+#   aleatorio_sembrar(semilla: int)
+#       Reinicia el generador. Semillas distintas dan secuencias distintas.
+#   aleatorio_entero(a: int, b: int) -> int
+#       Entero uniforme en [a, b], ambos incluidos. a == b devuelve a. a > b: error de ejecución.
+#   aleatorio_real() -> float
+#       Real uniforme en [0, 1) (el 1 nunca se devuelve).
+#
+# Uso: import aleatorio
+
+extern "C" fn lg_std_aleatorio_sembrar(semilla: int)
+extern "C" fn lg_std_aleatorio_entero(a: int, b: int) -> int
+extern "C" fn lg_std_aleatorio_real() -> float
+
+fn aleatorio_sembrar(semilla: int):
+    lg_std_aleatorio_sembrar(semilla)
+
+fn aleatorio_entero(a: int, b: int) -> int:
+    return lg_std_aleatorio_entero(a, b)
+
+fn aleatorio_real() -> float:
+    return lg_std_aleatorio_real()

@@ -1,0 +1,6 @@
+import lib_datos_modulos/json
+
+print(json_numero(json_parsear("1.5e3")), json_numero(json_parsear("-2E-2")), json_numero(json_parsear("0")))
+print(json_serializar(json_parsear("1.5e3")), json_serializar(json_parsear("0.125")))
+print(json_serializar(json_parsear("[1e2, -0.5, 12345678.25]")))
+print(json_tipo(json_parsear("1e999")), json_tipo(json_parsear("01")), json_tipo(json_parsear("-")))

@@ -1,0 +1,5 @@
+mut i = 0
+while i < 3:
+    z = i
+    i = i + 1
+print(z)

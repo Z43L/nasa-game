@@ -1,0 +1,14 @@
+struct Punto:
+    x: int
+
+struct Par:
+    p: Punto
+    nombre: str
+
+mut i = 0
+mut total = 0
+while i < 1000000:
+    q = Par(p: Punto(x: i), nombre: "ab")
+    total = total + q.p.x - i + len(q.nombre)
+    i = i + 1
+print(total)

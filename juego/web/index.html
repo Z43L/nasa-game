@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>__NOMBRE__</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1f2937">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="__NOMBRE__">
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f3f4f6;
+      padding-top: env(safe-area-inset-top); padding-right: env(safe-area-inset-right);
+      padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); }
+  </style>
+  <script src="/registro.js" data-sw="/sw.js"></script>
+</head>
+<body>
+  <div id="app"><p>Cargando…</p></div>
+  <noscript><p>Esta aplicación necesita JavaScript y WebAssembly.</p></noscript>
+  <script src="/puente.js"></script>
+  <script src="/app_puente.js"></script>
+  <script>
+    AppPuente.montar({ wasm: '/app.wasm', contenedor: document.getElementById('app') })
+      .catch(function (e) { document.getElementById('app').textContent = 'Error: ' + e.message; });
+  </script>
+</body>
+</html>

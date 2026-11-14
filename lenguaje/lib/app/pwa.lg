@@ -1,0 +1,30 @@
+# lib/app/pwa.lg: etiquetas <head> para que una vista de lib/app sea una PWA instalable.
+#
+# API:
+#   pwa_cabeceras(base: str, sw: str) -> str
+#       <link rel="manifest">, <meta theme-color>, meta apple-mobile-web-app-*, <link apple-touch-icon>,
+#       un <style> con el área segura y <script src=base+registro.js data-sw=sw>.
+#       base: prefijo de manifest, iconos y registro.js ("" si están en la raíz de la app).
+#       sw:   ruta del service worker (sw.js) relativa a la página. Su ámbito es su carpeta.
+#
+# Uso con pagina_extra (lib/app/app.lg):
+#   pagina_extra("Mi app", estilos, cuerpo, pwa_cabeceras("", "sw.js"))
+#
+# Requisito de área segura: env(safe-area-inset-*) solo vale distinto de 0 si el viewport
+# incluye viewport-fit=cover, que pagina() no pone. Ver lib/app/README.md (sección PWA y móvil).
+
+import html
+
+fn pwa_cabeceras(base: str, sw: str) -> str:
+    b = ui_escapar(base)
+    s = ui_escapar(sw)
+    mut partes: List[str] = []
+    partes.append("<link rel=\"manifest\" href=\"" + b + "manifest.webmanifest\">\n")
+    partes.append("<meta name=\"theme-color\" content=\"#1f2937\">\n")
+    partes.append("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n")
+    partes.append("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"default\">\n")
+    partes.append("<meta name=\"apple-mobile-web-app-title\" content=\"Lenguaje\">\n")
+    partes.append("<link rel=\"apple-touch-icon\" href=\"" + b + "icons/icon-192.png\">\n")
+    partes.append("<style>body{padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)}</style>\n")
+    partes.append("<script src=\"" + b + "registro.js\" data-sw=\"" + s + "\"></script>\n")
+    return ui_unir(partes, 0, len(partes))

@@ -1,0 +1,7 @@
+mut l = [1, 2]
+mut cnt = 0
+for x in l:
+    cnt = cnt + 1
+    if cnt < 5:
+        l.append(x)
+print(cnt)

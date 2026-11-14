@@ -1,0 +1,5 @@
+# Tipo equivocado: http_responder espera (int, Respuesta), no un int y un str.
+import tcp
+import http
+c = 3
+http_responder(c, "hola")

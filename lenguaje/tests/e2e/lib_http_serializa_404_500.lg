@@ -1,0 +1,18 @@
+import lib_http_mod/http
+
+a = http_serializar_respuesta(http_respuesta_texto(404, "no existe"))
+print(buscar(a, "HTTP/1.1 404 Not Found\r\n") == 0)
+print(buscar(a, "Content-Length: 9\r\n") > 0)
+
+b = http_serializar_respuesta(Respuesta(estado: 500, motivo: "", cabeceras: [], cuerpo: ""))
+print(buscar(b, "HTTP/1.1 500 Internal Server Error\r\n") == 0)
+print(buscar(b, "Content-Length: 0\r\n\r\n") > 0)
+
+mut c = http_respuesta_texto(500, "x")
+c.motivo = "Fallo propio"
+c.cabeceras.append(HttpCabecera(nombre: "Content-Length", valor: "999"))
+c.cabeceras.append(HttpCabecera(nombre: "X-Mala", valor: "a\r\nInyectada: 1"))
+s = http_serializar_respuesta(c)
+print(buscar(s, "HTTP/1.1 500 Fallo propio\r\n") == 0)
+print(buscar(s, "999") < 0)
+print(buscar(s, "Inyectada") < 0)

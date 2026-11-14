@@ -1,0 +1,70 @@
+import app
+
+# Cliente en un hilo: envía `peticion` y lee la respuesta hasta el cierre. Devuelve la respuesta.
+fn cliente(puerto: int, peticion: str) -> str:
+    c = conectar("localhost", puerto)
+    if c < 0:
+        return "ERROR conectar"
+    fijar_tiempo(c, 3000)
+    escribir(c, peticion)
+    mut total = ""
+    mut seguir = true
+    while seguir:
+        trozo = leer(c, 4096)
+        if len(trozo) == 0:
+            seguir = false
+        else:
+            total = total + trozo
+    cerrar(c)
+    return total
+
+# Cliente que envía un fragmento y cierra sin esperar respuesta.
+fn cliente_cierra_pronto(puerto: int) -> str:
+    c = conectar("localhost", puerto)
+    if c < 0:
+        return "ERROR conectar"
+    escribir(c, "GET / HT")
+    cerrar(c)
+    return "ok"
+
+# Una vuelta del servidor: recibe, responde 400 si la petición es inválida, despacha si no.
+fn atender(srv: int, e: Enrutador, timeout_ms: int) -> int:
+    s = web_recibir(srv, e, timeout_ms)
+    if not s.peticion.valida:
+        return web_responder(s, web_respuesta_error(400))
+    if s.id == 1:
+        return web_responder(s, http_respuesta_texto(200, "cohete " + s.parametros[0] + "\n"))
+    return web_responder(s, web_respuesta_error(404))
+
+PUERTO = 22011
+srv = escuchar(PUERTO)
+if srv < 0:
+    print("no se pudo escuchar")
+else:
+    e = web_nuevo_enrutador()
+    web_agregar(e, "GET", "/cohetes/:id", 1)
+
+    # 1. Basura con fin de cabeceras: línea de petición mal formada.
+    h1 = hilo cliente(PUERTO, "basura total sin formato\r\n\r\n")
+    atender(srv, e, 3000)
+    r1 = h1.esperar()
+    print(buscar(r1, "HTTP/1.1 400 Bad Request\r\n") == 0)
+
+    # 2. Petición incompleta que nunca termina: vence el tiempo de espera del servidor.
+    h2 = hilo cliente(PUERTO, "GET /cohetes/1 HTTP/1.1\r\nHost")
+    atender(srv, e, 300)
+    r2 = h2.esperar()
+    print(buscar(r2, "HTTP/1.1 400 Bad Request\r\n") == 0)
+
+    # 3. Cliente que cierra a mitad de la petición.
+    h3 = hilo cliente_cierra_pronto(PUERTO)
+    atender(srv, e, 3000)
+    print(h3.esperar())
+
+    # 4. Tras la basura, una petición válida se atiende con normalidad.
+    h4 = hilo cliente(PUERTO, "GET /cohetes/9 HTTP/1.1\r\nHost: localhost\r\n\r\n")
+    atender(srv, e, 3000)
+    r4 = h4.esperar()
+    print(buscar(r4, "HTTP/1.1 200 OK\r\n") == 0)
+    print(buscar(r4, "\r\n\r\ncohete 9\n") > 0)
+    cerrar(srv)

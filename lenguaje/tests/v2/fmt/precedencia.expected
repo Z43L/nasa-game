@@ -1,0 +1,21 @@
+a = (1 + 2) * 3
+b = 1 + 2 * 3
+c = (a or b) and c
+d = a or b and c
+e = a == b == c
+f2 = a == (b == c)
+g = not (a and b)
+h = -a * b
+i = -(a * b)
+j = -a.b
+k = (-a).b
+l = f(1)
+m = a - (b + c)
+n = a + b + c
+o = a * (b / c)
+p = a * b / c
+q = a @ (b @ c)
+r = not a and b
+s2 = f(x)[1](2)
+t2 = a < (b < c)
+u2 = x in (y == z)

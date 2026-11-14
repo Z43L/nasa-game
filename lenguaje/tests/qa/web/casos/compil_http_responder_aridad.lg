@@ -1,0 +1,4 @@
+# Aridad equivocada en una función de lib/red/http.lg.
+import tcp
+import http
+http_responder(1)

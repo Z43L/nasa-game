@@ -1,0 +1,12 @@
+struct Punto:
+    x: float
+    y: float
+
+impl Punto:
+    fn norma2(self) -> float:
+        return self.x * self.x + self.y * self.y
+
+p = Punto(x: 3.0, y: 4.0)
+print(p)
+print(p.x)
+print(p.norma2())

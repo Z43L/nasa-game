@@ -1,0 +1,4 @@
+fn f() -> int:
+    for i in 0..3:
+        return i
+print(f())

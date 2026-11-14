@@ -1,0 +1,8 @@
+# Multiplicacion de matrices 2x3 por su transpuesta 3x2.
+a: Tensor[float, (2, 3)] = from_list([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3)
+b: Tensor[float, (3, 2)] = a.transpose()
+c = a @ b
+print("A =", a)
+print("A^T forma:", b.forma())
+print("A @ A^T forma:", c.forma())
+print("elementos:", c.numel())

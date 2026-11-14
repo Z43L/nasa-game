@@ -1,0 +1,7 @@
+# BUG candidato: ui_nombre_seguro solo filtra caracteres, así que un nombre de atributo de dato
+# "onclick" pasa y se renderiza como manejador de eventos. Confirmar con el contrato de lib/ui.
+import cadena
+import render
+a: List[str] = ["onclick", "alert(1)"]
+r = ui_render(ui_elemento("a", a, [ui_texto("x")]))
+print(buscar(r, " onclick=") < 0)
