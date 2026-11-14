@@ -1,0 +1,630 @@
+/* ==========================================
+   BRAIN SPACE OVERFLOW - TERMINAL STYLING
+   ========================================== */
+
+:root {
+    /* Default Phosphor: Classic Green */
+    --phosphor-color: #00ff66;
+    --phosphor-dim: #003311;
+    --phosphor-glow: rgba(0, 255, 102, 0.4);
+    --bg-color: #050a05;
+    --scanline-color: rgba(0, 0, 0, 0.3);
+    --border-color: #00ff66;
+    --font-primary: 'Share Tech Mono', monospace;
+    --font-heading: 'VT323', monospace;
+}
+
+[data-theme="amber"] {
+    --phosphor-color: #ffb000;
+    --phosphor-dim: #332200;
+    --phosphor-glow: rgba(255, 176, 0, 0.4);
+    --bg-color: #0a0700;
+    --border-color: #ffb000;
+}
+
+[data-theme="cyan"] {
+    --phosphor-color: #00ffff;
+    --phosphor-dim: #003333;
+    --phosphor-glow: rgba(0, 255, 255, 0.4);
+    --bg-color: #000a0a;
+    --border-color: #00ffff;
+}
+
+[data-theme="white"] {
+    --phosphor-color: #ffffff;
+    --phosphor-dim: #333333;
+    --phosphor-glow: rgba(255, 255, 255, 0.4);
+    --bg-color: #080808;
+    --border-color: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--phosphor-color);
+    font-family: var(--font-primary);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* CRT Screen Effects */
+.crt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+}
+
+.scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        var(--scanline-color) 50%,
+        var(--scanline-color)
+    );
+    background-size: 100% 4px;
+    z-index: 1000;
+}
+
+.flicker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 16, 16, 0.05);
+    opacity: 0.8;
+    z-index: 1001;
+    animation: crt-flicker 0.15s infinite;
+}
+
+@keyframes crt-flicker {
+    0% { opacity: 0.97; }
+    50% { opacity: 1; }
+    100% { opacity: 0.96; }
+}
+
+/* Terminal Container */
+.terminal-container {
+    width: 95vw;
+    max-width: 1100px;
+    height: 90vh;
+    max-height: 750px;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 0 20px var(--phosphor-glow), inset 0 0 15px var(--phosphor-glow);
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+/* Terminal Header */
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 0.9rem;
+    background-color: var(--phosphor-dim);
+}
+
+.blink-dot {
+    animation: blink 1s infinite;
+    color: var(--phosphor-color);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.divider {
+    margin: 0 8px;
+    opacity: 0.5;
+}
+
+.terminal-header button {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--phosphor-color);
+    font-family: var(--font-primary);
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.terminal-header button:hover {
+    background: var(--phosphor-color);
+    color: var(--bg-color);
+}
+
+/* Terminal Body / Screens */
+.terminal-body {
+    flex: 1;
+    position: relative;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Boot Screen */
+#boot-screen {
+    justify-content: flex-start;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    overflow-y: auto;
+}
+
+#boot-logs p {
+    margin-bottom: 4px;
+    text-shadow: 0 0 5px var(--phosphor-glow);
+}
+
+.boot-prompt {
+    margin-top: 20px;
+    font-weight: bold;
+    animation: blink 0.8s infinite;
+    text-shadow: 0 0 8px var(--phosphor-glow);
+}
+
+/* Menu Screen */
+#menu-screen {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ascii-art-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.ascii-banner {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    line-height: 1.0;
+    text-shadow: 0 0 8px var(--phosphor-glow);
+    white-space: pre;
+    color: var(--phosphor-color);
+}
+
+.menu-announcement {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    opacity: 0.85;
+}
+
+.menu-options {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.menu-options ul {
+    list-style: none;
+}
+
+.menu-item {
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-family: var(--font-heading);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    transition: all 0.1s ease;
+}
+
+.menu-item .pointer {
+    opacity: 0;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.menu-item .key {
+    margin-right: 10px;
+    opacity: 0.7;
+}
+
+.menu-item .sub-hint {
+    margin-left: auto;
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+
+.menu-item.active {
+    border: 1px dashed var(--border-color);
+    background-color: var(--phosphor-dim);
+    text-shadow: 0 0 8px var(--phosphor-glow);
+}
+
+.menu-item.active .pointer {
+    opacity: 1;
+}
+
+/* Terminal Command Prompt Box */
+.terminal-prompt-box {
+    width: 100%;
+    max-width: 700px;
+    margin: 15px auto 0 auto;
+    display: flex;
+    align-items: center;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 12px;
+}
+
+.prompt-symbol {
+    font-weight: bold;
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+#terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--phosphor-color);
+    font-family: var(--font-primary);
+    font-size: 1.1rem;
+    outline: none;
+    text-shadow: 0 0 5px var(--phosphor-glow);
+}
+
+#terminal-input::placeholder {
+    color: var(--phosphor-color);
+    opacity: 0.3;
+}
+
+/* Sub-Screens (Settings, Credits, Load) */
+.sub-screen {
+    padding: 10px 20px;
+}
+
+.sub-screen h2 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 5px;
+    text-shadow: 0 0 8px var(--phosphor-glow);
+}
+
+.config-options, .credits-content, .save-slots {
+    flex: 1;
+    max-width: 600px;
+}
+
+.config-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.config-btn {
+    background: var(--phosphor-dim);
+    border: 1px solid var(--border-color);
+    color: var(--phosphor-color);
+    padding: 6px 15px;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.config-btn:hover {
+    background: var(--phosphor-color);
+    color: var(--bg-color);
+}
+
+.save-slot {
+    padding: 15px;
+    border: 1px dashed var(--border-color);
+    margin-bottom: 15px;
+    background-color: var(--phosphor-dim);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.save-slot:hover {
+    background: var(--phosphor-color);
+    color: var(--bg-color);
+}
+
+.credits-content {
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.back-hint {
+    margin-top: auto;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    text-align: center;
+    animation: blink 1.2s infinite;
+    padding-top: 20px;
+}
+
+/* Mission Selection Screen Styles */
+.mission-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.mission-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.mission-filter-bar {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: var(--phosphor-dim);
+    border: 1px solid var(--border-color);
+    color: var(--phosphor-color);
+    padding: 3px 8px;
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: var(--phosphor-color);
+    color: var(--bg-color);
+}
+
+.mission-list {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px dashed var(--border-color);
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.mission-card {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--phosphor-dim);
+    background: var(--phosphor-dim);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mission-card:hover, .mission-card.active {
+    border-color: var(--border-color);
+    background: rgba(0, 255, 102, 0.1);
+    box-shadow: 0 0 8px var(--phosphor-glow);
+}
+
+.mission-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+}
+
+.difficulty-badge {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border: 1px solid;
+    font-weight: bold;
+}
+
+.difficulty-easy { color: #00ff66; border-color: #00ff66; }
+.difficulty-medium { color: #ffb000; border-color: #ffb000; }
+.difficulty-hard { color: #ff3333; border-color: #ff3333; }
+.difficulty-extreme { color: #cc00ff; border-color: #cc00ff; }
+
+.mission-briefing-panel {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    background: var(--phosphor-dim);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+}
+
+.briefing-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    margin-bottom: 5px;
+}
+
+.briefing-destination {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin-bottom: 15px;
+}
+
+.briefing-section {
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.briefing-section h4 {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.briefing-objectives ul {
+    list-style: square;
+    padding-left: 20px;
+}
+
+.briefing-rewards {
+    font-size: 0.95rem;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.launch-mission-btn {
+    background: var(--phosphor-color);
+    color: var(--bg-color);
+    border: none;
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    padding: 10px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    transition: opacity 0.2s;
+    margin-top: 15px;
+}
+
+.launch-mission-btn:hover {
+    opacity: 0.85;
+    box-shadow: 0 0 12px var(--phosphor-glow);
+}
+
+@media (max-width: 800px) {
+    .mission-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Lenguaje Console Layout */
+.lg-console-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.lg-editor-pane, .lg-output-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.lg-editor-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#lg-code-editor {
+    flex: 1;
+    background: #000;
+    border: 1px solid var(--border-color);
+    color: var(--phosphor-color);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    padding: 15px;
+    resize: none;
+    outline: none;
+    box-shadow: inset 0 0 5px var(--phosphor-glow);
+}
+
+.lg-output-terminal {
+    flex: 1;
+    border: 1px dashed var(--border-color);
+    padding: 15px;
+    background: rgba(0, 50, 10, 0.3);
+    font-size: 0.95rem;
+    overflow-y: auto;
+    font-family: var(--font-primary);
+    text-shadow: 0 0 2px var(--phosphor-glow);
+}
+
+.lg-status-bar {
+    padding: 5px;
+    font-size: 0.8rem;
+    background: var(--phosphor-dim);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+/* Terminal Footer */
+.terminal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    border-top: 1px dashed var(--border-color);
+    font-size: 0.8rem;
+    background-color: var(--phosphor-dim);
+}
+
+.footer-help span {
+    margin-right: 15px;
+    opacity: 0.8;
+}
+
+.footer-version {
+    opacity: 0.7;
+}
+
+/* Responsive Scaling for ASCII art */
+@media (max-width: 900px) {
+    .ascii-banner {
+        font-size: 0.5rem;
+    }
+    .terminal-container {
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        border: none;
+    }
+}

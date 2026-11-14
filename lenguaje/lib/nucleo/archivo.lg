@@ -1,0 +1,17 @@
+# lib/nucleo/archivo.lg: lectura y escritura de archivos.
+# Nativos en src/runtime/std/datos.c.
+#
+# API:
+#   archivo_leer(ruta: str) -> str
+#   archivo_escribir(ruta: str, contenido: str)
+#
+# Uso: import archivo
+
+extern "C" fn lg_std_leer_texto(ruta: str) -> str
+extern "C" fn lg_std_escribir_texto(ruta: str, texto: str)
+
+fn archivo_leer(ruta: str) -> str:
+    return lg_std_leer_texto(ruta)
+
+fn archivo_escribir(ruta: str, contenido: str):
+    lg_std_escribir_texto(ruta, contenido)

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRAIN SPACE OVERFLOW // TERMINAL BOOT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- CRT Screen Effects Overlay -->
+    <div class="crt-overlay">
+        <div class="scanline"></div>
+        <div class="flicker"></div>
+    </div>
+
+    <div class="terminal-container">
+        <!-- Header / Status Bar -->
+        <header class="terminal-header">
+            <div class="status-left">
+                <span class="blink-dot">●</span> SYS_ID: BSO-8088
+                <span class="divider">|</span> MEM: 640K OK
+            </div>
+            <div class="status-right">
+                <span id="system-clock">00:00:00</span>
+                <span class="divider">|</span>
+                <button id="theme-toggle" title="Toggle Phosphor Color">[COLOR: GREEN]</button>
+                <button id="audio-toggle" title="Toggle Terminal Audio">[AUDIO: OFF]</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="terminal-body">
+            <!-- Boot Sequence Screen (Skipped or Played on load) -->
+            <div id="boot-screen" class="screen active">
+                <div id="boot-logs"></div>
+                <div class="boot-prompt" id="boot-skip-prompt">PRESS [ENTER] OR [SPACE] TO BYPASS BOOT SEQUENCE...</div>
+            </div>
+
+            <!-- Main Menu Screen -->
+            <div id="menu-screen" class="screen">
+                <div class="ascii-art-container">
+                    <pre class="ascii-banner">
+██████╗ ██████╗  █████╗ ██╗███╗   ██╗███████╗██████╗  █████╗  ██████╗███████╗
+██╔══██╗██╔══██╗██╔══██╗██║████╗  ██║██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝
+██████╔╝██████╔╝███████║██║██╔██╗ ██║███████╗██████╔╝███████║██║     █████╗
+██╔══██╗██╔══██╗██╔══██║██║██║╚██╗██║╚════██║██╔═══╝ ██╔══██║██║     ██╔══╝
+██████╔╝██████╔╝██╔══██║██║██║ ╚████║███████║██║     ██╔══██║╚██████╗███████╗
+╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝
+██████╗ ██╗   ██╗███████╗██████╗  ██████╗ ██╗     ███████╗██████╗
+██╔══██╗██║   ██║██╔════╝██╔══██╗██╔═══██╗██║     ██╔════╝██╔══██╗
+██║  ██║██║   ██║█████╗  ██████╔╝██║   ██║██║     █████╗  ██║  ██║
+██║  ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗██║   ██║██║     ██╔══╝  ██║  ██║
+██████╔╝ ╚████╔╝ ███████╗██║  ██║╚██████╔╝███████╗███████╗██████╔╝
+╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚═════╝ </pre>
+                </div>
+
+                <div class="menu-announcement">
+                    <p>> SECURE NEURAL LINK ESTABLISHED. v1.0.4-RELEASE</p>
+                    <p>> WARNING: CORTICAL STACK INSTABILITY DETECTED IN SECTOR 7.</p>
+                </div>
+
+                <nav class="menu-options" role="navigation">
+                    <ul>
+                        <li class="menu-item active" data-action="new-game">
+                            <span class="pointer">></span> <span class="key">[1]</span> INITIALIZE MEMORY <span class="sub-hint">(NEW GAME)</span>
+                        </li>
+                        <li class="menu-item" data-action="load-game">
+                            <span class="pointer">></span> <span class="key">[2]</span> RESTORE SNAPSHOT <span class="sub-hint">(LOAD GAME)</span>
+                        </li>
+                        <li class="menu-item" data-action="settings">
+                            <span class="pointer">></span> <span class="key">[3]</span> SYSTEM CONFIG <span class="sub-hint">(SETTINGS)</span>
+                        </li>
+                        <li class="menu-item" data-action="credits">
+                            <span class="pointer">></span> <span class="key">[4]</span> NEURAL ARCHIVES <span class="sub-hint">(CREDITS)</span>
+                        </li>
+                        <li class="menu-item" data-action="exit">
+                            <span class="pointer">></span> <span class="key">[5]</span> DISCONNECT <span class="sub-hint">(QUIT)</span>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Interactive Terminal Command Line inside Menu -->
+                <div class="terminal-prompt-box">
+                    <span class="prompt-symbol">BSO:~$</span>
+                    <input type="text" id="terminal-input" placeholder="Type a command (e.g. 'help', 'start', 'status')..." autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+
+            <!-- Settings Sub-Screen -->
+            <div id="settings-screen" class="screen sub-screen">
+                <h2>// SYSTEM CONFIGURATION</h2>
+                <div class="config-options">
+                    <div class="config-row">
+                        <label>PHOSPHOR GLOW:</label>
+                        <button class="config-btn" id="cfg-color">CLASSIC GREEN</button>
+                    </div>
+                    <div class="config-row">
+                        <label>CRT SCANLINES:</label>
+                        <button class="config-btn" id="cfg-scanlines">ENABLED</button>
+                    </div>
+                    <div class="config-row">
+                        <label>AUDIO SYNTH:</label>
+                        <button class="config-btn" id="cfg-audio">MUTED</button>
+                    </div>
+                    <div class="config-row">
+                        <label>TEXT SPEED:</label>
+                        <button class="config-btn" id="cfg-speed">NORMAL (30ms)</button>
+                    </div>
+                </div>
+                <div class="back-hint">PRESS [ESC] OR [BACKSPACE] TO RETURN</div>
+            </div>
+
+            <!-- Credits Sub-Screen -->
+            <div id="credits-screen" class="screen sub-screen">
+                <h2>// NEURAL ARCHIVES & CREDITS</h2>
+                <div class="credits-content">
+                    <p><strong>BRAIN SPACE OVERFLOW</strong></p>
+                    <p>A Cyberpunk Terminal Adventure & Memory Puzzle Game.</p>
+                    <br>
+                    <p>> ARCHITECTS & DEVS: Team BSO-Overflow</p>
+                    <p>> VISUAL ENGINE: Retro CRT Web Terminal</p>
+                    <p>> AUDIO SYNTH: Web Audio API</p>
+                    <br>
+                    <p class="blink">THANK YOU FOR PLUGGING IN.</p>
+                </div>
+                <div class="back-hint">PRESS [ESC] OR [BACKSPACE] TO RETURN</div>
+            </div>
+
+            <!-- Mission Selection Screen -->
+            <div id="mission-screen" class="screen sub-screen">
+                <h2>// MISSION SELECTION // SELECT SECTOR TARGET</h2>
+                <div class="mission-layout">
+                    <!-- Left: Filters and Mission List -->
+                    <div class="mission-sidebar">
+                        <div class="mission-filter-bar" id="mission-filters">
+                            <button class="filter-btn active" data-filter="ALL">ALL</button>
+                            <button class="filter-btn" data-filter="EASY">EASY</button>
+                            <button class="filter-btn" data-filter="MEDIUM">MEDIUM</button>
+                            <button class="filter-btn" data-filter="HARD">HARD</button>
+                            <button class="filter-btn" data-filter="EXTREME">EXTREME</button>
+                        </div>
+                        <div class="mission-list" id="mission-list-container">
+                            <!-- Populated dynamically via script.js -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Mission Briefing Details -->
+                    <div class="mission-briefing-panel" id="mission-briefing">
+                        <div class="briefing-header">
+                            <h3 id="briefing-title">SELECT A MISSION</h3>
+                            <div class="briefing-destination" id="briefing-destination">DESTINATION: --</div>
+                        </div>
+                        <div class="briefing-content-body">
+                            <div class="briefing-section">
+                                <h4>// BRIEFING & INTEL</h4>
+                                <p id="briefing-desc">Choose a mission profile from the network list to review decryption parameters and stability risks.</p>
+                            </div>
+                            <div class="briefing-section briefing-objectives">
+                                <h4>// OBJECTIVES</h4>
+                                <ul id="briefing-objectives-list">
+                                    <li>--</li>
+                                </ul>
+                            </div>
+                            <div class="briefing-rewards" id="briefing-rewards">
+                                <strong>REWARD:</strong> -- | <strong>CREDITS:</strong> --
+                            </div>
+                        </div>
+                        <button class="launch-mission-btn" id="launch-mission-btn" disabled>[ INITIATE MISSION UPLINK ]</button>
+                    </div>
+                </div>
+                <div class="back-hint">PRESS [ESC] OR [BACKSPACE] TO RETURN TO MAIN MENU</div>
+            </div>
+
+            <!-- Lenguaje Code Console Screen (.lg) -->
+            <div id="lg-console-screen" class="screen sub-screen">
+                <h2>// LENGUAJE KERNEL CONSOLE (.LG)</h2>
+                <div class="lg-console-layout">
+                    <!-- Left: Code Editor -->
+                    <div class="lg-editor-pane">
+                        <div class="lg-editor-toolbar">
+                            <select id="lg-template-select" class="config-btn">
+                                <option value="hello">-- SCRIPT TEMPLATES --</option>
+                                <option value="hello">1. Hello World (.lg)</option>
+                                <option value="traductor">2. Traductor / JSON Parser</option>
+                                <option value="firewall">3. Firewall Bypass Script</option>
+                                <option value="memory">4. Memory Buffer Overflow</option>
+                            </select>
+                            <button class="config-btn" id="lg-format-btn">[FMT]</button>
+                        </div>
+                        <textarea id="lg-code-editor" spellcheck="false" placeholder="# Escribe tu código en Lenguaje (.lg) aquí...
+print('Hola, BrainSpaceOverflow')">import traductor
+
+fn verificar_acceso(nivel: int) -> str:
+    if nivel > 5:
+        return "ACCESO CONCEDIDO: KERNEL ROOT"
+    return "ACCESO DENEGADO: NIVEL INSUFICIENTE"
+
+resultado = verificar_acceso(7)
+print(resultado)
+</textarea>
+                        <button class="launch-mission-btn" id="lg-run-btn">[ EXECUTE .LG SCRIPT ]</button>
+                    </div>
+
+                    <!-- Right: Execution Output -->
+                    <div class="lg-output-pane">
+                        <h4>// STDOUT / COMPILER KERNEL LOGS</h4>
+                        <div class="lg-output-terminal" id="lg-output-terminal">
+                            <p>> LGC v1.0.4 LLVM Backend Ready.</p>
+                            <p>> Ready to compile and execute .lg scripts.</p>
+                        </div>
+                        <div class="lg-status-bar">
+                            <span>STATUS: IDLE</span>
+                            <span>COMPILER: LGC (OK)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="back-hint">PRESS [ESC] OR [BACKSPACE] TO RETURN TO MAIN MENU</div>
+            </div>
+
+            <!-- Load Game Sub-Screen -->
+            <div id="load-screen" class="screen sub-screen">
+                <h2>// SNAPSHOT RESTORE STORES</h2>
+                <div class="save-slots">
+                    <div class="save-slot empty">[SLOT 1] -- EMPTY MEMORY BANK --</div>
+                    <div class="save-slot empty">[SLOT 2] -- EMPTY MEMORY BANK --</div>
+                    <div class="save-slot empty">[SLOT 3] -- EMPTY MEMORY BANK --</div>
+                </div>
+                <div class="back-hint">PRESS [ESC] OR [BACKSPACE] TO RETURN</div>
+            </div>
+        </main>
+
+        <!-- Footer / Navigation Help -->
+        <footer class="terminal-footer">
+            <div class="footer-help">
+                <span>[↑↓] SELECT</span>
+                <span>[ENTER] CONFIRM</span>
+                <span>[1-5] QUICK JUMP</span>
+                <span>[TYPE] CMD</span>
+            </div>
+            <div class="footer-version">SECURE_CHANNEL // 0xFF00EE</div>
+        </footer>
+    </div>
+
+    <script src="missions.js"></script>
+    <script src="interpreter.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

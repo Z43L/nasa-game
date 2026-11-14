@@ -1,0 +1,64 @@
+# lib/ui/traductor.lg: Sistema de internacionalización y traducción basado en JSON.
+#
+# API:
+#   traductor_cargar(ruta: str) -> JsonValor
+#       Lee un archivo JSON de traducciones y lo devuelve como JsonValor.
+#   traductor_buscar(v: JsonValor, clave: str) -> str
+#       Busca una clave en el JsonValor. Soporta claves planas ("options:start_button_text")
+#       y claves anidadas usando ':' o '.' como separadores ("options:start_button_text" o "options.start_button_text").
+#   traductor_obtener(ruta_archivo: str, clave: str) -> str
+#       Carga el archivo y obtiene la traducción de la clave.
+#   traductor_idioma(dir_base: str, idioma: str, clave: str) -> str
+#       Construye la ruta dir_base + "/" + idioma + ".json" y traduce la clave.
+#
+# Uso: import traductor
+
+import json
+import archivo
+import texto
+
+fn traductor_cargar(ruta: str) -> JsonValor:
+    contenido = archivo_leer(ruta)
+    return json_parsear(contenido)
+
+fn traductor_buscar(v: JsonValor, clave: str) -> str:
+    # 1. Intentar búsqueda directa (clave plana)
+    val_directo = json_obtener(v, clave)
+    if not json_es_error(val_directo):
+        if json_tipo(val_directo) == "cadena":
+            return json_texto(val_directo)
+
+    # 2. Intentar separar por ':' o '.' para soporte anidado
+    mut partes: List[str] = []
+    if texto_contiene(clave, ":"):
+        partes = texto_dividir(clave, ":")
+    elif texto_contiene(clave, "."):
+        partes = texto_dividir(clave, ".")
+    else:
+        return ""
+
+    mut actual = v
+    for i in 0..len(partes):
+        parte = partes[i]
+        if json_tipo(actual) != "objeto":
+            return ""
+        actual = json_obtener(actual, parte)
+        if json_es_error(actual):
+            return ""
+
+    if json_tipo(actual) == "cadena":
+        return json_texto(actual)
+    return ""
+
+fn traductor_obtener(ruta_archivo: str, clave: str) -> str:
+    v = traductor_cargar(ruta_archivo)
+    if json_es_error(v):
+        return "error: " + json_texto(v)
+    res = traductor_buscar(v, clave)
+    if res == "":
+        return clave
+    return res
+
+fn traductor_idioma(dir_base: str, idioma: str, clave: str) -> str:
+    ruta = dir_base + "/" + idioma + ".json"
+    return traductor_obtener(ruta, clave)
