@@ -1,0 +1,21 @@
+# scripts/mision_25.lg: vigila refrigeracion, reactor y energia; repara averías y sube la refrigeración si el reactor sube.
+import nave
+import texto
+
+# Diagnostica y repara un sistema si su estado indica AVERIA.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        print(nave_reparar(sistema))
+
+sistemas: List[str] = ["refrigeracion", "reactor", "energia"]
+mut ciclos = 0
+while ciclos < 50:
+    for i in 0..len(sistemas):
+        vigilar(sistemas[i])
+    if nave_valor("reactor") > 470:
+        nave_ajustar("refrigeracion", 100)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

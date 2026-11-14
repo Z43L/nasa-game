@@ -1,0 +1,6 @@
+15
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+

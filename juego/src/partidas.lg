@@ -1,138 +1,61 @@
-# src/partidas.lg: guardar y cargar partidas en tres ranuras (saves/partida_N.json, N = 1..3).
-#
-#   partida_guardar(ranura: int) -> str   "" si va bien; si no, mensaje traducido
-#   partida_cargar(ranura: int) -> str    "" si va bien; si no, mensaje traducido (part.vacia si la ranura está libre)
-#   partida_resumen(ranura: int) -> str   "" si la ranura está libre; si no, "resumen (fecha UTC)"
-#   partida_ranuras() -> int              número de ranuras (3)
-#
-# Formato del fichero (objeto JSON, ver lib/datos/json.lg):
-#   {"version":1.0,"sim":"<sim_a_json()>","mision":"<mision_a_json()>","guardada":<segundos Unix>,"resumen":"..."}
-# El fichero se escribe en saves/partida_N.tmp y se renombra a saves/partida_N.json solo si la escritura va bien.
-# Se ejecuta desde el directorio del juego (juego/), como scripts/ y run/.
-#
-# Uso: import partidas
+# src/partidas.lg: tres ranuras de partida por usuario: usuarios/<nombre>/ranura_N.json
+#   partida_guardar(n) -> str    "" si va bien
+#   partida_cargar(n) -> str     "" si va bien
+#   partida_resumen(n) -> str    "" si la ranura está libre (o no hay sesión)
+#   partida_ranuras() -> int     3
 
-import json
 import archivo
-import proceso
-import tiempo
-import sim
+import json
+import sesion
+import usuarios
 import misiones
 import i18n
+import estado
 
 fn partida_ranuras() -> int:
     return 3
 
-fn partida_valida(ranura: int) -> bool:
-    return ranura >= 1 and ranura <= partida_ranuras()
+fn partida_valida(n: int) -> bool:
+    return n >= 1 and n <= partida_ranuras()
 
-fn partida_ruta(ranura: int) -> str:
-    return "saves/partida_" + str(ranura) + ".json"
+fn partida_fichero(n: int) -> str:
+    return usuario_carpeta(sesion_actual()) + "/ranura_" + str(n) + ".json"
 
-# Dos cifras con cero delante.
-fn partida_dos(n: int) -> str:
-    if n < 10:
-        return "0" + str(n)
-    return str(n)
-
-# Fecha UTC "AAAA-MM-DD HH:MM" a partir de segundos Unix (algoritmo de calendario civil).
-fn partida_fecha(s: int) -> str:
-    dias = s / 86400
-    resto = s % 86400
-    z = dias + 719468
-    era = z / 146097
-    doe = z - era * 146097
-    yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
-    mut anio = yoe + era * 400
-    doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
-    mp = (5 * doy + 2) / 153
-    dia = doy - (153 * mp + 2) / 5 + 1
-    mut mes = mp + 3
-    if mp >= 10:
-        mes = mp - 9
-    if mes <= 2:
-        anio = anio + 1
-    hora = resto / 3600
-    minuto = (resto % 3600) / 60
-    return str(anio) + "-" + partida_dos(mes) + "-" + partida_dos(dia) + " " + partida_dos(hora) + ":" + partida_dos(minuto)
-
-# Resumen de la misión actual para la lista de ranuras.
 fn partida_resumen_actual() -> str:
-    n = mision_numero()
-    if n == 0:
+    if mision_estado_actual() == 0:
         return tr("part.sin_mision")
-    e = mision_estado_actual()
-    mut texto_estado = tr("part.estado.fallida")
-    if e == 1:
-        texto_estado = tr("part.estado.curso")
-    elif e == 2:
-        texto_estado = tr("part.estado.completada")
-    return trc("part.resumen_mision", [str(n), texto_estado])
+    mut estado_txt = tr("part.estado.curso")
+    if mision_estado_actual() == 2:
+        estado_txt = tr("part.estado.completada")
+    if mision_estado_actual() == 3:
+        estado_txt = tr("part.estado.fallida")
+    return trc("part.resumen_mision", [str(mision_numero()), estado_txt])
 
-fn partida_guardar(ranura: int) -> str:
-    if not partida_valida(ranura):
+fn partida_guardar(n: int) -> str:
+    if not partida_valida(n) or sesion_actual() == "":
         return tr("part.error_ranura")
-    proceso_ejecutar("mkdir -p saves")
-    sim_txt = sim_a_json()
-    mis_txt = mision_a_json()
-    if sim_txt == "" or mis_txt == "":
-        return tr("part.error_escribir")
-    mut claves: List[str] = []
-    mut valores: List[JsonValor] = []
-    claves.append("version")
-    valores.append(json_nuevo_numero(1.0))
-    claves.append("sim")
-    valores.append(json_nuevo_cadena(sim_txt))
-    claves.append("mision")
-    valores.append(json_nuevo_cadena(mis_txt))
-    claves.append("guardada")
-    valores.append(json_nuevo_numero(float(tiempo_pared_unix_s())))
-    claves.append("resumen")
-    valores.append(json_nuevo_cadena(partida_resumen_actual()))
-    texto = json_serializar(json_nuevo_objeto(claves, valores))
-    ruta = partida_ruta(ranura)
-    tmp = "saves/partida_" + str(ranura) + ".tmp"
-    if not archivo_escribir_todo(tmp, texto):
-        archivo_borrar(tmp)
-        return tr("part.error_escribir")
-    if proceso_ejecutar("mv " + tmp + " " + ruta) != 0:
-        archivo_borrar(tmp)
+    claves: List[str] = ["estado", "resumen"]
+    valores: List[JsonValor] = [json_nuevo_cadena(estado_serializar_con(false)), json_nuevo_cadena(partida_resumen_actual())]
+    if not usuario_escribir(partida_fichero(n), json_serializar(json_nuevo_objeto(claves, valores))):
         return tr("part.error_escribir")
     return ""
 
-fn partida_cargar(ranura: int) -> str:
-    if not partida_valida(ranura):
+fn partida_cargar(n: int) -> str:
+    if not partida_valida(n) or sesion_actual() == "":
         return tr("part.error_ranura")
-    ruta = partida_ruta(ranura)
-    if not archivo_existe(ruta):
+    if not archivo_existe(partida_fichero(n)):
         return tr("part.vacia")
-    texto = archivo_leer_todo(ruta)
-    if texto == "":
-        return tr("part.error_leer")
-    v = json_parsear(texto)
-    if json_es_error(v):
+    raiz = json_parsear(archivo_leer_todo(partida_fichero(n)))
+    if json_es_error(raiz):
         return tr("part.error_formato")
-    if json_numero(json_obtener(v, "version")) != 1.0:
-        return tr("part.error_formato")
-    sv = json_obtener(v, "sim")
-    mv = json_obtener(v, "mision")
-    if json_es_error(sv) or json_es_error(mv):
-        return tr("part.error_formato")
-    if sim_desde_json(json_texto(sv)) != "":
-        return tr("part.error_formato")
-    if mision_desde_json(json_texto(mv)) != "":
+    if estado_cargar(json_texto(json_obtener(raiz, "estado"))) != "":
         return tr("part.error_formato")
     return ""
 
-fn partida_resumen(ranura: int) -> str:
-    if not partida_valida(ranura):
+fn partida_resumen(n: int) -> str:
+    if not partida_valida(n) or sesion_actual() == "" or not archivo_existe(partida_fichero(n)):
         return ""
-    ruta = partida_ruta(ranura)
-    if not archivo_existe(ruta):
+    raiz = json_parsear(archivo_leer_todo(partida_fichero(n)))
+    if json_es_error(raiz):
         return ""
-    v = json_parsear(archivo_leer_todo(ruta))
-    if json_es_error(v):
-        return tr("part.error_formato")
-    resumen = json_texto(json_obtener(v, "resumen"))
-    fecha = partida_fecha(int(json_numero(json_obtener(v, "guardada"))))
-    return trc("part.resumen", [resumen, fecha])
+    return json_texto(json_obtener(raiz, "resumen"))

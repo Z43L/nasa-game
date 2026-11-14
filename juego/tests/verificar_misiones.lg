@@ -1,0 +1,59 @@
+# tests/verificar_misiones.lg: verifica en secuencia todas las misiones con sus soluciones de comandos.
+# Entrada por stdin, un bloque por misión (en orden):
+#   N            número de misión
+#   s|orden      una línea por orden: segundo de simulación y orden de la terminal
+#   END          fin del bloque
+#   (o bien N, SCRIPT, END para misiones de solo script: no se simulan, se dan por superadas)
+# Salida: una línea por misión: "N OK t=..." / "N ERR motivo" / "N SCRIPT (sin verificar)".
+import terminal
+import texto
+import i18n
+import misiones
+import shell
+
+i18n_cargar()
+mut seguir = true
+while seguir:
+    if not terminal_hay_entrada():
+        seguir = false
+    else:
+        cabecera = texto_recortar_espacios(terminal_leer_linea())
+        if cabecera == "":
+            seguir = false
+        else:
+            n = int(cabecera)
+            mut tiempos: List[int] = []
+            mut ordenes: List[str] = []
+            mut script = false
+            mut fin = false
+            while not fin and terminal_hay_entrada():
+                l = texto_recortar_espacios(terminal_leer_linea())
+                if l == "END":
+                    fin = true
+                elif l == "SCRIPT":
+                    script = true
+                elif l != "":
+                    partes = texto_dividir(l, "|")
+                    tiempos.append(int(partes[0]))
+                    ordenes.append(partes[1])
+            if script:
+                mision_iniciar(n)
+                mision_completar()
+                print(str(n) + " SCRIPT (sin verificar)")
+            else:
+                msg = mision_iniciar(n)
+                if not mision_en_curso():
+                    print(str(n) + " ERR no se pudo iniciar: " + msg)
+                else:
+                    mut t = 0
+                    mut limite = mision_limite(n - 1) + 2
+                    while t < limite and mision_en_curso():
+                        for k in 0..len(ordenes):
+                            if tiempos[k] == t:
+                                shell_una(ordenes[k])
+                        mision_segundo()
+                        t = t + 1
+                    if mision_estado_actual() == 2:
+                        print(str(n) + " OK t=" + str(t))
+                    else:
+                        print(str(n) + " ERR " + mision_info())

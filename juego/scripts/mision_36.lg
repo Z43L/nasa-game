@@ -1,0 +1,12 @@
+import nave
+
+# Mision 36: diagnostica y repara hidrogeno y co2 cada segundo.
+mut sistemas: List[str] = ["hidrogeno", "co2"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        nave_reparar(sistemas[i])
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

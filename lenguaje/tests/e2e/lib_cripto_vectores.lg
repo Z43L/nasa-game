@@ -1,0 +1,9 @@
+# Vectores de referencia de SHA-256 y PBKDF2-HMAC-SHA256 (src/runtime/std/cripto.c).
+extern "C" fn lg_std_cripto_sha256_hex(s: str) -> str
+extern "C" fn lg_std_cripto_pbkdf2_hex(pw: str, sal: str, iter: int) -> str
+extern "C" fn lg_std_cripto_sal_hex() -> str
+
+print(lg_std_cripto_sha256_hex("abc"))
+print(lg_std_cripto_pbkdf2_hex("passwd", "salt", 1))
+print(lg_std_cripto_pbkdf2_hex("passwd", "salt", 2))
+print(len(lg_std_cripto_sal_hex()))

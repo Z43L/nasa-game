@@ -23,13 +23,22 @@ import misiones
 import i18n
 
 mut en_script = false
+# Carpeta de scripts del usuario de la petición (main.lg la fija; por defecto la compartida).
+mut shell_carpeta_scripts = "scripts"
+
+fn shell_fijar_carpeta(c: str):
+    shell_carpeta_scripts = c
+
+# Ruta de un script del usuario actual.
+fn shell_ruta_script(nombre: str) -> str:
+    return shell_carpeta_scripts + "/" + nombre
 mut ruta_lgc = "../lenguaje/build/bin/lgc"
 mut ruta_lib = "lib"
 mut ruta_nucleo = "../lenguaje/lib/nucleo"
 mut ruta_stdlib = "../lenguaje/stdlib"
 
 fn shell_ordenes() -> List[str]:
-    return ["ayuda", "man", "man-code", "estado", "sensores", "valor", "diagnostico", "reparar", "encender", "apagar", "ajustar", "mision", "misiones", "iniciar", "esperar", "ls", "cat", "editar", "ejecutar", "echo", "pwd", "whoami", "limpiar", "idioma"]
+    return ["ayuda", "man", "man-code", "estado", "sensores", "valor", "diagnostico", "reparar", "encender", "apagar", "ajustar", "mision", "misiones", "iniciar", "esperar", "ls", "cat", "editar", "ejecutar", "echo", "pwd", "whoami", "limpiar", "idioma", "comprobar", "finalizar"]
 
 fn shell_sistemas() -> List[str]:
     return ["reactor", "refrigeracion", "energia", "oxigeno", "comunicaciones", "co2", "hidrogeno"]
@@ -185,13 +194,13 @@ fn shell_existe(ruta: str) -> bool:
     return proceso_ejecutar("test -f " + ruta) == 0
 
 fn shell_ls() -> str:
-    proceso_ejecutar("mkdir -p run && ls scripts > run/ls.txt 2>/dev/null")
+    proceso_ejecutar("mkdir -p run && ls " + shell_carpeta_scripts + " > run/ls.txt 2>/dev/null")
     return texto_recortar_espacios(leer_texto("run/ls.txt"))
 
 fn shell_cat(args: List[str]) -> str:
     if len(args) == 0 or not shell_nombre_valido(args[0]):
         return trc("msg.uso_fichero", [tr("cmd.cat")])
-    ruta = "scripts/" + args[0]
+    ruta = shell_carpeta_scripts + "/" + args[0]
     if not shell_existe(ruta):
         return trc("msg.no_existe", [args[0]])
     return leer_texto(ruta)
@@ -280,6 +289,10 @@ fn shell_una(linea: str) -> str:
         return tr("msg.whoami")
     if orden == "limpiar":
         return ""
+    if orden == "comprobar":
+        return mision_comprobar()
+    if orden == "finalizar":
+        return mision_finalizar()
     if orden == "idioma":
         if len(args) == 0:
             return trc("msg.idioma_uso", [tr("cmd.idioma")])
@@ -307,10 +320,10 @@ fn shell_ejecutar_script(nombre: str) -> str:
         return tr("msg.anidado")
     if not shell_nombre_valido(nombre):
         return trc("msg.nombre_invalido", [nombre])
-    if not shell_existe("scripts/" + nombre):
-        return trc("msg.no_existe", ["scripts/" + nombre]) + " " + trc("msg.crear_antes", [tr("cmd.editar"), nombre])
+    if not shell_existe(shell_carpeta_scripts + "/" + nombre):
+        return trc("msg.no_existe", [shell_carpeta_scripts + "/" + nombre]) + " " + trc("msg.crear_antes", [tr("cmd.editar"), nombre])
     proceso_ejecutar("mkdir -p run && rm -f run/in run/out && mkfifo run/in run/out")
-    orden_compilar = ruta_lgc + " scripts/" + nombre + " -I " + ruta_lib + " -I " + ruta_nucleo + " -I " + ruta_stdlib + " -I ../lenguaje/lib/datos -o run/prog > run/compile.txt 2>&1"
+    orden_compilar = ruta_lgc + " " + shell_carpeta_scripts + "/" + nombre + " -I " + ruta_lib + " -I " + ruta_nucleo + " -I " + ruta_stdlib + " -I ../lenguaje/lib/datos -o run/prog > run/compile.txt 2>&1"
     if proceso_ejecutar(orden_compilar) != 0:
         return trc("msg.error_compilar", [nombre, leer_texto("run/compile.txt")])
     proceso_ejecutar("(perl -e 'alarm 60; exec @ARGV' ./run/prog < run/in > run/out 2>&1 &)")

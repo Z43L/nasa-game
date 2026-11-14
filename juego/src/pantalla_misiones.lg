@@ -151,3 +151,9 @@ fn pantalla_misiones_nodo() -> Nodo:
         pantalla_misiones_panel()
     ])
     return ui_elemento("div", ["class", "mission-screen"], [cabecera, layout])
+
+# Filtro y selección de una partida nueva.
+fn pantalla_misiones_reiniciar():
+    misiones_ui_filtro = "ALL"
+    misiones_ui_sel = -1
+    misiones_ui_aviso = false

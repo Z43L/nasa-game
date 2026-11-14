@@ -1,0 +1,52 @@
+# src/cuenta.lg: pantallas de inicio de sesión y de registro (formularios text/plain, sin JavaScript).
+#   cuenta_campo(cuerpo, campo) -> str       valor de un campo "campo=valor" de un formulario text/plain
+#   cuenta_login_nodo(error) -> Nodo         pantalla de inicio de sesión (error "" = sin mensaje)
+#   cuenta_registro_nodo(error) -> Nodo      pantalla de registro
+
+import texto
+import crt
+import i18n
+import html
+
+fn cuenta_campo(cuerpo: str, campo: str) -> str:
+    prefijo = campo + "="
+    for l in texto_dividir(cuerpo, "\n"):
+        linea = texto_recortar_espacios(l)
+        if texto_empieza_por(linea, prefijo):
+            return recortar(linea, len(prefijo), len(linea))
+    return ""
+
+fn cuenta_mensaje(error: str) -> Nodo:
+    if error == "":
+        return ui_texto("")
+    return ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(error)])
+
+fn cuenta_login_nodo(error: str) -> Nodo:
+    formulario = ui_elemento("form", ["method", "post", "action", "/login", "enctype", "text/plain", "class", "cuenta-form", "autocomplete", "off"], [
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("cuenta.usuario"))]),
+        ui_elemento("input", ["name", "usuario", "class", "campo", "autofocus"], []),
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("cuenta.pw"))]),
+        ui_elemento("input", ["name", "pw", "type", "password", "class", "campo"], []),
+        ui_elemento("button", ["type", "submit", "class", "launch-mission-btn"], [ui_texto(tr("cuenta.entrar"))])
+    ])
+    return ui_elemento("div", ["class", "pantalla-raiz"], [
+        crt_titulo(tr("cuenta.titulo_login")),
+        cuenta_mensaje(error),
+        formulario,
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_elemento("a", ["href", "/registro"], [ui_texto(tr("cuenta.ir_registro"))])])
+    ])
+
+fn cuenta_registro_nodo(error: str) -> Nodo:
+    formulario = ui_elemento("form", ["method", "post", "action", "/registro", "enctype", "text/plain", "class", "cuenta-form", "autocomplete", "off"], [
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("cuenta.usuario_nuevo"))]),
+        ui_elemento("input", ["name", "usuario", "class", "campo", "autofocus"], []),
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("cuenta.pw_nueva"))]),
+        ui_elemento("input", ["name", "pw", "type", "password", "class", "campo"], []),
+        ui_elemento("button", ["type", "submit", "class", "launch-mission-btn"], [ui_texto(tr("cuenta.crear"))])
+    ])
+    return ui_elemento("div", ["class", "pantalla-raiz"], [
+        crt_titulo(tr("cuenta.titulo_registro")),
+        cuenta_mensaje(error),
+        formulario,
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_elemento("a", ["href", "/login"], [ui_texto(tr("cuenta.ir_login"))])])
+    ])

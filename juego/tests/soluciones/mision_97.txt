@@ -1,0 +1,4 @@
+97
+0|diagnostico oxigeno
+1|reparar oxigeno
+2|ajustar comunicaciones 100

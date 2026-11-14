@@ -1,0 +1,15 @@
+# scripts/mision_57.lg: repara el reactor y regula la refrigeración para que no se sobrecaliente.
+import nave
+
+mut ciclos = 0
+while ciclos < 40:
+    nave_diagnostico("reactor")
+    nave_reparar("reactor")
+    t = nave_valor("reactor")
+    if t > 470:
+        print(nave_ajustar("refrigeracion", 100))
+    if t < 400:
+        print(nave_ajustar("refrigeracion", 60))
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("control del reactor terminado")

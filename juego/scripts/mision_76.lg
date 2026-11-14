@@ -1,0 +1,22 @@
+import nave
+import texto
+
+# Correcciones periódicas del reactor: repara su avería y ajusta la potencia de refrigeración
+# para mantener la temperatura entre 420 y 480 C.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        nave_reparar(sistema)
+
+mut ciclos = 0
+while ciclos < 50:
+    vigilar("reactor")
+    t = nave_valor("reactor")
+    if t > 480:
+        nave_ajustar("refrigeracion", 100)
+    if t < 420:
+        nave_ajustar("refrigeracion", 20)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("rumbo estable")

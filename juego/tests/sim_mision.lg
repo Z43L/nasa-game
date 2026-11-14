@@ -1,0 +1,42 @@
+# tests/sim_mision.lg: simula una misión sin tiempo real y dice si se completa.
+# Entrada por stdin: primera línea el número de misión; luego líneas "segundo|orden" (orden de la terminal,
+# p. ej. "3|diagnostico refrigeracion"); línea vacía o EOF para terminar.
+# Salida: "RESULTADO OK" o "RESULTADO ERR <motivo>" y, si no se completa, el estado final.
+# Uso (desde juego/): lgc tests/sim_mision.lg -I src -I lib -I ../lenguaje/lib/nucleo -I ../lenguaje/lib/datos -I ../lenguaje/stdlib -o build/sim_mision
+#   y luego: ./build/sim_mision < tests/soluciones/entrada.txt  (con i18n_cargar desde juego/)
+import terminal
+import texto
+import i18n
+import misiones
+import shell
+
+i18n_cargar()
+mut ordenes: List[str] = []
+mut tiempos: List[int] = []
+numero = int(terminal_leer_linea())
+mut seguir = true
+while seguir:
+    if not terminal_hay_entrada():
+        seguir = false
+    else:
+        linea = texto_recortar_espacios(terminal_leer_linea())
+        if linea == "":
+            seguir = false
+        else:
+            partes = texto_dividir(linea, "|")
+            tiempos.append(int(partes[0]))
+            ordenes.append(partes[1])
+
+print(mision_iniciar(numero))
+mut t = 0
+mut limite = mision_limite(numero - 1) + 2
+while t < limite and mision_en_curso():
+    for k in 0..len(ordenes):
+        if tiempos[k] == t:
+            shell_una(ordenes[k])
+    mision_segundo()
+    t = t + 1
+if mision_estado_actual() == 2:
+    print("RESULTADO OK t=" + str(t))
+else:
+    print("RESULTADO ERR " + mision_info())

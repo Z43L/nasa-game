@@ -8,7 +8,7 @@ import i18n
 import texto
 
 fn manual_ordenes() -> List[str]:
-    return ["ayuda", "man", "man-code", "estado", "valor", "diagnostico", "reparar", "encender", "apagar", "ajustar", "mision", "misiones", "iniciar", "esperar", "ls", "cat", "editar", "ejecutar", "echo", "pwd", "limpiar", "idioma"]
+    return ["ayuda", "man", "man-code", "estado", "valor", "diagnostico", "reparar", "encender", "apagar", "ajustar", "mision", "misiones", "iniciar", "esperar", "ls", "cat", "editar", "ejecutar", "echo", "pwd", "limpiar", "idioma", "comprobar", "finalizar"]
 
 fn manual_temas_ids() -> List[str]:
     return ["sintaxis", "variables", "condiciones", "bucles", "funciones", "listas", "diccionarios", "structs", "cadenas", "nave", "scripts"]

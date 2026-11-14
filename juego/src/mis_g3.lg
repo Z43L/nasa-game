@@ -1,0 +1,70 @@
+# src/mis_g3.lg: misiones del grupo 3 (47 a 66): energía y batería. Ver src/mision_modelo.lg.
+import mision_modelo
+
+fn mis_g3() -> List[MisionDato]:
+    mut l: List[MisionDato] = []
+    # Fáciles
+    l.append(mis_dato(47, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("energia", "av.g3.cableado", -1, 40)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 45)]))
+    l.append(mis_dato(48, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("comunicaciones", "av.g3.senal", -2, 70)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85)]))
+    l.append(mis_dato(49, 220, 1, "dif.facil", "tipo.comando",
+        [mis_av("refrigeracion", "av.g3.valvula", 3, 60)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 440)]))
+    l.append(mis_dato(50, 210, 1, "dif.facil", "tipo.comando",
+        [mis_av("energia", "av.g3.apagon", -2, 22)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 50)]))
+    l.append(mis_dato(51, 240, 1, "dif.facil", "tipo.programar",
+        [mis_av("energia", "av.g3.fuga_elec", -2, 50)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 30)]))
+    # Medias
+    l.append(mis_dato(52, 180, 1, "dif.media", "tipo.comando",
+        [mis_av("reactor", "av.g3.nucleo", 0, 0), mis_av("energia", "av.g3.celda", -1, 30)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 60)]))
+    l.append(mis_dato(53, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("reactor", "av.g3.termostato", 4, 500)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 450)]))
+    l.append(mis_dato(54, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("energia", "av.g3.cortocircuito", -2, 14), mis_av("comunicaciones", "av.g3.interferencia", -2, 70)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 20), mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 80)]))
+    l.append(mis_dato(55, 160, 1, "dif.media", "tipo.ambas",
+        [mis_av("energia", "av.g3.sobretension", -2, 40), mis_av("comunicaciones", "av.g3.antena5", -3, 75)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("energia", 0, 0, 50)]))
+    l.append(mis_dato(56, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("reactor", "av.g3.fuga_nucleo", -5, 360)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 0, 380)]))
+    l.append(mis_dato(57, 180, 1, "dif.media", "tipo.programar",
+        [mis_av("reactor", "av.g3.sobrecalentamiento", 3, 500)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 480)]))
+    # Difíciles
+    l.append(mis_dato(58, 150, 5, "dif.dificil", "tipo.comando",
+        [mis_av("energia", "av.g3.caida", -2, 40), mis_av("reactor", "av.g3.nucleo2", 0, 0)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("energia", 0, 0, 50)]))
+    l.append(mis_dato(59, 140, 10, "dif.dificil", "tipo.comando",
+        [mis_av("reactor", "av.g3.deriva_nucleo", 3, 450)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 0, 380), mis_cond("reactor", 0, 1, 420)]))
+    l.append(mis_dato(60, 130, 5, "dif.dificil", "tipo.comando",
+        [mis_av("energia", "av.g3.parasita", -1, 30), mis_av("comunicaciones", "av.g3.antena6", -3, 84)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 40), mis_cond("comunicaciones", 1, 0, 0)]))
+    l.append(mis_dato(61, 160, 5, "dif.dificil", "tipo.programar",
+        [mis_av("energia", "av.g3.cortes", -2, 60), mis_av("reactor", "av.g3.inyector2", 2, 500)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("energia", 0, 0, 40)]))
+    l.append(mis_dato(62, 150, 8, "dif.dificil", "tipo.ambas",
+        [mis_av("comunicaciones", "av.g3.antena7", -2, 70), mis_av("energia", "av.g3.celda2", -1, 45)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 80), mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 40)]))
+    # Extremas
+    l.append(mis_dato(63, 120, 10, "dif.extrema", "tipo.comando",
+        [mis_av("reactor", "av.g3.tormenta1", 2, 520), mis_av("energia", "av.g3.tormenta2", -2, 30), mis_av("comunicaciones", "av.g3.tormenta3", -3, 70)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("energia", 0, 0, 40), mis_cond("comunicaciones", 0, 0, 80)]))
+    l.append(mis_dato(64, 110, 12, "dif.extrema", "tipo.comando",
+        [mis_av("energia", "av.g3.presupuesto", -1, 25), mis_av("reactor", "av.g3.presupuesto2", 4, 480), mis_av("comunicaciones", "av.g3.presupuesto3", -2, 60)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("energia", 0, 0, 35), mis_cond("comunicaciones", 0, 0, 70)]))
+    l.append(mis_dato(65, 120, 10, "dif.extrema", "tipo.programar",
+        [mis_av("reactor", "av.g3.guardia1", 3, 500), mis_av("energia", "av.g3.guardia2", -2, 50), mis_av("comunicaciones", "av.g3.guardia3", -3, 70)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("energia", 0, 0, 40), mis_cond("comunicaciones", 0, 0, 80)]))
+    l.append(mis_dato(66, 100, 15, "dif.extrema", "tipo.ambas",
+        [mis_av("reactor", "av.g3.ultimo1", 2, 560), mis_av("energia", "av.g3.ultimo2", -2, 35), mis_av("comunicaciones", "av.g3.ultimo3", -3, 75), mis_av("oxigeno", "av.g3.ultimo4", -4, 100)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("oxigeno", 1, 0, 0), mis_cond("energia", 0, 0, 40), mis_cond("comunicaciones", 0, 0, 85)]))
+    return l

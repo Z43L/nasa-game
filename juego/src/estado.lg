@@ -1,0 +1,138 @@
+# src/estado.lg: estado completo de la partida, guardado en cookies del navegador (no en el servidor).
+#
+#   estado_inicio()                al empezar cada petición: carga la partida del usuario (o una nueva)
+#   estado_guardar()               al terminar: guarda la partida del usuario en usuarios/<nombre>/partida.json
+#   estado_serializar() -> str     texto JSON del estado (lo usan también las ranuras de partida)
+#   estado_cargar(texto) -> str    restaura un estado; "" si va bien, si no un mensaje
+#   estado_reiniciar()             estado de una partida nueva
+#   estado_arrancado_get() / estado_arrancado_fijar(b)   si ya se ha visto el menú
+
+import json
+import sim
+import misiones
+import escritorio
+import crt
+import i18n
+import pantalla
+import consola
+import pantalla_misiones
+import usuarios
+import sesion
+import archivo
+
+mut estado_arrancado_flag = false
+# Fichero de la partida activa de esta petición ("" = la partida del usuario). Lo fija main.lg según la sala.
+mut estado_ruta_fijada = ""
+
+fn estado_fijar_ruta(r: str):
+    estado_ruta_fijada = r
+
+fn estado_ruta() -> str:
+    if estado_ruta_fijada != "":
+        return estado_ruta_fijada
+    if sesion_actual() == "":
+        return ""
+    return estado_fichero(sesion_actual())
+
+fn estado_arrancado_get() -> bool:
+    return estado_arrancado_flag
+
+fn estado_arrancado_fijar(b: bool):
+    estado_arrancado_flag = b
+
+fn estado_reiniciar():
+    sim_reiniciar()
+    misiones_reiniciar()
+    escr_reiniciar()
+    crt_reiniciar()
+    i18n_cambiar("es")
+    log_limpiar()
+    consola_reiniciar()
+    pantalla_misiones_reiniciar()
+    estado_arrancado_flag = false
+    log_agregar(tr("msg.bienvenida"))
+    log_agregar(trc("msg.bienvenida2", [tr("cmd.misiones"), tr("cmd.ayuda")]))
+
+# Las últimas líneas del registro (acotadas: la cabecera de la petición tiene límite).
+fn estado_registro() -> str:
+    lineas = log_lineas_recientes(200)
+    return lineas
+
+# con_registro: false en las ranuras de partida (el registro no es parte de la partida guardada).
+fn estado_serializar_con(con_registro: bool) -> str:
+    claves: List[str] = ["v", "sim", "mision", "app", "apps", "idioma", "tema", "scan", "arrancado", "log", "filtro", "sel"]
+    apps = escr_apps_lista()
+    valores: List[JsonValor] = [
+        json_nuevo_numero(1.0),
+        json_nuevo_cadena(sim_a_json()),
+        json_nuevo_cadena(mision_a_json()),
+        json_nuevo_cadena(escr_app_actual()),
+        json_nuevo_cadena(texto_unir(apps, ",")),
+        json_nuevo_cadena(i18n_idioma_actual()),
+        json_nuevo_cadena(crt_tema_actual()),
+        json_nuevo_bool(crt_scanlines_activas()),
+        json_nuevo_bool(estado_arrancado_flag),
+        json_nuevo_cadena(estado_registro_si(con_registro)),
+        json_nuevo_cadena(misiones_filtro_actual()),
+        json_nuevo_numero(float(misiones_seleccionada()))
+    ]
+    return json_serializar(json_nuevo_objeto(claves, valores))
+
+# Lee un campo cadena/bool/número de una raíz JSON ya validada.
+fn estado_texto(raiz: JsonValor, clave: str) -> str:
+    return json_texto(json_obtener(raiz, clave))
+
+fn estado_registro_si(con: bool) -> str:
+    if con:
+        return estado_registro()
+    return ""
+
+fn estado_serializar() -> str:
+    return estado_serializar_con(true)
+
+fn estado_cargar(texto_json: str) -> str:
+    raiz = json_parsear(texto_json)
+    if json_es_error(raiz) or json_tipo(raiz) != "objeto":
+        return tr("part.error_formato")
+    err_sim = sim_desde_json(estado_texto(raiz, "sim"))
+    if err_sim != "":
+        return err_sim
+    err_mis = mision_desde_json(estado_texto(raiz, "mision"))
+    if err_mis != "":
+        return err_mis
+    escr_reiniciar()
+    apps = texto_dividir(estado_texto(raiz, "apps"), ",")
+    for i in 0..len(apps):
+        if apps[i] != "" and apps[i] != "terminal":
+            escr_abrir(apps[i])
+    escr_abrir(estado_texto(raiz, "app"))
+    i18n_cambiar(estado_texto(raiz, "idioma"))
+    crt_cambiar_tema(estado_texto(raiz, "tema"))
+    quiere_scan = json_booleano(json_obtener(raiz, "scan"))
+    if crt_scanlines_activas() != quiere_scan:
+        crt_alternar_scanlines()
+    log_limpiar()
+    if estado_texto(raiz, "log") != "":
+        log_agregar(estado_texto(raiz, "log"))
+    misiones_filtrar(estado_texto(raiz, "filtro"))
+    misiones_seleccionar(int(json_numero(json_obtener(raiz, "sel"))))
+    estado_arrancado_flag = json_booleano(json_obtener(raiz, "arrancado"))
+    return ""
+
+# Ruta del fichero de partida del usuario. Las cuentas están en usuarios/ (ver usuarios.lg).
+fn estado_fichero(nombre: str) -> str:
+    return usuario_carpeta(nombre) + "/partida.json"
+
+# Carga la partida del usuario de la petición (o una nueva si no hay sesión o no hay fichero).
+fn estado_inicio():
+    estado_reiniciar()
+    if estado_ruta() == "" or not archivo_existe(estado_ruta()):
+        return
+    if estado_cargar(archivo_leer_todo(estado_ruta())) != "":
+        estado_reiniciar()
+
+# Guarda la partida del usuario de la petición (sin sesión no se guarda nada).
+fn estado_guardar():
+    if estado_ruta() == "":
+        return
+    usuario_escribir(estado_ruta(), estado_serializar())

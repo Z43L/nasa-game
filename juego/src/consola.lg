@@ -117,7 +117,7 @@ fn consola_plantilla(id: str) -> str:
 fn consola_ejecutar(codigo: str) -> str:
     if len(codigo) > 20000:
         return trc("lg.muy_grande", ["20000"])
-    if not archivo_escribir_todo("scripts/consola.lg", codigo):
+    if not archivo_escribir_todo(shell_ruta_script("consola.lg"), codigo):
         return tr("lg.error_escribir")
     return shell_ejecutar_script("consola.lg")
 
@@ -178,3 +178,7 @@ fn consola_nodo(codigo: str, salida: str) -> Nodo:
         ]),
         volver
     ])
+
+fn consola_reiniciar():
+    consola_ult_salida = ""
+    consola_ult_codigo = ""

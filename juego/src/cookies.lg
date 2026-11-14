@@ -1,0 +1,85 @@
+# src/cookies.lg: lectura y escritura de cookies del navegador. Así el estado de la partida vive en el
+# navegador, no en el servidor (ver src/estado.lg). Sin JavaScript: se usa Set-Cookie en la respuesta.
+#
+#   cookies_cargar(cabecera: str)              lee la cabecera Cookie de la petición
+#   cookies_leer(nombre) -> str                valor de una cookie ("" si no existe)
+#   cookies_largo_leer(prefijo) -> str         reconstruye un valor partido en trozos (prefijo0, prefijo1...)
+#   cookies_largo_poner(prefijo, valor, ruta)  guarda un valor en trozos base64 (ver codec.lg)
+#   cookies_cabeceras() -> List[HttpCabecera]  Set-Cookie pendientes; las vacía
+#
+# Límites: el servidor acepta cabeceras de 8 KB. Por eso cada trozo mide 3000 caracteres (múltiplo de 4,
+# para que la base64 se pueda concatenar) y hay como máximo 8 trozos por valor.
+
+import http
+import codec
+import cadena
+import texto
+
+mut cookies_entrada: Dict[str, str] = {}
+mut cookies_nombres: List[str] = []
+mut cookies_valores: List[str] = []
+mut cookies_rutas: List[str] = []
+
+fn cookies_trozo() -> int:
+    return 3000
+
+fn cookies_cargar(cabecera: str):
+    mut d: Dict[str, str] = {}
+    partes = texto_dividir(cabecera, ";")
+    for i in 0..len(partes):
+        p = texto_recortar_espacios(partes[i])
+        k = buscar(p, "=")
+        if k > 0:
+            d[recortar(p, 0, k)] = recortar(p, k + 1, len(p))
+    cookies_entrada = d
+
+fn cookies_leer(nombre: str) -> str:
+    if cookies_entrada.tiene(nombre):
+        return cookies_entrada[nombre]
+    return ""
+
+# Cookie para enviar. valor vacío = borrar.
+fn cookies_poner(nombre: str, valor: str, ruta: str):
+    cookies_nombres.append(nombre)
+    cookies_valores.append(valor)
+    cookies_rutas.append(ruta)
+
+fn cookies_largo_poner(prefijo: str, valor: str, ruta: str):
+    b = codec_a_base64(valor)
+    n = len(b)
+    mut pos = 0
+    mut k = 0
+    while pos < n and k < 8:
+        mut fin = pos + cookies_trozo()
+        if fin > n:
+            fin = n
+        cookies_poner(prefijo + str(k), recortar(b, pos, fin), ruta)
+        pos = fin
+        k = k + 1
+    # Borra los trozos sobrantes de una escritura anterior.
+    while k < 8:
+        cookies_poner(prefijo + str(k), "", ruta)
+        k = k + 1
+
+fn cookies_largo_leer(prefijo: str) -> str:
+    mut acc = ""
+    mut k = 0
+    while k < 8 and cookies_entrada.tiene(prefijo + str(k)):
+        acc = acc + cookies_entrada[prefijo + str(k)]
+        k = k + 1
+    if acc == "":
+        return ""
+    return codec_de_base64(acc)
+
+fn cookies_cabeceras() -> List[HttpCabecera]:
+    mut out: List[HttpCabecera] = []
+    for i in 0..len(cookies_nombres):
+        mut atributos = "; Path=" + cookies_rutas[i] + "; SameSite=Lax; HttpOnly"
+        mut valor = cookies_nombres[i] + "=" + cookies_valores[i] + atributos + "; Max-Age=31536000"
+        if cookies_valores[i] == "":
+            valor = cookies_nombres[i] + "=; Path=" + cookies_rutas[i] + "; Max-Age=0"
+        out.append(HttpCabecera(nombre: "Set-Cookie", valor: valor))
+    cookies_nombres = []
+    cookies_valores = []
+    cookies_rutas = []
+    return out

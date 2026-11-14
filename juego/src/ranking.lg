@@ -1,0 +1,70 @@
+# src/ranking.lg: ranking de jugadores en ranking.json.
+#   ranking_sumar(nombre, misiones, puntos, victorias, partidas)   suma a un jugador
+#   ranking_filas() -> List[str]   "nombre|misiones|puntos|victorias|partidas", ordenadas por puntos
+
+import archivo
+import json
+import usuarios
+
+fn rk_num(v: JsonValor, campo: str) -> int:
+    x = json_obtener(v, campo)
+    if json_tipo(x) != "numero":
+        return 0
+    return int(json_numero(x))
+
+fn rk_entrada(misiones: int, puntos: int, victorias: int, partidas: int) -> JsonValor:
+    claves: List[str] = ["misiones", "puntos", "victorias", "partidas"]
+    valores: List[JsonValor] = [json_nuevo_numero(float(misiones)), json_nuevo_numero(float(puntos)), json_nuevo_numero(float(victorias)), json_nuevo_numero(float(partidas))]
+    return json_nuevo_objeto(claves, valores)
+
+fn rk_leer() -> JsonValor:
+    if not archivo_existe("ranking.json"):
+        return json_nuevo_objeto([], [])
+    raiz = json_parsear(archivo_leer_todo("ranking.json"))
+    if json_es_error(raiz) or json_tipo(raiz) != "objeto":
+        return json_nuevo_objeto([], [])
+    return raiz
+
+fn ranking_sumar(nombre: str, misiones: int, puntos: int, victorias: int, partidas: int):
+    raiz = rk_leer()
+    mut claves: List[str] = []
+    mut valores: List[JsonValor] = []
+    mut encontrado = false
+    for i in 0..len(raiz.claves):
+        v = raiz.valores[i]
+        claves.append(raiz.claves[i])
+        if raiz.claves[i] == nombre:
+            encontrado = true
+            valores.append(rk_entrada(rk_num(v, "misiones") + misiones, rk_num(v, "puntos") + puntos, rk_num(v, "victorias") + victorias, rk_num(v, "partidas") + partidas))
+        else:
+            valores.append(v)
+    if not encontrado:
+        claves.append(nombre)
+        valores.append(rk_entrada(misiones, puntos, victorias, partidas))
+    usuario_escribir("ranking.json", json_serializar(json_nuevo_objeto(claves, valores)))
+
+# Filas ordenadas por puntos (selección simple: el ranking es pequeño).
+fn ranking_filas() -> List[str]:
+    raiz = rk_leer()
+    mut nombres: List[str] = []
+    mut datos: List[JsonValor] = []
+    for i in 0..len(raiz.claves):
+        nombres.append(raiz.claves[i])
+        datos.append(raiz.valores[i])
+    for i in 0..len(nombres):
+        mut mejor = i
+        for j in i + 1..len(nombres):
+            if rk_num(datos[j], "puntos") > rk_num(datos[mejor], "puntos"):
+                mejor = j
+        if mejor != i:
+            tn = nombres[i]
+            nombres[i] = nombres[mejor]
+            nombres[mejor] = tn
+            td = datos[i]
+            datos[i] = datos[mejor]
+            datos[mejor] = td
+    mut filas: List[str] = []
+    for i in 0..len(nombres):
+        d = datos[i]
+        filas.append(nombres[i] + "|" + str(rk_num(d, "misiones")) + "|" + str(rk_num(d, "puntos")) + "|" + str(rk_num(d, "victorias")) + "|" + str(rk_num(d, "partidas")))
+    return filas

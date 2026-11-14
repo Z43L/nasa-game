@@ -1,0 +1,91 @@
+# src/usuarios.lg: cuentas de usuario. Un fichero por usuario: usuarios/<nombre>.json con la sal y el hash
+# PBKDF2 de la contraseña (ver cripto.lg). Nunca se guarda la contraseña.
+#
+#   usuario_registrar(nombre, pw) -> str    "" si va bien; si no, clave de mensaje (usr.*)
+#   usuario_entrar(nombre, pw) -> str       "" si va bien; si no, clave de mensaje
+#   usuario_valido(nombre) -> bool          3 a 16 letras o dígitos ASCII
+#   usuario_existe(nombre) -> bool
+#   usuario_carpeta(nombre) -> str          usuarios/<nombre>  (partida y ranuras del usuario)
+
+import archivo
+import cripto
+import json
+import tiempo
+import proceso
+import i18n
+
+fn usuario_valido(nombre: str) -> bool:
+    n = len(nombre)
+    if n < 3 or n > 16:
+        return false
+    for i in 0..n:
+        c = recortar(nombre, i, i + 1)
+        if not texto_contiene("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", c):
+            return false
+    return true
+
+fn usuario_ruta(nombre: str) -> str:
+    return "usuarios/" + nombre + ".json"
+
+fn usuario_carpeta(nombre: str) -> str:
+    return "usuarios/" + nombre
+
+fn usuario_existe(nombre: str) -> bool:
+    return usuario_valido(nombre) and archivo_existe(usuario_ruta(nombre))
+
+# Escritura atómica: primero un .tmp y después el renombrado.
+fn usuario_escribir(ruta: str, texto_json: str) -> bool:
+    if not archivo_escribir_todo(ruta + ".tmp", texto_json):
+        return false
+    return proceso_ejecutar("mv -f " + ruta + ".tmp " + ruta) == 0
+
+fn usuario_leer(nombre: str) -> JsonValor:
+    return json_parsear(archivo_leer_todo(usuario_ruta(nombre)))
+
+fn usuario_registrar(nombre: str, pw: str) -> str:
+    if not usuario_valido(nombre):
+        return tr("usr.nombre_no_valido")
+    if len(pw) < 6:
+        return tr("usr.pw_corta")
+    if archivo_existe(usuario_ruta(nombre)):
+        return tr("usr.existe")
+    sal = cripto_sal_hex()
+    hash = cripto_pbkdf2_hex(pw, sal, cripto_iteraciones())
+    claves: List[str] = ["nombre", "sal", "hash", "iter", "fallos", "bloqueado_hasta", "creado"]
+    valores: List[JsonValor] = [json_nuevo_cadena(nombre), json_nuevo_cadena(sal), json_nuevo_cadena(hash), json_nuevo_numero(float(cripto_iteraciones())), json_nuevo_numero(0.0), json_nuevo_numero(0.0), json_nuevo_numero(float(tiempo_pared_unix_s()))]
+    proceso_ejecutar("mkdir -p usuarios/" + nombre + "/scripts")
+    if not usuario_escribir(usuario_ruta(nombre), json_serializar(json_nuevo_objeto(claves, valores))):
+        return tr("usr.error_escribir")
+    return ""
+
+# Tres fallos seguidos bloquean el inicio de sesión durante 60 segundos.
+fn usuario_entrar(nombre: str, pw: str) -> str:
+    if not usuario_existe(nombre):
+        return tr("usr.incorrecta")
+    raiz = usuario_leer(nombre)
+    if json_es_error(raiz):
+        return tr("usr.error_leer")
+    ahora = tiempo_pared_unix_s()
+    bloqueo = int(json_numero(json_obtener(raiz, "bloqueado_hasta")))
+    if bloqueo > ahora:
+        return trc("usr.bloqueada", [str(bloqueo - ahora)])
+    sal = json_texto(json_obtener(raiz, "sal"))
+    iter = int(json_numero(json_obtener(raiz, "iter")))
+    hash = cripto_pbkdf2_hex(pw, sal, iter)
+    mut fallos = int(json_numero(json_obtener(raiz, "fallos")))
+    if hash != json_texto(json_obtener(raiz, "hash")):
+        fallos = fallos + 1
+        mut bloqueado = 0
+        if fallos >= 3:
+            bloqueado = ahora + 60
+            fallos = 0
+        usuario_actualizar(raiz, fallos, bloqueado)
+        return tr("usr.incorrecta")
+    usuario_actualizar(raiz, 0, 0)
+    return ""
+
+# Reescribe el fichero del usuario con nuevos contadores (el resto de campos se conserva).
+fn usuario_actualizar(raiz: JsonValor, fallos: int, bloqueado: int):
+    claves: List[str] = ["nombre", "sal", "hash", "iter", "fallos", "bloqueado_hasta", "creado"]
+    valores: List[JsonValor] = [json_obtener(raiz, "nombre"), json_obtener(raiz, "sal"), json_obtener(raiz, "hash"), json_obtener(raiz, "iter"), json_nuevo_numero(float(fallos)), json_nuevo_numero(float(bloqueado)), json_obtener(raiz, "creado")]
+    usuario_escribir(usuario_ruta(json_texto(json_obtener(raiz, "nombre"))), json_serializar(json_nuevo_objeto(claves, valores)))

@@ -1,0 +1,3 @@
+91
+0|diagnostico energia
+1|reparar energia

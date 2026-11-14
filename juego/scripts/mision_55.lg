@@ -1,0 +1,16 @@
+# scripts/mision_55.lg: repara energía y comunicaciones; si la energía no sube, apaga el oxígeno.
+import nave
+
+mut ciclos = 0
+mut ahorro = false
+while ciclos < 40:
+    nave_diagnostico("energia")
+    nave_reparar("energia")
+    nave_diagnostico("comunicaciones")
+    nave_reparar("comunicaciones")
+    if not ahorro and nave_valor("energia") < 50:
+        print(nave_apagar("oxigeno"))
+        ahorro = true
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

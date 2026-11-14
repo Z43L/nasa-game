@@ -1,0 +1,6 @@
+17
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico energia
+0|reparar energia
+

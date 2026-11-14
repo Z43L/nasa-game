@@ -21,6 +21,7 @@ import html
 import render
 import texto
 import i18n
+import misiones
 
 mut crt_tema = "green"
 mut crt_scan = true
@@ -304,7 +305,7 @@ fn crt_cabecera() -> Nodo:
         crt_separador(),
         ui_texto("MEM: 640K OK")
     ])
-    mut derecha_hijos: List[Nodo] = [ui_elemento("span", ["class", "reloj"], [ui_texto("00:00:00")]), crt_separador(), ui_texto("COLOR:")]
+    mut derecha_hijos: List[Nodo] = [ui_elemento("span", ["class", "reloj"], [ui_texto(mision_reloj_texto())]), crt_separador(), ui_texto("COLOR:")]
     for i in 0..len(enlaces):
         derecha_hijos.append(enlaces[i])
     derecha_hijos.append(crt_separador())
@@ -339,6 +340,7 @@ fn crt_estructura(cuerpo: Nodo) -> Nodo:
     return ui_elemento("div", ["class", "crt-raiz"], [capa, contenedor])
 
 fn crt_pagina(titulo: str, cuerpo: Nodo) -> str:
+    mision_avanzar()
     partes = [
         "<!doctype html>\n<html lang=\"" + i18n_idioma_actual() + "\" data-theme=\"" + crt_tema + "\">\n<head>\n",
         "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n",
@@ -473,3 +475,8 @@ fn crt_banner() -> Nodo:
     return ui_elemento("pre", ["class", "ascii-banner", "aria-label", "SHIP FAULT CONTROL"], [
         ui_texto(texto_unir(filas, "\n"))
     ])
+
+# Tema y scanlines de una partida nueva (los guarda el navegador en el estado).
+fn crt_reiniciar():
+    crt_tema = "green"
+    crt_scan = true

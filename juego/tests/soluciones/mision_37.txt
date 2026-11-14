@@ -1,0 +1,4 @@
+0|diagnostico co2
+0|reparar co2
+0|diagnostico refrigeracion
+0|reparar refrigeracion

@@ -1,0 +1,18 @@
+# src/cripto.lg: SHA-256, PBKDF2-HMAC-SHA256 y sal para contraseñas. Nativos en
+# lenguaje/src/runtime/std/cripto.c (implementación propia, sin dependencias externas).
+extern "C" fn lg_std_cripto_sha256_hex(s: str) -> str
+extern "C" fn lg_std_cripto_pbkdf2_hex(pw: str, sal: str, iter: int) -> str
+extern "C" fn lg_std_cripto_sal_hex() -> str
+
+fn cripto_sha256_hex(s: str) -> str:
+    return lg_std_cripto_sha256_hex(s)
+
+# Iteraciones de PBKDF2 para las contraseñas de usuario.
+fn cripto_iteraciones() -> int:
+    return 100000
+
+fn cripto_pbkdf2_hex(pw: str, sal: str, iter: int) -> str:
+    return lg_std_cripto_pbkdf2_hex(pw, sal, iter)
+
+fn cripto_sal_hex() -> str:
+    return lg_std_cripto_sal_hex()

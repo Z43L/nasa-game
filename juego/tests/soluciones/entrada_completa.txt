@@ -1,0 +1,573 @@
+1
+0|diagnostico refrigeracion
+1|reparar refrigeracion
+END
+2
+0|diagnostico oxigeno
+1|reparar oxigeno
+END
+3
+0|diagnostico reactor
+1|reparar reactor
+END
+4
+SCRIPT
+END
+5
+0|diagnostico co2
+1|reparar co2
+END
+6
+0|diagnostico comunicaciones
+1|reparar comunicaciones
+2|diagnostico energia
+3|reparar energia
+END
+7
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+END
+8
+0|diagnostico reactor
+0|reparar reactor
+END
+9
+0|diagnostico energia
+0|reparar energia
+END
+10
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico oxigeno
+0|reparar oxigeno
+END
+11
+SCRIPT
+END
+12
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+END
+13
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+END
+14
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 95
+END
+15
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+16
+SCRIPT
+END
+17
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico energia
+0|reparar energia
+END
+18
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+END
+19
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico oxigeno
+0|reparar oxigeno
+END
+20
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+END
+21
+SCRIPT
+END
+22
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 95
+END
+23
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico oxigeno
+0|reparar oxigeno
+END
+24
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar refrigeracion 95
+END
+25
+SCRIPT
+END
+26
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+27
+0|diagnostico oxigeno
+0|reparar oxigeno
+END
+28
+0|diagnostico hidrogeno
+0|reparar hidrogeno
+END
+29
+0|diagnostico co2
+0|reparar co2
+END
+30
+SCRIPT
+END
+31
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico hidrogeno
+0|reparar hidrogeno
+END
+32
+0|diagnostico oxigeno
+0|reparar oxigeno
+0|diagnostico hidrogeno
+0|reparar hidrogeno
+END
+33
+0|diagnostico co2
+0|reparar co2
+END
+34
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor
+END
+35
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+END
+36
+SCRIPT
+END
+37
+0|diagnostico co2
+0|reparar co2
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+END
+38
+0|diagnostico oxigeno
+0|reparar oxigeno
+0|diagnostico co2
+0|reparar co2
+END
+39
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 24
+END
+40
+SCRIPT
+END
+41
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor
+END
+42
+0|diagnostico oxigeno
+0|reparar oxigeno
+0|diagnostico hidrogeno
+0|reparar hidrogeno
+END
+43
+0|diagnostico oxigeno
+0|reparar oxigeno
+0|diagnostico co2
+0|reparar co2
+0|diagnostico hidrogeno
+0|reparar hidrogeno
+END
+44
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+45
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico oxigeno
+0|reparar oxigeno
+END
+46
+SCRIPT
+END
+47
+0|diagnostico energia
+0|reparar energia
+0|apagar oxigeno
+0|apagar comunicaciones
+END
+48
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+49
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+END
+50
+0|diagnostico energia
+0|reparar energia
+0|apagar oxigeno
+0|apagar comunicaciones
+END
+51
+SCRIPT
+END
+52
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico energia
+0|reparar energia
+0|apagar oxigeno
+0|apagar comunicaciones
+END
+53
+0|diagnostico reactor
+0|reparar reactor
+END
+54
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|apagar oxigeno
+END
+55
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|apagar oxigeno
+END
+56
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 0
+END
+57
+SCRIPT
+END
+58
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor
+0|apagar oxigeno
+0|apagar comunicaciones
+END
+59
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 30
+END
+60
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|apagar oxigeno
+END
+61
+SCRIPT
+END
+62
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|diagnostico energia
+0|reparar energia
+END
+63
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|apagar oxigeno
+END
+64
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|apagar oxigeno
+END
+65
+SCRIPT
+END
+66
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|diagnostico oxigeno
+0|reparar oxigeno
+0|apagar refrigeracion
+END
+67
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+68
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar comunicaciones 100
+END
+69
+0|diagnostico energia
+0|reparar energia
+0|apagar comunicaciones
+END
+70
+SCRIPT
+END
+71
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|ajustar refrigeracion 100
+END
+72
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+73
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|diagnostico energia
+0|reparar energia
+END
+74
+0|diagnostico reactor
+0|reparar reactor
+END
+75
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+76
+SCRIPT
+END
+77
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar comunicaciones 100
+END
+78
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+END
+79
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|diagnostico energia
+0|reparar energia
+END
+80
+SCRIPT
+END
+81
+0|diagnostico energia
+0|reparar energia
+0|apagar comunicaciones
+END
+82
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 100
+END
+83
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor
+END
+84
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar comunicaciones 100
+0|diagnostico co2
+0|reparar co2
+END
+85
+SCRIPT
+END
+86
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar refrigeracion 100
+END
+87
+0|diagnostico hidrogeno
+1|reparar hidrogeno
+END
+88
+0|diagnostico co2
+1|reparar co2
+2|diagnostico comunicaciones
+3|reparar comunicaciones
+END
+89
+SCRIPT
+END
+90
+0|diagnostico reactor
+1|reparar reactor
+2|diagnostico refrigeracion
+3|reparar refrigeracion
+END
+91
+0|diagnostico energia
+1|reparar energia
+END
+92
+0|diagnostico refrigeracion
+1|reparar refrigeracion
+2|diagnostico reactor
+3|reparar reactor
+END
+93
+0|diagnostico reactor
+1|reparar reactor
+2|diagnostico comunicaciones
+3|reparar comunicaciones
+END
+94
+0|diagnostico energia
+1|reparar energia
+2|diagnostico reactor
+3|reparar reactor
+4|apagar oxigeno
+5|apagar comunicaciones
+END
+95
+0|diagnostico co2
+1|reparar co2
+2|diagnostico comunicaciones
+3|reparar comunicaciones
+END
+96
+SCRIPT
+END
+97
+0|diagnostico oxigeno
+1|reparar oxigeno
+2|ajustar comunicaciones 100
+END
+98
+0|diagnostico refrigeracion
+1|reparar refrigeracion
+2|diagnostico reactor
+3|reparar reactor
+END
+99
+0|diagnostico oxigeno
+1|reparar oxigeno
+2|diagnostico comunicaciones
+3|reparar comunicaciones
+END
+100
+0|diagnostico energia
+1|reparar energia
+2|diagnostico comunicaciones
+3|reparar comunicaciones
+END
+101
+0|ajustar refrigeracion 30
+1|diagnostico reactor
+2|reparar reactor
+END
+102
+SCRIPT
+END
+103
+0|diagnostico co2
+1|reparar co2
+2|diagnostico energia
+3|reparar energia
+4|diagnostico comunicaciones
+5|reparar comunicaciones
+END
+104
+0|diagnostico refrigeracion
+1|reparar refrigeracion
+2|diagnostico reactor
+3|reparar reactor
+END
+105
+0|diagnostico co2
+1|reparar co2
+2|diagnostico comunicaciones
+3|reparar comunicaciones
+4|diagnostico refrigeracion
+5|reparar refrigeracion
+6|diagnostico reactor
+7|reparar reactor
+END
+106
+SCRIPT
+END

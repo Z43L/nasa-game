@@ -1,0 +1,16 @@
+# scripts/mision_61.lg: repara energía y reactor a la vez y ahorra con el oxígeno si la carga baja.
+import nave
+
+mut ciclos = 0
+mut ahorro = false
+while ciclos < 40:
+    nave_diagnostico("energia")
+    nave_reparar("energia")
+    nave_diagnostico("reactor")
+    nave_reparar("reactor")
+    if not ahorro and nave_valor("energia") < 50:
+        print(nave_apagar("oxigeno"))
+        ahorro = true
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("guardia de energía terminada")

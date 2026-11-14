@@ -1,0 +1,18 @@
+import nave
+import texto
+
+# Mantenimiento de navegación: repara energía, comunicaciones y CO2 en cuanto aparecen averías.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        nave_reparar(sistema)
+
+mut ciclos = 0
+while ciclos < 50:
+    vigilar("energia")
+    vigilar("comunicaciones")
+    vigilar("co2")
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("mantenimiento terminado")

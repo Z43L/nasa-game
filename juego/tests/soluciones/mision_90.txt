@@ -1,0 +1,5 @@
+90
+0|diagnostico reactor
+1|reparar reactor
+2|diagnostico refrigeracion
+3|reparar refrigeracion

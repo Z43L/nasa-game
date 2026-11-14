@@ -1,0 +1,5 @@
+71
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|ajustar refrigeracion 100
+

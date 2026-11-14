@@ -1,0 +1,14 @@
+# scripts/mision_105.lg: repara co2, comunicaciones, refrigeracion y reactor; si el reactor supera 600, sube la refrigeracion.
+import nave
+
+sistemas = ["co2", "comunicaciones", "refrigeracion", "reactor"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        print(nave_reparar(sistemas[i]))
+    if nave_valor("reactor") > 600:
+        print(nave_ajustar("refrigeracion", 100))
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

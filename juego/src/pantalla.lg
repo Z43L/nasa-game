@@ -62,3 +62,16 @@ fn pantalla_editor(nombre: str, contenido: str) -> str:
         ui_elemento("a", ["href", "/", "class", "volver"], [ui_texto(tr("pant.volver"))])
     ])
     return pantalla_html(ui_elemento("div", ["class", "editor-raiz"], [formulario]))
+
+# Últimas n líneas del registro, cada una acotada a 120 bytes (el estado va en una cabecera de 8 KB).
+fn log_lineas_recientes(n: int) -> str:
+    mut partes: List[str] = []
+    mut ini = len(log_lineas) - n
+    if ini < 0:
+        ini = 0
+    for i in ini..len(log_lineas):
+        mut l = log_lineas[i]
+        if len(l) > 400:
+            l = recortar(l, 0, 400)
+        partes.append(l)
+    return texto_unir(partes, "\n")

@@ -1,0 +1,3 @@
+87
+0|diagnostico hidrogeno
+1|reparar hidrogeno

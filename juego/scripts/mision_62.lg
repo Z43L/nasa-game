@@ -1,0 +1,12 @@
+# scripts/mision_62.lg: vigila comunicaciones y energía y repara cada avería en cuanto aparece.
+import nave
+
+mut ciclos = 0
+while ciclos < 40:
+    nave_diagnostico("comunicaciones")
+    nave_reparar("comunicaciones")
+    nave_diagnostico("energia")
+    nave_reparar("energia")
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

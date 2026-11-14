@@ -1,0 +1,5 @@
+98
+0|diagnostico refrigeracion
+1|reparar refrigeracion
+2|diagnostico reactor
+3|reparar reactor

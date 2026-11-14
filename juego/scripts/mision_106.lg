@@ -1,0 +1,12 @@
+# scripts/mision_106.lg: vigila co2, energia y comunicaciones y repara cada averia en cada ciclo.
+import nave
+
+sistemas = ["co2", "energia", "comunicaciones"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        print(nave_reparar(sistemas[i]))
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

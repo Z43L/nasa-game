@@ -1,0 +1,82 @@
+# src/mis_g5.lg: misiones del grupo 5 (87 a 106): fallos combinados y misiones extremas. Ver src/mision_modelo.lg.
+import mision_modelo
+
+# Objetivo "todos los sistemas sanos" (los siete sistemas).
+fn mis_g5_todos() -> List[Condicion]:
+    mut l: List[Condicion] = []
+    l.append(mis_cond("reactor", 1, 0, 0))
+    l.append(mis_cond("refrigeracion", 1, 0, 0))
+    l.append(mis_cond("energia", 1, 0, 0))
+    l.append(mis_cond("oxigeno", 1, 0, 0))
+    l.append(mis_cond("comunicaciones", 1, 0, 0))
+    l.append(mis_cond("co2", 1, 0, 0))
+    l.append(mis_cond("hidrogeno", 1, 0, 0))
+    return l
+
+fn mis_g5() -> List[MisionDato]:
+    mut l: List[MisionDato] = []
+    # ---------- facil (5) ----------
+    l.append(mis_dato(87, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("hidrogeno", "av.g5.fuga_h2", -1, 0)],
+        [mis_cond("hidrogeno", 1, 0, 0), mis_cond("reactor", 1, 0, 0)]))
+    l.append(mis_dato(88, 220, 1, "dif.facil", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -3, 0), mis_av("co2", "av.co2", 1, 0)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("co2", 1, 0, 0)]))
+    l.append(mis_dato(89, 180, 1, "dif.facil", "tipo.programar",
+        [mis_av("oxigeno", "av.fuga", -4, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("oxigeno", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0)]))
+    l.append(mis_dato(90, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("reactor", "av.inyector", 0, 0), mis_av("refrigeracion", "av.bomba", 0, 0)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("refrigeracion", 1, 0, 0), mis_cond("energia", 0, 0, 30)]))
+    l.append(mis_dato(91, 180, 1, "dif.facil", "tipo.comando",
+        [mis_av("energia", "av.tormenta", -2, 0)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 60)]))
+    # ---------- media (6) ----------
+    l.append(mis_dato(92, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("reactor", "av.g5.sobrecalentamiento", 4, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 470)]))
+    l.append(mis_dato(93, 180, 1, "dif.media", "tipo.ambas",
+        [mis_av("reactor", "av.inyector", 0, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("energia", 0, 0, 50)]))
+    l.append(mis_dato(94, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("energia", "av.g5.celda", -5, 0), mis_av("reactor", "av.inyector", 0, 0)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("energia", 0, 0, 75)]))
+    l.append(mis_dato(95, 180, 3, "dif.media", "tipo.comando",
+        [mis_av("co2", "av.co2", 2, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("co2", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0)]))
+    l.append(mis_dato(96, 180, 1, "dif.media", "tipo.programar",
+        [mis_av("reactor", "av.g5.sobrecalentamiento", 2, 0), mis_av("refrigeracion", "av.bomba", 0, 0)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 0, 1, 500)]))
+    l.append(mis_dato(97, 200, 1, "dif.media", "tipo.comando",
+        [mis_av("oxigeno", "av.fuga", -4, 0)],
+        [mis_cond("oxigeno", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 95)]))
+    # ---------- dificil (5) ----------
+    l.append(mis_dato(98, 150, 6, "dif.dificil", "tipo.comando",
+        [mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("reactor", "av.g5.sobrecalentamiento", 3, 0)],
+        mis_g5_todos()))
+    l.append(mis_dato(99, 140, 8, "dif.dificil", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -3, 0), mis_av("oxigeno", "av.fuga", -4, 0)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("oxigeno", 1, 0, 0)]))
+    l.append(mis_dato(100, 130, 5, "dif.dificil", "tipo.ambas",
+        [mis_av("energia", "av.tormenta", -2, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0)]))
+    l.append(mis_dato(101, 140, 10, "dif.dificil", "tipo.comando",
+        [mis_av("reactor", "av.inyector", 0, 0)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 0, 400), mis_cond("reactor", 0, 1, 480)]))
+    l.append(mis_dato(102, 130, 8, "dif.dificil", "tipo.programar",
+        [mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("comunicaciones", "av.antena", -3, 0), mis_av("co2", "av.co2", 1, 0)],
+        mis_g5_todos()))
+    # ---------- extrema (4) ----------
+    l.append(mis_dato(103, 120, 1, "dif.extrema", "tipo.comando",
+        [mis_av("co2", "av.co2", 1, 0), mis_av("energia", "av.tormenta", -2, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        mis_g5_todos()))
+    l.append(mis_dato(104, 110, 12, "dif.extrema", "tipo.comando",
+        [mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("reactor", "av.g5.sobrecalentamiento", 4, 0)],
+        mis_g5_todos()))
+    l.append(mis_dato(105, 100, 10, "dif.extrema", "tipo.ambas",
+        [mis_av("co2", "av.co2", 1, 0), mis_av("comunicaciones", "av.antena", -3, 0), mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("reactor", "av.inyector", 0, 0)],
+        mis_g5_todos()))
+    l.append(mis_dato(106, 110, 10, "dif.extrema", "tipo.programar",
+        [mis_av("co2", "av.co2", 2, 0), mis_av("energia", "av.tormenta", -2, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        mis_g5_todos()))
+    return l
