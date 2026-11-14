@@ -1,0 +1,153 @@
+# src/pantalla_misiones.lg: pantalla de selección de misiones (filtros, lista y briefing).
+#
+#   pantalla_misiones_nodo() -> Nodo        contenido completo (sin cabecera; la pone crt_pagina)
+#   misiones_filtrar(f: str)                ALL, EASY, MEDIUM, HARD, EXTREME; otro valor = ALL
+#   misiones_seleccionar(i: int)            índice 0-based; si no existe o no es seleccionable, no cambia nada
+#   misiones_seleccionada() -> int          índice 0-based; -1 si ninguna
+#   misiones_filtro_actual() -> str
+#
+# Rutas (las conecta main.lg): /misiones/:f filtra, /mision/:n selecciona (n 1-based: pasar n - 1),
+# /mision/lanzar recibe el campo "numero" (1-based) y llama a mision_iniciar.
+#
+# Dependencias del motor: mision_total, mision_titulo, mision_briefing, mision_limite,
+# mision_dificultad, mision_estado_de, mision_seleccionable.
+
+import html
+import render
+import i18n
+import misiones
+import crt
+
+mut misiones_ui_filtro = "ALL"
+mut misiones_ui_sel = -1
+mut misiones_ui_aviso = false
+
+fn misiones_filtrar(f: str):
+    if f == "EASY" or f == "MEDIUM" or f == "HARD" or f == "EXTREME":
+        misiones_ui_filtro = f
+    else:
+        misiones_ui_filtro = "ALL"
+
+fn misiones_filtro_actual() -> str:
+    return misiones_ui_filtro
+
+fn misiones_seleccionar(i: int):
+    if i < 0 or i >= mision_total():
+        misiones_ui_aviso = true
+        return
+    if not mision_seleccionable(i):
+        misiones_ui_aviso = true
+        return
+    misiones_ui_sel = i
+    misiones_ui_aviso = false
+
+fn misiones_seleccionada() -> int:
+    return misiones_ui_sel
+
+# Clave de dificultad (dif.*) que corresponde a un filtro; "" para ALL.
+fn misiones_ui_clave_filtro(f: str) -> str:
+    if f == "EASY":
+        return "dif.facil"
+    if f == "MEDIUM":
+        return "dif.media"
+    if f == "HARD":
+        return "dif.dificil"
+    if f == "EXTREME":
+        return "dif.extrema"
+    return ""
+
+# Sufijo de la clase CSS de dificultad (difficulty-easy, ...); "" si la clave no se reconoce.
+fn misiones_ui_sufijo(clave: str) -> str:
+    if clave == "dif.facil":
+        return "easy"
+    if clave == "dif.media":
+        return "medium"
+    if clave == "dif.dificil":
+        return "hard"
+    if clave == "dif.extrema":
+        return "extreme"
+    return ""
+
+fn misiones_ui_clase_badge(clave: str) -> str:
+    sufijo = misiones_ui_sufijo(clave)
+    if sufijo == "":
+        return "difficulty-badge"
+    return "difficulty-badge difficulty-" + sufijo
+
+fn pantalla_misiones_filtros() -> Nodo:
+    mut botones: List[Nodo] = []
+    filtros = ["ALL", "EASY", "MEDIUM", "HARD", "EXTREME"]
+    for i in 0..len(filtros):
+        f = filtros[i]
+        mut clase = "filter-btn"
+        if f == misiones_ui_filtro:
+            clase = "filter-btn active"
+        botones.append(ui_elemento("a", ["href", "/misiones/" + f, "class", clase], [ui_texto(tr("mis.filtro." + f))]))
+    return ui_elemento("div", ["class", "mission-filter-bar"], botones)
+
+# Una tarjeta. Las bloqueadas (no seleccionables) van atenuadas y sin enlace.
+fn pantalla_misiones_tarjeta(i: int) -> Nodo:
+    clave = mision_dificultad(i)
+    num = str(i + 1)
+    titulo = ui_elemento("span", ["class", "mission-card-title"], [ui_texto(mision_titulo(i))])
+    badge = ui_elemento("span", ["class", misiones_ui_clase_badge(clave)], [ui_texto(tr(clave))])
+    estado = ui_elemento("span", ["class", "mission-card-estado"], [ui_texto(tr("mis.estado." + str(mision_estado_de(i))))])
+    if mision_seleccionable(i):
+        mut clase = "mission-card"
+        if i == misiones_ui_sel:
+            clase = "mission-card active"
+        return ui_elemento("a", ["href", "/mision/" + num, "class", clase], [titulo, badge, estado])
+    return ui_elemento("div", ["class", "mission-card bloqueada"], [titulo, badge, estado])
+
+fn pantalla_misiones_lista() -> Nodo:
+    clave_f = misiones_ui_clave_filtro(misiones_ui_filtro)
+    n = mision_total()
+    mut tarjetas: List[Nodo] = []
+    for i in 0..n:
+        if misiones_ui_filtro == "ALL" or mision_dificultad(i) == clave_f:
+            tarjetas.append(pantalla_misiones_tarjeta(i))
+    if len(tarjetas) == 0:
+        tarjetas.append(ui_elemento("p", ["class", "pista"], [ui_texto(tr("mis.vacia"))]))
+    return ui_elemento("div", ["class", "mission-list"], tarjetas)
+
+fn pantalla_misiones_panel() -> Nodo:
+    mut hijos: List[Nodo] = []
+    if misiones_ui_aviso:
+        hijos.append(ui_elemento("p", ["class", "mission-aviso"], [ui_texto(tr("mis.no_seleccionable"))]))
+    i = misiones_ui_sel
+    if i < 0:
+        hijos.append(ui_elemento("div", ["class", "briefing-header"], [
+            ui_elemento("h3", [], [ui_texto(tr("mis.sin_seleccion"))])
+        ]))
+        return ui_elemento("div", ["class", "mission-briefing-panel"], hijos)
+    clave = mision_dificultad(i)
+    hijos.append(ui_elemento("div", ["class", "briefing-header"], [
+        ui_elemento("h3", [], [ui_texto(mision_titulo(i))]),
+        ui_elemento("div", ["class", "briefing-destination"], [
+            ui_elemento("span", ["class", misiones_ui_clase_badge(clave)], [ui_texto(tr(clave))]),
+            ui_texto(" "),
+            ui_texto(trc("mis.limite", [str(mision_limite(i))]))
+        ])
+    ]))
+    hijos.append(ui_elemento("div", ["class", "briefing-section"], [
+        ui_elemento("h4", [], [ui_texto(tr("mis.estado_etiqueta"))]),
+        ui_elemento("p", [], [ui_texto(tr("mis.estado." + str(mision_estado_de(i))))])
+    ]))
+    hijos.append(ui_elemento("div", ["class", "briefing-section"], [
+        ui_elemento("h4", [], [ui_texto(tr("mis.objetivo"))]),
+        ui_elemento("p", [], [ui_texto(mision_briefing(i))])
+    ]))
+    if mision_seleccionable(i):
+        hijos.append(ui_elemento("form", ["method", "post", "action", "/mision/lanzar", "enctype", "text/plain", "class", "mission-launch-form"], [
+            ui_elemento("input", ["type", "hidden", "name", "numero", "value", str(i + 1)], []),
+            ui_elemento("button", ["type", "submit", "class", "launch-mission-btn"], [ui_texto(tr("mis.lanzar"))])
+        ]))
+    return ui_elemento("div", ["class", "mission-briefing-panel"], hijos)
+
+fn pantalla_misiones_nodo() -> Nodo:
+    cabecera = crt_titulo(tr("mis.titulo"))
+    layout = ui_elemento("div", ["class", "mission-layout"], [
+        ui_elemento("div", ["class", "mission-sidebar"], [pantalla_misiones_filtros(), pantalla_misiones_lista()]),
+        pantalla_misiones_panel()
+    ])
+    return ui_elemento("div", ["class", "mission-screen"], [cabecera, layout])

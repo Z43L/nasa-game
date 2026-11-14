@@ -1,0 +1,180 @@
+# src/consola.lg: consola de Lenguaje (plantillas, ejecucion de scripts y pantalla de la consola).
+#
+#   consola_plantillas() -> List[str]                 ids: hola, json, mision, buffer
+#   consola_plantilla(id: str) -> str                 codigo .lg de la plantilla ("hola" si el id no existe)
+#   consola_ejecutar(codigo: str) -> str              escribe scripts/consola.lg y lo ejecuta (shell_ejecutar_script)
+#   consola_guardar_salida(s: str)
+#   consola_ultima_salida() -> str
+#   consola_guardar_codigo(c: str)
+#   consola_ultimo_codigo() -> str
+#   consola_nodo(codigo: str, salida: str) -> Nodo    pantalla completa: plantillas, editor y salida
+#
+# El formulario de ejecucion va en text/plain: el integrador lee el campo "texto" con cuerpo_campo
+# (src/pantalla.lg). Este modulo no parsea el cuerpo HTTP.
+
+import texto
+import archivo
+import shell
+import i18n
+import crt
+import html
+
+mut consola_ult_salida = ""
+mut consola_ult_codigo = ""
+
+fn consola_plantillas() -> List[str]:
+    return ["hola", "json", "mision", "buffer"]
+
+# Plantilla "hola": estado del reactor.
+fn consola_tpl_hola() -> str:
+    mut lineas: List[str] = [
+        "# Estado del reactor de la nave",
+        "import nave",
+        "",
+        "print(\"Reactor: \" + nave_estado(\"reactor\"))",
+        "print(\"Valor: \" + str(nave_valor(\"reactor\")))",
+    ]
+    return texto_unir(lineas, "\n")
+
+# Plantilla "json": parsea un texto JSON de ejemplo y escribe un objeto nuevo.
+fn consola_tpl_json() -> str:
+    mut lineas: List[str] = [
+        "# Parsea un JSON de ejemplo y escribe un campo nuevo",
+        "import json",
+        "",
+        "datos = \"{\\\"nave\\\": \\\"BSO-8088\\\", \\\"sistemas\\\": [\\\"reactor\\\", \\\"oxigeno\\\"], \\\"mision\\\": {\\\"numero\\\": 2}}\"",
+        "r = json_parsear(datos)",
+        "if json_es_error(r):",
+        "    print(\"JSON no valido: \" + json_texto(r))",
+        "else:",
+        "    print(\"nave: \" + json_texto(json_obtener(r, \"nave\")))",
+        "    m = json_obtener(r, \"mision\")",
+        "    print(\"mision: \" + str(int(json_numero(json_obtener(m, \"numero\")))))",
+        "    lista = json_obtener(r, \"sistemas\")",
+        "    for i in 0..json_longitud(lista):",
+        "        print(\"sistema \" + str(i) + \": \" + json_texto(json_elemento(lista, i)))",
+        "# Escribe un objeto nuevo y lo serializa",
+        "nuevo = json_nuevo_objeto([\"nave\", \"estado\"], [json_nuevo_cadena(\"BSO-8088\"), json_nuevo_cadena(\"operativa\")])",
+        "print(json_serializar(nuevo))",
+    ]
+    return texto_unir(lineas, "\n")
+
+# Plantilla "mision": vigila las comunicaciones y repara si hay averia (30 ciclos de 1 s).
+fn consola_tpl_mision() -> str:
+    mut lineas: List[str] = [
+        "# Vigila las comunicaciones y repara si aparece una averia",
+        "import nave",
+        "import texto",
+        "",
+        "fn hay_averia(e: str) -> bool:",
+        "    return texto_contiene(e, \"AVERIA\") or texto_contiene(e, \"FAULT\") or texto_contiene(e, \"PANNE\") or texto_contiene(e, \"故障\")",
+        "",
+        "mut ciclos = 0",
+        "while ciclos < 30:",
+        "    e = nave_estado(\"comunicaciones\")",
+        "    if hay_averia(e):",
+        "        nave_diagnostico(\"comunicaciones\")",
+        "        print(nave_reparar(\"comunicaciones\"))",
+        "    nave_esperar(1)",
+        "    ciclos = ciclos + 1",
+        "print(\"vigilancia terminada\")",
+    ]
+    return texto_unir(lineas, "\n")
+
+# Plantilla "buffer": lista de sistemas, lee cada valor y avisa si sale de su rango seguro.
+fn consola_tpl_buffer() -> str:
+    mut lineas: List[str] = [
+        "# Lee los sistemas con nave_valor y avisa si estan fuera de su rango",
+        "import nave",
+        "",
+        "mut sistemas: List[str] = [\"reactor\", \"refrigeracion\", \"energia\", \"oxigeno\", \"comunicaciones\", \"co2\", \"hidrogeno\"]",
+        "mut minimos: List[int] = [300, 0, 0, 95, 60, 0, 20]",
+        "mut maximos: List[int] = [650, 100, 100, 110, 100, 8, 100]",
+        "mut fuera = 0",
+        "for i in 0..len(sistemas):",
+        "    v = nave_valor(sistemas[i])",
+        "    if v < 0:",
+        "        print(sistemas[i] + \": no existe\")",
+        "    elif v < minimos[i] or v > maximos[i]:",
+        "        fuera = fuera + 1",
+        "        print(\"AVISO \" + sistemas[i] + \": \" + str(v) + \" fuera de [\" + str(minimos[i]) + \"-\" + str(maximos[i]) + \"]\")",
+        "    else:",
+        "        print(sistemas[i] + \": \" + str(v) + \" OK\")",
+        "print(\"fuera de rango: \" + str(fuera))",
+    ]
+    return texto_unir(lineas, "\n")
+
+fn consola_plantilla(id: str) -> str:
+    if id == "json":
+        return consola_tpl_json()
+    if id == "mision":
+        return consola_tpl_mision()
+    if id == "buffer":
+        return consola_tpl_buffer()
+    return consola_tpl_hola()
+
+# Escribe el codigo en scripts/consola.lg y lo ejecuta. Devuelve la salida o el error de compilacion.
+fn consola_ejecutar(codigo: str) -> str:
+    if len(codigo) > 20000:
+        return trc("lg.muy_grande", ["20000"])
+    if not archivo_escribir_todo("scripts/consola.lg", codigo):
+        return tr("lg.error_escribir")
+    return shell_ejecutar_script("consola.lg")
+
+fn consola_guardar_salida(s: str):
+    consola_ult_salida = s
+
+fn consola_ultima_salida() -> str:
+    return consola_ult_salida
+
+fn consola_guardar_codigo(c: str):
+    consola_ult_codigo = c
+
+fn consola_ultimo_codigo() -> str:
+    return consola_ult_codigo
+
+# Pantalla completa de la consola.
+fn consola_nodo(codigo: str, salida: str) -> Nodo:
+    ids = consola_plantillas()
+    mut enlaces: List[Nodo] = [ui_elemento("span", [], [ui_texto(tr("lg.plantillas"))])]
+    for i in 0..len(ids):
+        enlaces.append(ui_elemento("a", ["href", "/consola/plantilla/" + ids[i], "class", "config-btn"], [ui_texto(tr("lg.plantilla." + ids[i]))]))
+    selector = ui_elemento("div", ["class", "lg-editor-toolbar"], enlaces)
+
+    editor = ui_elemento("form", ["method", "post", "action", "/consola/ejecutar", "enctype", "text/plain"], [
+        ui_elemento("textarea", ["name", "texto", "class", "lg-editor", "spellcheck", "false"], [ui_texto(codigo)]),
+        ui_elemento("button", ["type", "submit", "class", "launch-mission-btn"], [ui_texto(tr("lg.ejecutar"))])
+    ])
+
+    mut lineas: List[Nodo] = []
+    if salida == "":
+        lineas.append(ui_elemento("p", [], [ui_texto(tr("lg.sin_salida"))]))
+    else:
+        partes = texto_dividir(salida, "\n")
+        for i in 0..len(partes):
+            lineas.append(ui_elemento("p", [], [ui_texto(partes[i])]))
+
+    mut estado = tr("lg.estado_idle")
+    if salida != "":
+        estado = tr("lg.estado_ejecutando")
+
+    barra = ui_elemento("div", ["class", "lg-status-bar"], [
+        ui_elemento("span", [], [ui_texto(estado)]),
+        ui_elemento("span", [], [ui_texto(tr("lg.compilador"))])
+    ])
+    panel = ui_elemento("div", ["class", "lg-output-pane"], [
+        ui_elemento("h4", [], [ui_texto(tr("lg.cabecera_salida"))]),
+        ui_elemento("div", ["class", "lg-output-terminal"], lineas),
+        barra
+    ])
+
+    volver = ui_elemento("div", ["class", "back-hint"], [ui_elemento("a", ["href", "/menu"], [ui_texto(tr("lg.volver"))])])
+
+    return ui_elemento("div", ["class", "lg-console-screen"], [
+        crt_titulo(tr("lg.titulo")),
+        ui_elemento("div", ["class", "lg-console-layout"], [
+            ui_elemento("div", ["class", "lg-editor-pane"], [selector, editor]),
+            panel
+        ]),
+        volver
+    ])

@@ -1,0 +1,17 @@
+# Parsea un JSON de ejemplo y escribe un campo nuevo
+import json
+
+datos = "{\"nave\": \"BSO-8088\", \"sistemas\": [\"reactor\", \"oxigeno\"], \"mision\": {\"numero\": 2}}"
+r = json_parsear(datos)
+if json_es_error(r):
+    print("JSON no valido: " + json_texto(r))
+else:
+    print("nave: " + json_texto(json_obtener(r, "nave")))
+    m = json_obtener(r, "mision")
+    print("mision: " + str(int(json_numero(json_obtener(m, "numero")))))
+    lista = json_obtener(r, "sistemas")
+    for i in 0..json_longitud(lista):
+        print("sistema " + str(i) + ": " + json_texto(json_elemento(lista, i)))
+# Escribe un objeto nuevo y lo serializa
+nuevo = json_nuevo_objeto(["nave", "estado"], [json_nuevo_cadena("BSO-8088"), json_nuevo_cadena("operativa")])
+print(json_serializar(nuevo))

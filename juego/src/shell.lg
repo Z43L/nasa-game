@@ -310,7 +310,7 @@ fn shell_ejecutar_script(nombre: str) -> str:
     if not shell_existe("scripts/" + nombre):
         return trc("msg.no_existe", ["scripts/" + nombre]) + " " + trc("msg.crear_antes", [tr("cmd.editar"), nombre])
     proceso_ejecutar("mkdir -p run && rm -f run/in run/out && mkfifo run/in run/out")
-    orden_compilar = ruta_lgc + " scripts/" + nombre + " -I " + ruta_lib + " -I " + ruta_nucleo + " -I " + ruta_stdlib + " -o run/prog > run/compile.txt 2>&1"
+    orden_compilar = ruta_lgc + " scripts/" + nombre + " -I " + ruta_lib + " -I " + ruta_nucleo + " -I " + ruta_stdlib + " -I ../lenguaje/lib/datos -o run/prog > run/compile.txt 2>&1"
     if proceso_ejecutar(orden_compilar) != 0:
         return trc("msg.error_compilar", [nombre, leer_texto("run/compile.txt")])
     proceso_ejecutar("(perl -e 'alarm 60; exec @ARGV' ./run/prog < run/in > run/out 2>&1 &)")

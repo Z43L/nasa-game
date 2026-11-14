@@ -1,16 +1,27 @@
-# src/main.lg: servidor de la terminal web de la nave (framework web de Lenguaje: lib/web + lib/ui).
+# src/main.lg: servidor del juego (framework web de Lenguaje: lib/web + lib/ui), interfaz CRT.
 #
-# Rutas:
-#   GET  /                    escritorio: barra de tareas, ventana con la terminal y las aplicaciones
-#   POST /cmd                 envía una orden (formulario text/plain, campo "linea")
-#   GET  /app/:id             abre una aplicación o la terminal ("terminal", "sensores", "gases"...)
-#   GET  /cerrar/:id          cierra una aplicación
-#   GET  /idioma/:codigo      cambia el idioma (es, en, fr, ja)
-#   GET  /editar/:nombre      editor de scripts/NOMBRE
-#   POST /guardar/:nombre     guarda el script (campo "texto")
-#   GET  /fondo.jpg           imagen de fondo (fondo.jpg en juego/)
+# Flujo: arranque (/) -> menú principal (/menu) -> juego (/juego), misiones, consola Lenguaje,
+# partidas guardadas, ajustes (tema y scanlines) y créditos. Sin JavaScript: enlaces y formularios.
 #
-# Compilar y ejecutar desde juego/ (ver README.md): lgpm construir && lgpm ejecutar
+# Rutas principales:
+#   GET  /                      arranque (la primera vez) o menú
+#   GET  /menu                  menú principal
+#   POST /menu/cmd              línea del menú: número 1-6 o una orden de la terminal
+#   GET  /juego                 terminal y aplicaciones
+#   POST /cmd                   orden de la terminal (campo "linea")
+#   GET  /app/:id  /cerrar/:id  abre o cierra una aplicación
+#   GET  /misiones  /misiones/:f  /mision/:n   selección de misiones (filtro y misión)
+#   POST /mision/lanzar         inicia la misión (campo "numero")
+#   GET  /consola  /consola/plantilla/:id   consola de Lenguaje
+#   POST /consola/ejecutar      compila y ejecuta el código (campo "texto")
+#   GET  /partidas              ranuras de partida guardada
+#   GET  /partida/guardar/:n  /partida/cargar/:n
+#   GET  /ajustes  /tema/:nombre  /escanlineas  /creditos
+#   GET  /editar/:nombre  POST /guardar/:nombre   editor de scripts/
+#   GET  /idioma/:codigo        cambia el idioma (es, en, fr, ja)
+#   GET  /fondo.jpg             imagen de fondo (no se usa en el diseño CRT; se mantiene)
+#
+# Compilar y ejecutar desde juego/: lgpm construir && lgpm ejecutar
 
 import app
 import router
@@ -20,50 +31,157 @@ import tcp
 import datos
 import texto
 import i18n
+import crt
 import pantalla
 import escritorio
 import apps
 import shell
 import misiones
+import partidas
+import consola
+import pantalla_misiones
 
-fn primera_palabra_despues_de_orden(linea: str) -> str:
-    p = shell_palabras(linea)
-    if len(p) < 2:
-        return ""
-    return p[1]
+mut arrancado = false
+mut partidas_aviso = ""
 
-fn procesar_orden(linea: str):
-    l = texto_recortar_espacios(linea)
-    if l == "":
-        return
-    log_agregar(tr("ui.prompt") + " " + l)
-    if shell_orden(shell_palabras(l)[0]) == "limpiar":
-        log_limpiar()
-        return
-    if shell_orden(shell_palabras(l)[0]) == "editar":
-        return
-    log_agregar(shell_ejecutar(l))
-
-fn respuesta_pagina(cuerpo: str) -> Respuesta:
-    return web_respuesta_html(200, cuerpo)
-
-# Imagen de fondo de la terminal (fondo.jpg, en juego/). Se lee una vez al arrancar.
-mut fondo_jpg = ""
-if shell_existe("fondo.jpg"):
-    fondo_jpg = leer_texto("fondo.jpg")
-
-fn respuesta_fondo() -> Respuesta:
-    cabeceras = [HttpCabecera(nombre: "Content-Type", valor: "image/jpeg"), HttpCabecera(nombre: "Cache-Control", valor: "max-age=86400")]
-    return Respuesta(estado: 200, motivo: "OK", cabeceras: cabeceras, cuerpo: fondo_jpg)
-
-# Traducciones: se cargan una vez. Si falta el fichero, la interfaz sigue en español con claves visibles.
+# Traducciones: se cargan una vez. Si falta el fichero, la interfaz sigue con las claves visibles.
 mut error_traducciones = i18n_cargar()
 if error_traducciones != "":
     print("traducciones:", error_traducciones)
 
-proceso_ejecutar("mkdir -p scripts run")
+proceso_ejecutar("mkdir -p scripts run saves")
 log_agregar(tr("msg.bienvenida"))
 log_agregar(trc("msg.bienvenida2", [tr("cmd.misiones"), tr("cmd.ayuda")]))
+
+# ---------- utilidades de página ----------
+
+fn srv_pagina(titulo: str, cuerpo: Nodo) -> Respuesta:
+    return web_respuesta_html(200, crt_pagina(titulo, cuerpo))
+
+fn srv_envoltorio(nodos: List[Nodo]) -> Nodo:
+    return ui_elemento("div", ["class", "pantalla-raiz"], nodos)
+
+fn srv_menu_nodo() -> Nodo:
+    items: List[Nodo] = [
+        crt_opcion(1, tr("menu.nueva"), tr("menu.sub.nueva"), "/juego", true),
+        crt_opcion(2, tr("menu.cargar"), tr("menu.sub.cargar"), "/partidas", false),
+        crt_opcion(3, tr("menu.misiones"), tr("menu.sub.misiones"), "/misiones", false),
+        crt_opcion(4, tr("menu.consola"), tr("menu.sub.consola"), "/consola", false),
+        crt_opcion(5, tr("menu.ajustes"), tr("menu.sub.ajustes"), "/ajustes", false),
+        crt_opcion(6, tr("menu.creditos"), tr("menu.sub.creditos"), "/creditos", false)
+    ]
+    entrada = ui_elemento("form", ["method", "post", "action", "/menu/cmd", "enctype", "text/plain", "class", "linea", "autocomplete", "off"], [
+        ui_elemento("span", ["class", "prompt"], [ui_texto(tr("ui.prompt"))]),
+        ui_elemento("input", ["name", "linea", "class", "campo", "autofocus"], [])
+    ])
+    return srv_envoltorio([
+        crt_titulo(tr("menu.titulo")),
+        crt_menu(items),
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("menu.ayuda"))]),
+        entrada
+    ])
+
+fn srv_partidas_nodo() -> Nodo:
+    mut filas: List[Nodo] = []
+    for n in 1..partida_ranuras() + 1:
+        resumen = partida_resumen(n)
+        mut texto_ranura = resumen
+        if resumen == "":
+            texto_ranura = tr("partidas.libre")
+        mut acciones: List[Nodo] = [ui_elemento("a", ["href", "/partida/guardar/" + str(n), "class", "config-btn"], [ui_texto(tr("partidas.guardar"))])]
+        if resumen != "":
+            acciones.append(ui_elemento("a", ["href", "/partida/cargar/" + str(n), "class", "config-btn"], [ui_texto(tr("partidas.cargar"))]))
+        filas.append(ui_elemento("div", ["class", "save-slot"], [
+            ui_elemento("div", ["class", "fila-nombre"], [ui_texto(trc("partidas.ranura", [str(n)]) + " — " + texto_ranura)]),
+            ui_elemento("div", ["class", "acciones"], acciones)
+        ]))
+    mut nodos: List[Nodo] = [crt_titulo(tr("partidas.titulo"))]
+    if partidas_aviso != "":
+        nodos.append(ui_elemento("p", ["class", "pista"], [ui_texto(partidas_aviso)]))
+    nodos.append(ui_elemento("div", ["class", "save-slots"], filas))
+    nodos.append(crt_volver("/menu", tr("crt.volver")))
+    return srv_envoltorio(nodos)
+
+fn srv_misiones_nodo() -> Nodo:
+    return srv_envoltorio([pantalla_misiones_nodo(), crt_volver("/menu", tr("crt.volver"))])
+
+fn srv_consola_nodo(codigo: str, salida: str) -> Nodo:
+    return srv_envoltorio([consola_nodo(codigo, salida)])
+
+fn srv_ajustes_nodo() -> Nodo:
+    return srv_envoltorio([crt_ajustes()])
+
+fn srv_creditos_nodo() -> Nodo:
+    return srv_envoltorio([crt_creditos(), crt_volver("/menu", tr("crt.volver"))])
+
+fn srv_arranque_nodo() -> Nodo:
+    return crt_arranque([tr("msg.bienvenida"), trc("msg.bienvenida2", [tr("cmd.misiones"), tr("cmd.ayuda")])], "/menu")
+
+# ---------- acciones ----------
+
+# Orden de la terminal de juego (también la línea del menú si no es un número).
+fn srv_orden(linea: str):
+    l = texto_recortar_espacios(linea)
+    if l == "":
+        return
+    log_agregar(tr("ui.prompt") + " " + l)
+    mut orden = shell_orden(shell_palabras(l)[0])
+    if orden == "limpiar":
+        log_limpiar()
+        return
+    if orden == "editar":
+        return
+    log_agregar(shell_ejecutar(l))
+
+# Número del menú -> ruta (vacía si no es un número del 1 al 6).
+fn srv_ruta_menu(linea: str) -> str:
+    l = texto_recortar_espacios(linea)
+    if l == "1":
+        return "/juego"
+    if l == "2":
+        return "/partidas"
+    if l == "3":
+        return "/misiones"
+    if l == "4":
+        return "/consola"
+    if l == "5":
+        return "/ajustes"
+    if l == "6":
+        return "/creditos"
+    return ""
+
+fn srv_lanzar(valor: str):
+    if not shell_es_entero(valor):
+        log_agregar(tr("msg.comando_no"))
+        return
+    log_agregar(mision_iniciar(int(valor)))
+
+# Ranura válida (1-3) o aviso; partida_guardar/partida_cargar usan un entero.
+fn srv_ranura(texto_n: str) -> int:
+    if not shell_es_entero(texto_n):
+        return -1
+    return int(texto_n)
+
+fn partida_guardar_seguro(texto_n: str) -> str:
+    n = srv_ranura(texto_n)
+    if n < 1 or n > partida_ranuras():
+        return tr("msg.comando_no")
+    return partida_guardar(n)
+
+fn partida_cargar_seguro(texto_n: str) -> str:
+    n = srv_ranura(texto_n)
+    if n < 1 or n > partida_ranuras():
+        return tr("msg.comando_no")
+    return partida_cargar(n)
+
+# Mensaje de una operación de partida (vacío = correcta).
+fn srv_partida(msg: str):
+    if msg == "":
+        partidas_aviso = tr("partidas.aviso_ok")
+    else:
+        partidas_aviso = msg
+
+# ---------- servidor ----------
 
 enrutador = web_nuevo_enrutador()
 web_agregar(enrutador, "GET", "/", 1)
@@ -74,12 +192,29 @@ web_agregar(enrutador, "GET", "/fondo.jpg", 5)
 web_agregar(enrutador, "GET", "/app/:id", 6)
 web_agregar(enrutador, "GET", "/cerrar/:id", 7)
 web_agregar(enrutador, "GET", "/idioma/:codigo", 8)
+web_agregar(enrutador, "GET", "/menu", 9)
+web_agregar(enrutador, "POST", "/menu/cmd", 10)
+web_agregar(enrutador, "GET", "/juego", 11)
+web_agregar(enrutador, "GET", "/misiones", 12)
+web_agregar(enrutador, "GET", "/misiones/:f", 13)
+web_agregar(enrutador, "GET", "/mision/:n", 14)
+web_agregar(enrutador, "POST", "/mision/lanzar", 15)
+web_agregar(enrutador, "GET", "/consola", 16)
+web_agregar(enrutador, "GET", "/consola/plantilla/:id", 17)
+web_agregar(enrutador, "POST", "/consola/ejecutar", 18)
+web_agregar(enrutador, "GET", "/partidas", 19)
+web_agregar(enrutador, "GET", "/partida/guardar/:n", 20)
+web_agregar(enrutador, "GET", "/partida/cargar/:n", 21)
+web_agregar(enrutador, "GET", "/ajustes", 22)
+web_agregar(enrutador, "GET", "/tema/:nombre", 23)
+web_agregar(enrutador, "GET", "/escanlineas", 24)
+web_agregar(enrutador, "GET", "/creditos", 25)
 
 servidor = escuchar(8080)
 if servidor < 0:
     print("no se pudo escuchar en el puerto 8080")
 else:
-    print("terminal de la nave en http://localhost:8080")
+    print("juego en http://localhost:8080")
     while true:
         s = web_recibir(servidor, enrutador, 5000)
         if s.conexion < 0:
@@ -88,24 +223,23 @@ else:
             web_responder(s, http_respuesta_texto(400, tr("msg.peticion") + "\n"))
         elif s.id == 1:
             mision_avanzar()
-            web_responder(s, respuesta_pagina(escritorio_html()))
-        elif s.id == 2:
-            linea = cuerpo_campo(s.peticion.cuerpo, "linea")
-            if shell_orden(shell_palabras(texto_recortar_espacios(linea))[0]) == "editar" and len(shell_palabras(linea)) > 1:
-                web_responder(s, web_respuesta_redireccion("/editar/" + primera_palabra_despues_de_orden(linea)))
+            if arrancado:
+                web_responder(s, srv_pagina(tr("menu.titulo"), srv_menu_nodo()))
             else:
-                procesar_orden(linea)
-                web_responder(s, web_respuesta_redireccion("/"))
+                web_responder(s, srv_pagina(tr("menu.titulo"), srv_arranque_nodo()))
+        elif s.id == 2:
+            srv_orden(cuerpo_campo(s.peticion.cuerpo, "linea"))
+            web_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 3:
             nombre = s.parametros[0]
             if not shell_nombre_valido(nombre):
                 log_agregar(trc("msg.nombre_corto", [nombre]))
-                web_responder(s, web_respuesta_redireccion("/"))
+                web_responder(s, web_respuesta_redireccion("/juego"))
             else:
                 mut contenido = ""
                 if shell_existe("scripts/" + nombre):
                     contenido = leer_texto("scripts/" + nombre)
-                web_responder(s, respuesta_pagina(pantalla_editor(nombre, contenido)))
+                web_responder(s, web_respuesta_html(200, pantalla_editor(nombre, contenido)))
         elif s.id == 4:
             nombre = s.parametros[0]
             if not shell_nombre_valido(nombre):
@@ -113,21 +247,73 @@ else:
             else:
                 escribir_texto("scripts/" + nombre, cuerpo_campo(s.peticion.cuerpo, "texto"))
                 log_agregar(trc("msg.guardado", [nombre]))
-            web_responder(s, web_respuesta_redireccion("/"))
+            web_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 5:
-            if fondo_jpg == "":
-                web_responder(s, http_respuesta_texto(404, tr("msg.sin_fondo") + "\n"))
-            else:
-                web_responder(s, respuesta_fondo())
+            web_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
         elif s.id == 6:
             escr_abrir(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/"))
+            web_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 7:
             escr_cerrar(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/"))
+            web_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 8:
             i18n_cambiar(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/"))
+            web_responder(s, web_respuesta_redireccion("/menu"))
+        elif s.id == 9:
+            arrancado = true
+            web_responder(s, srv_pagina(tr("menu.titulo"), srv_menu_nodo()))
+        elif s.id == 10:
+            linea = cuerpo_campo(s.peticion.cuerpo, "linea")
+            ruta = srv_ruta_menu(linea)
+            if ruta != "":
+                web_responder(s, web_respuesta_redireccion(ruta))
+            else:
+                srv_orden(linea)
+                web_responder(s, web_respuesta_redireccion("/juego"))
+        elif s.id == 11:
+            web_responder(s, web_respuesta_html(200, escritorio_html()))
+        elif s.id == 12:
+            web_responder(s, srv_pagina(tr("mis.titulo"), srv_misiones_nodo()))
+        elif s.id == 13:
+            misiones_filtrar(s.parametros[0])
+            web_responder(s, web_respuesta_redireccion("/misiones"))
+        elif s.id == 14:
+            if shell_es_entero(s.parametros[0]):
+                misiones_seleccionar(int(s.parametros[0]) - 1)
+            web_responder(s, web_respuesta_redireccion("/misiones"))
+        elif s.id == 15:
+            srv_lanzar(cuerpo_campo(s.peticion.cuerpo, "numero"))
+            web_responder(s, web_respuesta_redireccion("/juego"))
+        elif s.id == 16:
+            mut codigo = consola_ultimo_codigo()
+            if codigo == "":
+                codigo = consola_plantilla("hola")
+            web_responder(s, srv_pagina(tr("lg.titulo"), srv_consola_nodo(codigo, consola_ultima_salida())))
+        elif s.id == 17:
+            web_responder(s, srv_pagina(tr("lg.titulo"), srv_consola_nodo(consola_plantilla(s.parametros[0]), "")))
+        elif s.id == 18:
+            codigo = cuerpo_campo(s.peticion.cuerpo, "texto")
+            consola_guardar_codigo(codigo)
+            consola_guardar_salida(consola_ejecutar(codigo))
+            web_responder(s, web_respuesta_redireccion("/consola"))
+        elif s.id == 19:
+            web_responder(s, srv_pagina(tr("partidas.titulo"), srv_partidas_nodo()))
+        elif s.id == 20:
+            srv_partida(partida_guardar_seguro(s.parametros[0]))
+            web_responder(s, web_respuesta_redireccion("/partidas"))
+        elif s.id == 21:
+            srv_partida(partida_cargar_seguro(s.parametros[0]))
+            web_responder(s, web_respuesta_redireccion("/partidas"))
+        elif s.id == 22:
+            web_responder(s, srv_pagina(tr("crt.ajustes.titulo"), srv_ajustes_nodo()))
+        elif s.id == 23:
+            crt_cambiar_tema(s.parametros[0])
+            web_responder(s, web_respuesta_redireccion("/ajustes"))
+        elif s.id == 24:
+            crt_alternar_scanlines()
+            web_responder(s, web_respuesta_redireccion("/ajustes"))
+        elif s.id == 25:
+            web_responder(s, srv_pagina(tr("crt.creditos.titulo"), srv_creditos_nodo()))
         else:
             web_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
     cerrar(servidor)

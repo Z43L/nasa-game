@@ -1,13 +1,20 @@
 import i18n
+import json
 
 # src/sim.lg: modelo de la nave y su simulación. Cada segundo de misión llama a sim_paso().
 #
 # Sistemas: reactor (temperatura), refrigeracion (potencia %), energia (carga %),
-# oxigeno (presión kPa) y comunicaciones (señal %). Un sistema puede:
+# oxigeno (presión kPa), comunicaciones (señal %), co2 (concentración) e hidrogeno.
+# Un sistema puede:
 #   - estar apagado (activo = false),
-#   - tener una avería (averia distinto de ""): su valor cambia cada segundo según `deriva`,
+#   - tener una avería (averia distinto de ""): su valor cambia cada segundo según `deriva`
+#     (deriva positiva: sube; negativa: baja). Sin avería, co2 vuelve hacia su objetivo.
 #   - salirse de su rango seguro [minimo, maximo].
 # Los sistemas se acoplan: sin refrigeración sana el reactor se calienta; sin reactor sano no hay recarga.
+#
+# Serialización (lib/datos/json.lg):
+#   sim_a_json() -> str                      {"sistemas": [ {nombre, valor, objetivo, minimo, maximo, activo, averia, deriva, diagnosticado}, ... ]}
+#   sim_desde_json(texto: str) -> str        "" si va bien; si no, un mensaje de error (clave mis.*)
 
 struct Sistema:
     nombre: str
@@ -107,6 +114,7 @@ fn sim_paso():
     mut ene = sim_s("energia")
     mut oxi = sim_s("oxigeno")
     mut com = sim_s("comunicaciones")
+    mut co2 = sim_s("co2")
     # Refrigeración: regula su potencia hacia el objetivo mientras está sana.
     if ref.activo and ref.averia == "":
         ref.valor = sim_acercar(ref.valor, ref.objetivo, 5)
@@ -121,6 +129,9 @@ fn sim_paso():
     # Comunicaciones: recupera la señal mientras está sana.
     if com.activo and com.averia == "":
         com.valor = sim_acercar(com.valor, com.objetivo, 2)
+    # CO2: sin avería se regula hacia su objetivo (1 por segundo).
+    if co2.activo and co2.averia == "":
+        co2.valor = sim_acercar(co2.valor, co2.objetivo, 1)
     # Energía: cada sistema activo consume 1; el reactor sano recarga 3.
     mut consumo = 0
     if ref.activo:
@@ -136,7 +147,7 @@ fn sim_paso():
     # Sin energía suficiente, las comunicaciones pierden señal.
     if com.activo and ene.valor < 10:
         com.valor = sim_acotar(com.valor - 5, 0, 100)
-    # Avería: cada sistema averiado deriva según su valor de deriva.
+    # Avería: cada sistema averiado deriva según su valor de deriva (el CO2 sube si su deriva es positiva).
     for i in 0..len(sistemas):
         mut s = sistemas[i]
         if s.averia != "":
@@ -145,6 +156,10 @@ fn sim_paso():
 # Estado inicial de la nave (al empezar cada misión).
 fn sim_reiniciar():
     sistemas = sim_nueva_nave()
+
+# Sustituye la lista completa de sistemas (la usa sim_desde_json; solo lo modifica este módulo).
+fn sim_cargar_lista(nueva: List[Sistema]):
+    sistemas = nueva
 
 # Todos los sistemas, para recorrerlos desde otros módulos (aplicaciones y terminal).
 fn sim_lista() -> List[Sistema]:
@@ -166,3 +181,67 @@ fn sim_recarga() -> int:
         return 3
     return 0
 
+# ---------- serialización ----------
+
+fn sim_sistema_a_valor(s: Sistema) -> JsonValor:
+    claves: List[str] = ["nombre", "valor", "objetivo", "minimo", "maximo", "activo", "averia", "deriva", "diagnosticado"]
+    valores: List[JsonValor] = [json_nuevo_cadena(s.nombre), json_nuevo_numero(float(s.valor)), json_nuevo_numero(float(s.objetivo)), json_nuevo_numero(float(s.minimo)), json_nuevo_numero(float(s.maximo)), json_nuevo_bool(s.activo), json_nuevo_cadena(s.averia), json_nuevo_numero(float(s.deriva)), json_nuevo_bool(s.diagnosticado)]
+    return json_nuevo_objeto(claves, valores)
+
+fn sim_a_json() -> str:
+    mut elementos: List[JsonValor] = []
+    for i in 0..len(sistemas):
+        elementos.append(sim_sistema_a_valor(sistemas[i]))
+    claves: List[str] = ["sistemas"]
+    valores: List[JsonValor] = [json_nuevo_lista(elementos)]
+    return json_serializar(json_nuevo_objeto(claves, valores))
+
+# "" si e es un sistema con todos sus campos del tipo correcto; si no, el nombre del campo que falla.
+fn sim_campo_malo(e: JsonValor) -> str:
+    if json_tipo(e) != "objeto":
+        return "sistema"
+    cadenas = ["nombre", "averia"]
+    for i in 0..len(cadenas):
+        if json_tipo(json_obtener(e, cadenas[i])) != "cadena":
+            return cadenas[i]
+    numeros = ["valor", "objetivo", "minimo", "maximo", "deriva"]
+    for i in 0..len(numeros):
+        if json_tipo(json_obtener(e, numeros[i])) != "numero":
+            return numeros[i]
+    booleanos = ["activo", "diagnosticado"]
+    for i in 0..len(booleanos):
+        if json_tipo(json_obtener(e, booleanos[i])) != "bool":
+            return booleanos[i]
+    return ""
+
+fn sim_en_lista(l: List[Sistema], nombre: str) -> bool:
+    for i in 0..len(l):
+        if l[i].nombre == nombre:
+            return true
+    return false
+
+# Carga la nave desde el texto de sim_a_json. "" si va bien; si no, un mensaje traducido.
+fn sim_desde_json(texto: str) -> str:
+    raiz = json_parsear(texto)
+    if json_es_error(raiz):
+        return trc("mis.err_json", [json_texto(raiz)])
+    if json_tipo(raiz) != "objeto":
+        return trc("mis.err_forma", ["sistemas"])
+    lista = json_obtener(raiz, "sistemas")
+    if json_tipo(lista) != "lista":
+        return trc("mis.err_forma", ["sistemas"])
+    n = json_longitud(lista)
+    if n != len(sistemas):
+        return trc("mis.err_faltan", [str(len(sistemas))])
+    mut nueva: List[Sistema] = []
+    for i in 0..n:
+        e = json_elemento(lista, i)
+        malo = sim_campo_malo(e)
+        if malo != "":
+            return trc("mis.err_forma", [malo])
+        nombre = json_texto(json_obtener(e, "nombre"))
+        if not sim_existe(nombre) or sim_en_lista(nueva, nombre):
+            return trc("mis.err_sistema", [nombre])
+        nueva.append(Sistema(nombre: nombre, valor: int(json_numero(json_obtener(e, "valor"))), objetivo: int(json_numero(json_obtener(e, "objetivo"))), minimo: int(json_numero(json_obtener(e, "minimo"))), maximo: int(json_numero(json_obtener(e, "maximo"))), activo: json_booleano(json_obtener(e, "activo")), averia: json_texto(json_obtener(e, "averia")), deriva: int(json_numero(json_obtener(e, "deriva"))), diagnosticado: json_booleano(json_obtener(e, "diagnosticado"))))
+    sim_cargar_lista(nueva)
+    return ""
