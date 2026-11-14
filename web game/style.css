@@ -628,3 +628,49 @@ body {
         border: none;
     }
 }
+
+.budget-display {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border: 1px dashed var(--border-color);
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+.logistics-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    margin-top: 5px;
+}
+
+.risk-panel {
+    border: 1px solid var(--border-color);
+    background: rgba(255, 176, 0, 0.05);
+    padding: 10px;
+}
+
+.risk-meter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#ship-select {
+    background-color: var(--bg-color) !important;
+    color: var(--phosphor-color) !important;
+    font-family: var(--font-primary);
+}
+
+#ship-select option {
+    background-color: var(--bg-color);
+    color: var(--phosphor-color);
+}
+
+input[type="range"] {
+    accent-color: var(--phosphor-color);
+    cursor: pointer;
+}

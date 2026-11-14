@@ -1,9 +1,43 @@
 /* ==========================================
-   BRAIN SPACE OVERFLOW - TERMINAL CONTROLLER
+   BRAIN SPACE OVERFLOW - TERMINAL CONTROLLER[cite: 5]
    ========================================== */
 
+const shipRegistry = [
+    {
+        id: 'scout_light',
+        name: 'Scout-1 Interceptor (Light)',
+        price: 400,
+        fuelConsumMultiplier: 0.8,
+        riskModifier: -5,
+        advantage: 'High agility (-5% base risk, -20% fuel cost)',
+        disadvantage: 'Light hull (+8% risk on HARD/EXTREME missions)'
+    },
+    {
+        id: 'hauler_heavy',
+        name: 'Hauler-X Heavy Freighter',
+        price: 900,
+        fuelConsumMultiplier: 1.4,
+        riskModifier: +4,
+        advantage: 'Reinforced hull & large cargo bay (halves supply shortage penalty)',
+        disadvantage: 'Heavy mass (+40% fuel cost, +4% base risk)'
+    },
+    {
+        id: 'elite_cruiser',
+        name: 'Ares-V Science Cruiser',
+        price: 2200,
+        fuelConsumMultiplier: 1.0,
+        riskModifier: -12,
+        advantage: 'Quantum navigation & life support (-12% base risk)',
+        disadvantage: 'High deployment cost (leaves tight budget for supplies)'
+    }
+];
+
+let selectedShip = shipRegistry[0];
+let currentFuelPurchased = 100;
+let currentSuppliesPurchased = 100;
+let currentCalculatedRisk = 15;
+
 document.addEventListener('DOMContentLoaded', () => {
-    // State management
     let currentScreen = 'boot-screen';
     let selectedMenuIndex = 0;
     let isBooting = true;
@@ -12,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themes = ['green', 'amber', 'cyan', 'white'];
     const themeNames = ['CLASSIC GREEN', 'NEON AMBER', 'CYAN MATRIX', 'PALE WHITE'];
 
-    // DOM Elements
+    // DOM Elements[cite: 5]
     const bootScreen = document.getElementById('boot-screen');
     const menuScreen = document.getElementById('menu-screen');
     const settingsScreen = document.getElementById('settings-screen');
@@ -20,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadScreen = document.getElementById('load-screen');
 
     const bootLogsContainer = document.getElementById('boot-logs');
-    const bootSkipPrompt = document.getElementById('boot-skip-prompt');
     const menuItems = document.querySelectorAll('.menu-item');
     const terminalInput = document.getElementById('terminal-input');
 
@@ -28,13 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioToggleBtn = document.getElementById('audio-toggle');
     const systemClock = document.getElementById('system-clock');
 
-    // Settings config buttons
     const cfgColorBtn = document.getElementById('cfg-color');
     const cfgScanlinesBtn = document.getElementById('cfg-scanlines');
     const cfgAudioBtn = document.getElementById('cfg-audio');
-    const cfgSpeedBtn = document.getElementById('cfg-speed');
 
-    // Web Audio API Sound Synthesizer
+    // Web Audio API Sound Synthesizer[cite: 5]
     let audioCtx = null;
 
     function initAudio() {
@@ -65,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Clock update
+    // Clock update[cite: 5]
     function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -76,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Boot Sequence Logs
+    // Boot Sequence Logs[cite: 5]
     const bootLogs = [
         "BIOS v4.11 - BRAIN SPACE OVERFLOW KERNEL",
         "Initializing core memory banks... [ 640K / 640K OK ]",
@@ -112,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playBeep(880, 0.15);
     }
 
-    // Handle Boot Bypass
     window.addEventListener('keydown', (e) => {
         if (isBooting && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) {
             isBooting = false;
@@ -128,10 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Start Boot on load
     runBootSequence();
 
-    // Menu Navigation
+    // Menu Navigation[cite: 5]
     function updateMenuSelection() {
         menuItems.forEach((item, index) => {
             if (index === selectedMenuIndex) {
@@ -145,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleMenuAction(action) {
         playBeep(750, 0.08);
-        switch(action) {
+        switch (action) {
             case 'new-game':
                 switchScreen('mission-screen');
                 renderMissions('ALL');
@@ -167,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Screen Switching
     function switchScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
@@ -178,14 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Global Keyboard Navigation
     window.addEventListener('keydown', (e) => {
         if (isBooting) return;
 
-        // If inside a sub-screen, ESC or Backspace returns to menu
         if (currentScreen !== 'menu-screen') {
             if (e.key === 'Escape' || e.key === 'Backspace') {
-                if (document.activeElement !== terminalInput) {
+                if (document.activeElement !== terminalInput && document.activeElement.tagName !== 'TEXTAREA') {
                     switchScreen('menu-screen');
                     e.preventDefault();
                 }
@@ -193,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // If typing in terminal input, handle Enter and Escape
         if (document.activeElement === terminalInput) {
             if (e.key === 'Enter') {
                 processCommand(terminalInput.value.trim());
@@ -206,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Menu navigation via arrow keys
         if (e.key === 'ArrowDown') {
             selectedMenuIndex = (selectedMenuIndex + 1) % menuItems.length;
             updateMenuSelection();
@@ -234,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mouse interactions for menu items
     menuItems.forEach((item, index) => {
         item.addEventListener('mouseenter', () => {
             selectedMenuIndex = index;
@@ -246,19 +269,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Terminal Command Processor
     function processCommand(cmd) {
         const lowerCmd = cmd.toLowerCase();
         if (!lowerCmd) return;
 
         playBeep(600, 0.05);
-        console.log(`Command executed: ${lowerCmd}`);
 
         const parts = lowerCmd.split(' ');
         const mainCmd = parts[0];
         const arg = parts[1];
 
-        switch(mainCmd) {
+        switch (mainCmd) {
             case 'help':
                 alert('AVAILABLE COMMANDS:\n- start / new : Initialize new game\n- load : Open snapshot restore\n- settings : Open system configuration\n- credits : View neural archives\n- theme [green|amber|cyan|white] : Change color theme\n- audio [on|off] : Toggle synthesizer audio\n- clear : Clear terminal buffer\n- hack : Run diagnostics easter egg');
                 break;
@@ -283,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentThemeIndex = themes.indexOf(arg);
                     applyTheme(currentThemeIndex);
                 } else {
-                    // Cycle theme
                     currentThemeIndex = (currentThemeIndex + 1) % themes.length;
                     applyTheme(currentThemeIndex);
                 }
@@ -311,7 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Theme Switcher
     function applyTheme(index) {
         currentThemeIndex = index;
         const theme = themes[currentThemeIndex];
@@ -336,7 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(currentThemeIndex);
     });
 
-    // Audio Toggle
     function toggleAudio() {
         audioEnabled = !audioEnabled;
         const statusText = audioEnabled ? '[AUDIO: ON]' : '[AUDIO: OFF]';
@@ -356,7 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleAudio();
     });
 
-    // Scanlines toggle
     let scanlinesEnabled = true;
     cfgScanlinesBtn.addEventListener('click', () => {
         scanlinesEnabled = !scanlinesEnabled;
@@ -366,14 +383,15 @@ document.addEventListener('DOMContentLoaded', () => {
         playBeep(650, 0.05);
     });
 
-    // Back hints click
     document.querySelectorAll('.back-hint').forEach(hint => {
         hint.addEventListener('click', () => {
             switchScreen('menu-screen');
         });
     });
 
-    // Mission Selection UI Logic
+    // ==========================================
+    // MISSION SELECTION & OUTFITTING UI LOGIC
+    // ==========================================
     let currentSelectedMission = null;
     const missionListContainer = document.getElementById('mission-list-container');
     const briefingTitle = document.getElementById('briefing-title');
@@ -384,8 +402,170 @@ document.addEventListener('DOMContentLoaded', () => {
     const launchMissionBtn = document.getElementById('launch-mission-btn');
     const missionFilters = document.getElementById('mission-filters');
 
+    const shipSelect = document.getElementById('ship-select');
+    const shipInfoBox = document.getElementById('ship-info-box');
+    const missionBudgetVal = document.getElementById('mission-budget-val');
+    const missionRemainingVal = document.getElementById('mission-remaining-val');
+    const fuelSlider = document.getElementById('fuel-slider');
+    const fuelVal = document.getElementById('fuel-val');
+    const fuelCost = document.getElementById('fuel-cost');
+    const fuelReqLabel = document.getElementById('fuel-req-label');
+    const suppliesSlider = document.getElementById('supplies-slider');
+    const suppliesVal = document.getElementById('supplies-val');
+    const suppliesCost = document.getElementById('supplies-cost');
+    const suppliesReqLabel = document.getElementById('supplies-req-label');
+    const riskPercentageVal = document.getElementById('risk-percentage-val');
+    const riskWarningText = document.getElementById('risk-warning-text');
+
+    function initShipSelector() {
+        if (!shipSelect) return;
+        shipSelect.innerHTML = '';
+        shipRegistry.forEach(ship => {
+            const opt = document.createElement('option');
+            opt.value = ship.id;
+            opt.textContent = `${ship.name} [${ship.price} CR]`;
+            shipSelect.appendChild(opt);
+        });
+        shipSelect.value = selectedShip.id;
+        updateShipInfo(selectedShip);
+    }
+
+    function updateShipInfo(ship) {
+        selectedShip = ship;
+        if (shipInfoBox) {
+            shipInfoBox.innerHTML = `
+                <div style="color: #00ff66;">+ PRO: ${ship.advantage}</div>
+                <div style="color: #ff4444;">- CON: ${ship.disadvantage}</div>
+            `;
+        }
+        calculateMissionRiskAndCost();
+    }
+
+    if (shipSelect) {
+        shipSelect.addEventListener('change', (e) => {
+            const ship = shipRegistry.find(s => s.id === e.target.value);
+            if (ship) {
+                playBeep(550, 0.03);
+                updateShipInfo(ship);
+            }
+        });
+    }
+
+    function getRecommendedLogistics(difficulty) {
+        switch (difficulty) {
+            case 'EASY':
+                return { reqFuel: 60, reqSupplies: 60, baseRisk: 12 };
+            case 'MEDIUM':
+                return { reqFuel: 110, reqSupplies: 110, baseRisk: 26 };
+            case 'HARD':
+                return { reqFuel: 160, reqSupplies: 160, baseRisk: 44 };
+            case 'EXTREME':
+                return { reqFuel: 210, reqSupplies: 210, baseRisk: 62 };
+            default:
+                return { reqFuel: 100, reqSupplies: 100, baseRisk: 20 };
+        }
+    }
+
+    function calculateMissionRiskAndCost() {
+        if (!currentSelectedMission) return;
+
+        const { reqFuel, reqSupplies, baseRisk } = getRecommendedLogistics(currentSelectedMission.difficulty);
+
+        if (fuelReqLabel) fuelReqLabel.textContent = reqFuel;
+        if (suppliesReqLabel) suppliesReqLabel.textContent = reqSupplies;
+
+        const fQty = fuelSlider ? parseInt(fuelSlider.value, 10) : reqFuel;
+        const sQty = suppliesSlider ? parseInt(suppliesSlider.value, 10) : reqSupplies;
+
+        currentFuelPurchased = fQty;
+        currentSuppliesPurchased = sQty;
+
+        const calculatedFuelCost = Math.round(fQty * 2 * selectedShip.fuelConsumMultiplier);
+        const calculatedSuppliesCost = Math.round(sQty * 3);
+        const totalShipCost = selectedShip.price;
+
+        if (fuelVal) fuelVal.textContent = fQty;
+        if (fuelCost) fuelCost.textContent = calculatedFuelCost;
+        if (suppliesVal) suppliesVal.textContent = sQty;
+        if (suppliesCost) suppliesCost.textContent = calculatedSuppliesCost;
+
+        const totalCost = totalShipCost + calculatedFuelCost + calculatedSuppliesCost;
+        const assignedBudget = currentSelectedMission.budget || (currentSelectedMission.rewards.credits + 800);
+        const remainingBudget = assignedBudget - totalCost;
+
+        if (missionBudgetVal) missionBudgetVal.textContent = assignedBudget;
+        if (missionRemainingVal) missionRemainingVal.textContent = remainingBudget;
+
+        // Calculate dynamic risk percentage
+        let risk = baseRisk + selectedShip.riskModifier;
+
+        // Light hull penalty on high-tier missions
+        if (selectedShip.id === 'scout_light' && (currentSelectedMission.difficulty === 'HARD' || currentSelectedMission.difficulty === 'EXTREME')) {
+            risk += 8;
+        }
+
+        // Fuel shortage penalty
+        if (fQty < reqFuel) {
+            const deficit = reqFuel - fQty;
+            risk += deficit * 0.45;
+        } else if (fQty > reqFuel * 1.25) {
+            risk -= 3;
+        }
+
+        // Supplies shortage penalty (halved on Heavy Freighter)
+        if (sQty < reqSupplies) {
+            const deficit = reqSupplies - sQty;
+            const supplyMultiplier = selectedShip.id === 'hauler_heavy' ? 0.3 : 0.6;
+            risk += deficit * supplyMultiplier;
+        } else if (sQty > reqSupplies * 1.25) {
+            risk -= 3;
+        }
+
+        risk = Math.max(1, Math.min(99, Math.round(risk * 10) / 10));
+        currentCalculatedRisk = risk;
+
+        if (riskPercentageVal) {
+            riskPercentageVal.textContent = `${risk.toFixed(1)}%`;
+            if (risk < 30) {
+                riskPercentageVal.style.color = '#00ff66';
+            } else if (risk < 65) {
+                riskPercentageVal.style.color = '#ffb000';
+            } else {
+                riskPercentageVal.style.color = '#ff3333';
+            }
+        }
+
+        if (riskWarningText) {
+            if (risk < 30) {
+                riskWarningText.textContent = '> Optimal parameters. High mission survival probability.';
+                riskWarningText.style.color = '#00ff66';
+            } else if (risk < 65) {
+                riskWarningText.textContent = '> WARNING: Rationed resources increase failure probability.';
+                riskWarningText.style.color = '#ffb000';
+            } else {
+                riskWarningText.textContent = '> CRITICAL DANGER: Severe fuel/supply deficit. Catastrophic risk.';
+                riskWarningText.style.color = '#ff3333';
+            }
+        }
+
+        if (launchMissionBtn) {
+            if (remainingBudget < 0) {
+                if (missionRemainingVal) missionRemainingVal.style.color = '#ff3333';
+                launchMissionBtn.setAttribute('disabled', 'true');
+                launchMissionBtn.textContent = '[ BUDGET EXCEEDED - REDUCE COSTS ]';
+            } else {
+                if (missionRemainingVal) missionRemainingVal.style.color = '#00ff66';
+                launchMissionBtn.removeAttribute('disabled');
+                launchMissionBtn.textContent = `[ INITIATE MISSION (${risk.toFixed(1)}% RISK) ]`;
+            }
+        }
+    }
+
+    if (fuelSlider) fuelSlider.addEventListener('input', calculateMissionRiskAndCost);
+    if (suppliesSlider) suppliesSlider.addEventListener('input', calculateMissionRiskAndCost);
+
     function renderMissions(filter = 'ALL') {
-        if (!window.missionRegistry) return;
+        if (!window.missionRegistry || !missionListContainer) return;
         const missions = window.missionRegistry.getByDifficulty(filter);
         missionListContainer.innerHTML = '';
 
@@ -394,54 +574,73 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        let missionToSelect = null;
+
         missions.forEach((mission, index) => {
             const card = document.createElement('div');
-            card.className = `mission-card ${currentSelectedMission && currentSelectedMission.id === mission.id ? 'active' : ''}`;
+            const isSelected = currentSelectedMission && currentSelectedMission.id === mission.id;
+            card.className = `mission-card ${isSelected ? 'active' : ''}`;
 
             const diffClass = `difficulty-${mission.difficulty.toLowerCase()}`;
             card.innerHTML = `
-                <span class="mission-card-title">${mission.title}</span>
+                <div>
+                    <div class="mission-card-title">${mission.title}</div>
+                    <div style="font-size: 0.78rem; opacity: 0.75;">BUDGET: ${mission.budget} CR</div>
+                </div>
                 <span class="difficulty-badge ${diffClass}">[${mission.difficulty}]</span>
             `;
 
             card.addEventListener('click', () => {
                 selectMission(mission);
-                // Update active state in cards
                 document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
             });
 
             missionListContainer.appendChild(card);
 
-            // Select first by default if none selected
-            if (index === 0 && !currentSelectedMission) {
-                selectMission(mission);
+            if (isSelected) {
+                missionToSelect = mission;
+            } else if (index === 0 && !missionToSelect) {
+                missionToSelect = mission;
                 card.classList.add('active');
             }
         });
+
+        if (missionToSelect) {
+            selectMission(missionToSelect);
+        }
     }
 
     function selectMission(mission) {
         currentSelectedMission = mission;
         playBeep(480, 0.03);
 
-        briefingTitle.textContent = mission.title;
-        briefingDestination.textContent = `DESTINATION: ${mission.destination}`;
-        briefingDesc.textContent = mission.description;
+        if (briefingTitle) briefingTitle.textContent = mission.title;
+        if (briefingDestination) briefingDestination.textContent = `DESTINATION: ${mission.destination}`;
+        if (briefingDesc) briefingDesc.textContent = mission.description;
 
-        briefingObjectivesList.innerHTML = '';
-        mission.objectives.forEach(obj => {
-            const li = document.createElement('li');
-            li.textContent = obj;
-            briefingObjectivesList.appendChild(li);
-        });
+        if (briefingObjectivesList) {
+            briefingObjectivesList.innerHTML = '';
+            mission.objectives.forEach(obj => {
+                const li = document.createElement('li');
+                li.textContent = obj;
+                briefingObjectivesList.appendChild(li);
+            });
+        }
 
-        briefingRewards.innerHTML = `<strong>REWARD:</strong> MEMORY ${mission.rewards.memory} | <strong>CREDITS:</strong> ${mission.rewards.credits} CR`;
-        launchMissionBtn.removeAttribute('disabled');
-        launchMissionBtn.textContent = `[ INITIATE MISSION: ${mission.title} ]`;
+        if (briefingRewards) {
+            briefingRewards.innerHTML = `<strong>REWARD:</strong> MEMORY ${mission.rewards.memory} | <strong>CREDITS:</strong> ${mission.rewards.credits} CR`;
+        }
+
+        // Set sliders to recommended defaults for the newly selected mission
+        const { reqFuel, reqSupplies } = getRecommendedLogistics(mission.difficulty);
+        if (fuelSlider) fuelSlider.value = reqFuel;
+        if (suppliesSlider) suppliesSlider.value = reqSupplies;
+
+        initShipSelector();
+        calculateMissionRiskAndCost();
     }
 
-    // Filter button listeners
     if (missionFilters) {
         missionFilters.addEventListener('click', (e) => {
             if (e.target.classList.contains('filter-btn')) {
@@ -454,16 +653,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Launch Mission Action
     if (launchMissionBtn) {
         launchMissionBtn.addEventListener('click', () => {
             if (!currentSelectedMission) return;
             playBeep(880, 0.1);
-            alert(`[UPLINK ESTABLISHED] Launching mission: ${currentSelectedMission.title}\nDestination: ${currentSelectedMission.destination}\n\n(Game Level / Core Gameplay Initializing...)`);
+            alert(
+                `[UPLINK ESTABLISHED] Launching Mission: ${currentSelectedMission.title}\n` +
+                `Destination: ${currentSelectedMission.destination}\n` +
+                `Vessel: ${selectedShip.name}\n` +
+                `Fuel: ${currentFuelPurchased}t | Supplies: ${currentSuppliesPurchased}%\n` +
+                `Mission Risk: ${currentCalculatedRisk.toFixed(1)}%\n\n` +
+                `(Core Gameplay Initializing...)`
+            );
         });
     }
 
-    // Lenguaje Code Console Logic
+    // Initialize ship dropdown immediately on load as well
+    initShipSelector();
+
+    // Lenguaje Code Console Logic[cite: 5]
     const lgCodeEditor = document.getElementById('lg-code-editor');
     const lgOutputTerminal = document.getElementById('lg-output-terminal');
     const lgRunBtn = document.getElementById('lg-run-btn');
@@ -475,7 +683,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const code = lgCodeEditor.value;
             lgOutputTerminal.innerHTML = `<p>> Executing script...</p>`;
 
-            // Execute using our dynamic interpreter
             if (window.lenguajeInterpreter) {
                 const results = window.lenguajeInterpreter.execute(code);
 
@@ -497,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (lgTemplateSelect) {
         lgTemplateSelect.addEventListener('change', (e) => {
             const val = e.target.value;
-            if (val === 'hello') lgCodeEditor.value = "print('Hola, BrainSpaceOverflow')";
+            if (val === 'hello') lgCodeEditor.value = "print('Hello, BrainSpaceOverflow')";
             else if (val === 'traductor') lgCodeEditor.value = "import traductor\nprint(traductor_obtener('en.json', 'welcome'))";
             playBeep(400, 0.05);
         });
