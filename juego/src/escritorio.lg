@@ -96,12 +96,12 @@ fn escr_icono(id: str) -> Nodo:
 # ---------- partes de la página ----------
 
 fn escr_menubar() -> Nodo:
-    menus = ["Archivo", "Edición", "Ver", "Ventana", "Ayuda"]
-    mut hijos: List[Nodo] = [ui_elemento("span", ["class", "marca"], [ui_texto("Nave")])]
-    for i in 0..len(menus):
-        hijos.append(ui_elemento("span", ["class", "menu"], [ui_texto(menus[i])]))
-    hijos.append(ui_elemento("span", ["class", "derecha"], [ui_texto(estado_barra())]))
-    return ui_elemento("div", ["class", "menubar"], hijos)
+    return ui_elemento("div", ["class", "inicio-orbe", "title", "Inicio"], [ui_texto("")])
+
+fn escr_bandeja() -> Nodo:
+    return ui_elemento("div", ["class", "bandeja"], [
+        ui_elemento("span", ["class", "bandeja-texto"], [ui_texto(estado_barra())])
+    ])
 
 fn escr_pestana(id: str) -> Nodo:
     mut clase = "pestana"
@@ -133,21 +133,21 @@ fn escr_contenido() -> Nodo:
 
 fn escr_semaforos() -> Nodo:
     if app_actual == "terminal":
-        return ui_elemento("div", ["class", "semaforos"], [
-            ui_elemento("span", ["class", "luz rojo"], []),
-            ui_elemento("span", ["class", "luz amarillo"], []),
-            ui_elemento("span", ["class", "luz verde"], [])
+        return ui_elemento("div", ["class", "w7-botones"], [
+            ui_elemento("span", ["class", "w7-btn"], [ui_texto("–")]),
+            ui_elemento("span", ["class", "w7-btn"], [ui_texto("□")]),
+            ui_elemento("span", ["class", "w7-btn cerrar"], [ui_texto("✕")])
         ])
-    return ui_elemento("div", ["class", "semaforos"], [
-        ui_elemento("a", ["href", "/cerrar/" + app_actual, "class", "luz rojo", "title", "Cerrar"], []),
-        ui_elemento("span", ["class", "luz amarillo"], []),
-        ui_elemento("span", ["class", "luz verde"], [])
+    return ui_elemento("div", ["class", "w7-botones"], [
+        ui_elemento("span", ["class", "w7-btn"], [ui_texto("–")]),
+        ui_elemento("span", ["class", "w7-btn"], [ui_texto("□")]),
+        ui_elemento("a", ["href", "/cerrar/" + app_actual, "class", "w7-btn cerrar", "title", "Cerrar"], [ui_texto("✕")])
     ])
 
 fn escr_ventana() -> Nodo:
     barra = ui_elemento("div", ["class", "titulo-barra"], [
-        escr_semaforos(),
-        ui_elemento("span", ["class", "titulo"], [ui_texto(escr_nombre(app_actual) + " — nave")])
+        ui_elemento("span", ["class", "titulo"], [ui_texto(escr_nombre(app_actual) + " — Nave")]),
+        escr_semaforos()
     ])
     linea = ui_elemento("form", ["method", "post", "action", "/cmd", "enctype", "text/plain", "class", "linea", "autocomplete", "off"], [
         ui_elemento("span", ["class", "prompt"], [ui_texto("nave$")]),
@@ -160,120 +160,117 @@ fn escr_dock() -> Nodo:
     mut items: List[Nodo] = []
     for i in 0..len(ids):
         id = ids[i]
-        mut clase = "dock-app"
+        mut clase = "tarea"
         if escr_abierta(id) or id == "terminal":
-            clase = "dock-app abierta"
+            clase = "tarea abierta"
         if id == app_actual:
             clase = clase + " actual"
         items.append(ui_elemento("a", ["href", "/app/" + id, "class", clase, "title", escr_nombre(id)], [
-            ui_elemento("div", ["class", "icono-app ic-" + id], [escr_icono(id)]),
-            ui_elemento("span", ["class", "punto"], [])
+            ui_elemento("div", ["class", "tarea-icono ic-" + id], [escr_icono(id)]),
+            ui_elemento("span", ["class", "tarea-nombre"], [ui_texto(escr_nombre(id))])
         ]))
-    return ui_elemento("nav", ["class", "dock"], items)
+    return ui_elemento("nav", ["class", "tareas-apps"], items)
 
 fn escr_css() -> str:
     reglas = [
-        "html, body { height: 100%; margin: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; color: #1d1d1f; background: #05070a url('/fondo.jpg') center / cover fixed no-repeat; }",
+        "html, body { height: 100%; margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Verdana, sans-serif; font-size: 13px; color: #1e1e1e; background: #1b3d63 url('/fondo.jpg') center / cover fixed no-repeat; }",
         "a { color: inherit; }",
-        ".menubar { position: fixed; top: 0; left: 0; right: 0; height: 26px; display: flex; align-items: center; gap: 16px; padding: 0 14px; box-sizing: border-box; font-size: 13px; background: rgba(246, 246, 248, 0.72); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.08); z-index: 10; }",
-        ".menubar .marca { font-weight: 700; }",
-        ".menubar .menu { color: #1d1d1f; }",
-        ".menubar .derecha { margin-left: auto; color: #3a3a3c; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
-        ".escritorio { position: absolute; top: 26px; bottom: 100px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }",
-        ".ventana { width: min(1000px, 100%); height: 100%; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; background: #f5f5f7; border: 1px solid rgba(0, 0, 0, 0.25); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); }",
-        ".titulo-barra { position: relative; height: 38px; display: flex; align-items: center; padding: 0 12px; background: linear-gradient(#ededed, #d9d9db); border-bottom: 1px solid #b8b8bb; flex: none; }",
-        ".semaforos { display: flex; gap: 8px; z-index: 1; }",
-        ".luz { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }",
-        ".luz.rojo { background: #ff5f57; border: 1px solid #e0443e; }",
-        ".luz.amarillo { background: #febc2e; border: 1px solid #dea123; }",
-        ".luz.verde { background: #28c840; border: 1px solid #1aab29; }",
-        "a.luz.rojo { display: inline-block; }",
-        ".titulo { position: absolute; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 600; color: #3a3a3c; pointer-events: none; }",
-        ".pestanas { display: flex; gap: 4px; padding: 6px 8px; background: #e6e6e8; border-bottom: 1px solid #c9c9cc; overflow-x: auto; flex: none; }",
-        ".pestana-caja { display: flex; align-items: center; background: transparent; border-radius: 7px; }",
-        ".pestana { padding: 5px 12px; border-radius: 7px; font-size: 12px; color: #3a3a3c; text-decoration: none; white-space: nowrap; }",
-        ".pestana.activa { background: #ffffff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18); font-weight: 600; }",
-        ".pestana-caja .x { font-size: 13px; color: #8e8e93; text-decoration: none; padding: 0 6px 0 0; }",
-        ".contenido { flex: 1; min-height: 0; overflow: auto; position: relative; }",
-        "pre.salida { margin: 0; height: 100%; box-sizing: border-box; padding: 12px 14px; background: #0b0f0d; color: #c8f7c5; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; overflow-y: auto; }",
-        ".linea { display: flex; align-items: center; gap: 8px; padding: 9px 14px; background: #0b0f0d; border-top: 1px solid #1d2a22; flex: none; }",
-        ".linea .prompt { color: #7CFC9A; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; white-space: nowrap; }",
-        ".linea .campo { flex: 1; min-width: 0; background: transparent; color: #c8f7c5; border: 0; outline: none; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 15px; padding: 4px 0; }",
-        ".app-contenido { min-height: 100%; box-sizing: border-box; padding: 18px 22px 24px; background: #f5f5f7; }",
-        ".app-cab h2 { margin: 0; font-size: 22px; font-weight: 700; }",
-        ".sub { margin: 2px 0 14px; font-size: 13px; color: #6e6e73; }",
-        ".tarjeta { background: #ffffff; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }",
-        ".fila { display: grid; grid-template-columns: 130px 1fr 70px 180px; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #efeff2; }",
+        ".escritorio { position: absolute; top: 0; bottom: 40px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; padding: 14px 18px; box-sizing: border-box; }",
+        ".ventana { width: min(1000px, 100%); height: 100%; display: flex; flex-direction: column; border-radius: 8px 8px 4px 4px; overflow: hidden; background: #c9dcf0; border: 1px solid #2b4f7a; box-shadow: 0 0 0 1px rgba(255,255,255,0.4) inset, 0 16px 40px rgba(0,0,0,0.55); }",
+        ".titulo-barra { position: relative; height: 34px; display: flex; align-items: center; justify-content: flex-end; padding: 0 6px 0 12px; flex: none; background: linear-gradient(#a9cdf0 0%, #7fb0e0 45%, #5f9bd6 55%, #8fc0ec 100%); border-bottom: 1px solid #2b4f7a; }",
+        ".titulo { position: absolute; left: 14px; right: 150px; color: #0b1e33; font-weight: 600; font-size: 13px; text-shadow: 0 1px 0 rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }",
+        ".w7-botones { display: flex; gap: 2px; z-index: 1; }",
+        ".w7-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 20px; border: 1px solid #3c6a99; border-radius: 3px; background: linear-gradient(#e8f2fb, #bcd6ee 50%, #9fc3e7 51%, #c8e0f5); color: #1a3a5c; font-size: 12px; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.8); }",
+        ".w7-btn.cerrar { width: 40px; background: linear-gradient(#f2a59c, #d9473a 50%, #c4382c 51%, #e9796d); color: #fff; border-color: #7a1f16; }",
+        ".pestanas { display: flex; gap: 2px; padding: 4px 6px 0; background: #dbe9f7; border-bottom: 1px solid #9ab8d6; overflow-x: auto; flex: none; }",
+        ".pestana-caja { display: flex; align-items: center; }",
+        ".pestana { padding: 5px 12px; border: 1px solid #9ab8d6; border-bottom: 0; border-radius: 4px 4px 0 0; background: linear-gradient(#f4f9ff, #d6e6f7); font-size: 12px; color: #1e1e1e; text-decoration: none; white-space: nowrap; }",
+        ".pestana.activa { background: #ffffff; font-weight: 600; margin-bottom: -1px; padding-bottom: 6px; }",
+        ".pestana-caja .x { font-size: 12px; color: #4a6b8c; text-decoration: none; padding: 0 6px 0 3px; }",
+        ".contenido { flex: 1; min-height: 0; overflow: auto; position: relative; background: #ffffff; }",
+        "pre.salida { margin: 0; height: 100%; box-sizing: border-box; padding: 10px 12px; background: #0c1116; color: #cfe8ff; font-family: Consolas, 'Lucida Console', ui-monospace, monospace; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; overflow-y: auto; }",
+        ".linea { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: #0c1116; border-top: 1px solid #2b4f7a; flex: none; }",
+        ".linea .prompt { color: #7ec8ff; font-family: Consolas, 'Lucida Console', monospace; font-size: 14px; white-space: nowrap; }",
+        ".linea .campo { flex: 1; min-width: 0; background: transparent; color: #e8f4ff; border: 0; outline: none; font-family: Consolas, 'Lucida Console', monospace; font-size: 15px; padding: 3px 0; }",
+        ".app-contenido { min-height: 100%; box-sizing: border-box; padding: 14px 18px 20px; background: linear-gradient(#ffffff, #eef4fb); }",
+        ".app-cab { border-bottom: 1px solid #c5d6e8; margin-bottom: 12px; padding-bottom: 6px; }",
+        ".app-cab h2 { margin: 0; font-size: 20px; font-weight: 400; color: #1e3a5c; }",
+        ".sub { margin: 2px 0 10px; font-size: 12px; color: #4a6b8c; }",
+        ".tarjeta { background: #ffffff; border: 1px solid #b7cde4; padding: 14px 16px; box-shadow: inset 0 1px 0 #ffffff; }",
+        ".fila { display: grid; grid-template-columns: 130px 1fr 70px 180px; gap: 12px; align-items: center; padding: 8px 4px; border-bottom: 1px solid #e3ecf6; }",
         ".fila:last-child { border-bottom: 0; }",
-        ".fila-nombre { font-weight: 500; font-size: 14px; }",
-        ".fila-valor { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; }",
-        ".barra-fondo { height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; }",
-        ".barra-valor { height: 100%; background: linear-gradient(90deg, #0a84ff, #5ac8fa); border-radius: 4px; }",
-        ".chip { display: inline-block; justify-self: start; font-size: 12px; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }",
-        ".chip.ok { background: #d4f7de; color: #1a7f37; }",
-        ".chip.mal { background: #ffd9d6; color: #c9302c; }",
-        ".chip.off { background: #e5e5ea; color: #636366; }",
-        ".chip.aviso { background: #fff1c2; color: #8a6d00; }",
+        ".fila-nombre { font-weight: 600; font-size: 13px; color: #1e3a5c; }",
+        ".fila-valor { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; }",
+        ".barra-fondo { height: 14px; background: #e6edf5; border: 1px solid #9fb6cd; overflow: hidden; padding: 1px; box-sizing: border-box; }",
+        ".barra-valor { height: 100%; background: repeating-linear-gradient(90deg, #3fbf3f 0 10px, transparent 10px 12px); }",
+        ".chip { display: inline-block; justify-self: start; font-size: 12px; padding: 2px 8px; border: 1px solid; white-space: nowrap; }",
+        ".chip.ok { background: #e3f5e1; color: #1d6b1d; border-color: #7cc475; }",
+        ".chip.mal { background: #fbe4e2; color: #9a2418; border-color: #d98a80; }",
+        ".chip.off { background: #ececec; color: #555; border-color: #aaa; }",
+        ".chip.aviso { background: #fff6d6; color: #7a5b00; border-color: #d9bd6a; }",
         ".gases { display: flex; flex-wrap: wrap; gap: 30px; align-items: center; justify-content: center; }",
         ".fila-tanques { display: flex; gap: 22px; justify-content: center; }",
         ".deposito { display: flex; flex-direction: column; align-items: center; width: 96px; }",
-        ".tanque { width: 62px; height: 190px; border: 2px solid #c7c7cc; border-radius: 16px 16px 12px 12px; background: #f2f2f7; overflow: hidden; display: flex; align-items: flex-end; }",
-        ".nivel { width: 100%; transition: height 0.5s; }",
-        ".etiqueta { margin-top: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }",
-        ".cifra { font-size: 11px; color: #6e6e73; text-align: center; }",
+        ".tanque { width: 60px; height: 190px; border: 2px solid #6d8aa8; background: linear-gradient(90deg, #eef4fa, #ffffff 50%, #dfe9f3); overflow: hidden; display: flex; align-items: flex-end; }",
+        ".nivel { width: 100%; }",
+        ".etiqueta { margin-top: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #1e3a5c; }",
+        ".cifra { font-size: 11px; color: #4a6b8c; text-align: center; }",
         ".manometro-caja { text-align: center; }",
-        ".manometro { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; }",
-        ".manometro-centro { width: 104px; height: 104px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }",
+        ".manometro { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 1px solid #6d8aa8; }",
+        ".manometro-centro { width: 102px; height: 102px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ffffff, #d9e6f2); border: 1px solid #9fb6cd; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }",
         ".comunicacion { display: flex; flex-wrap: wrap; gap: 30px; align-items: center; justify-content: center; }",
-        ".antena-caja { width: 160px; height: 160px; color: #0a84ff; }",
+        ".antena-caja { width: 160px; height: 160px; color: #1e6fc8; }",
         ".antena { width: 160px; height: 160px; }",
         ".senal { display: flex; align-items: flex-end; gap: 10px; height: 140px; }",
-        ".barra-senal { width: 26px; background: #e5e5ea; border-radius: 5px; }",
-        ".barra-senal.on { background: linear-gradient(#34c759, #248a3d); }",
-        ".cifra-grande { font-size: 34px; font-weight: 700; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }",
-        ".orbita-caja { position: relative; height: 280px; border-radius: 12px; overflow: hidden; background: radial-gradient(ellipse at 50% 120%, #14284d 0%, #05070f 70%); }",
-        ".orbita { position: absolute; left: 50%; top: 62%; width: 80%; height: 80%; transform: translate(-50%, -50%); border: 1px dashed rgba(255, 255, 255, 0.35); border-radius: 50%; }",
-        ".planeta { position: absolute; left: 50%; top: 62%; width: 120px; height: 120px; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #9ee0ff, #1d4ed8 60%, #0b1f4a); box-shadow: 0 0 40px rgba(60, 140, 255, 0.5); }",
-        ".nave { position: absolute; width: 14px; height: 14px; transform: translate(-50%, -50%); border-radius: 50%; background: #ffd60a; box-shadow: 0 0 12px #ffd60a; }",
-        ".orbita-texto { position: absolute; left: 14px; bottom: 12px; color: #ffffff; font-size: 13px; }",
-        ".mandos { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }",
+        ".barra-senal { width: 26px; background: #e6edf5; border: 1px solid #9fb6cd; }",
+        ".barra-senal.on { background: linear-gradient(#8fe38f, #2e9b2e); border-color: #2a7d2a; }",
+        ".cifra-grande { font-size: 30px; font-weight: 300; margin: 6px 0 2px; color: #1e3a5c; font-variant-numeric: tabular-nums; }",
+        ".orbita-caja { position: relative; height: 280px; border: 1px solid #2b4f7a; overflow: hidden; background: radial-gradient(ellipse at 50% 120%, #1d4a7a 0%, #06142a 70%); }",
+        ".orbita { position: absolute; left: 50%; top: 62%; width: 80%; height: 80%; transform: translate(-50%, -50%); border: 1px dashed rgba(190, 220, 255, 0.4); border-radius: 50%; }",
+        ".planeta { position: absolute; left: 50%; top: 62%; width: 120px; height: 120px; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #bfe4ff, #2f74c0 60%, #0c2c58); box-shadow: 0 0 30px rgba(90, 160, 255, 0.4); }",
+        ".nave { position: absolute; width: 12px; height: 12px; transform: translate(-50%, -50%); background: #ffe066; box-shadow: 0 0 10px #ffe066; }",
+        ".orbita-texto { position: absolute; left: 12px; bottom: 10px; color: #e6f2ff; font-size: 12px; }",
+        ".mandos { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }",
         ".mando-fila { display: grid; grid-template-columns: 130px 1fr 130px; gap: 12px; align-items: center; }",
-        ".pista { position: relative; height: 8px; background: #e5e5ea; border-radius: 4px; }",
-        ".pista-relleno { height: 100%; background: #0a84ff; border-radius: 4px; }",
-        ".pista-relleno.recarga { background: #30d158; }",
-        ".pista-relleno.consumo { background: #ff9f0a; }",
-        ".mando { position: absolute; top: 50%; width: 16px; height: 16px; margin-left: -8px; transform: translateY(-50%); background: #ffffff; border: 1px solid #a8a8ad; border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }",
+        ".pista { position: relative; height: 10px; background: #e6edf5; border: 1px solid #9fb6cd; }",
+        ".pista-relleno { height: 100%; background: repeating-linear-gradient(90deg, #3fbf3f 0 10px, transparent 10px 12px); }",
+        ".pista-relleno.recarga { background: repeating-linear-gradient(90deg, #3fbf3f 0 10px, transparent 10px 12px); }",
+        ".pista-relleno.consumo { background: repeating-linear-gradient(90deg, #e8a33a 0 10px, transparent 10px 12px); }",
+        ".mando { position: absolute; top: 50%; width: 14px; height: 18px; margin-left: -7px; transform: translateY(-50%); background: linear-gradient(#ffffff, #b9cde0); border: 1px solid #4a6b8c; }",
         ".energia { display: flex; flex-wrap: wrap; gap: 36px; align-items: center; justify-content: center; }",
         ".bateria-caja { text-align: center; }",
-        ".bateria-tapa { width: 36px; height: 10px; margin: 0 auto; background: #aeaeb2; border-radius: 3px 3px 0 0; }",
-        ".bateria { width: 96px; height: 210px; border: 3px solid #aeaeb2; border-radius: 10px; background: #f2f2f7; overflow: hidden; display: flex; align-items: flex-end; margin: 0 auto; }",
-        ".bateria-nivel { width: 100%; background: linear-gradient(#34c759, #248a3d); }",
-        ".bateria-nivel.bajo { background: #ff453a; }",
-        ".flujos { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 14px; }",
-        ".fuentes { display: flex; flex-direction: column; gap: 10px; }",
-        ".fuente { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; background: #f5f5f7; border-radius: 10px; }",
-        ".dock { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: flex-end; gap: 12px; padding: 8px 14px; background: rgba(255, 255, 255, 0.32); backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 20px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3); z-index: 10; }",
-        ".dock-app { display: flex; flex-direction: column; align-items: center; text-decoration: none; transition: transform 0.15s; }",
-        ".dock-app:hover { transform: translateY(-8px) scale(1.12); }",
-        ".icono-app { width: 54px; height: 54px; border-radius: 13px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35); }",
-        ".icono-app svg { width: 30px; height: 30px; color: #ffffff; }",
-        ".ic-terminal { background: linear-gradient(#4a4a4f, #111114); }",
-        ".ic-sensores { background: linear-gradient(#4cd964, #248a3d); }",
-        ".ic-gases { background: linear-gradient(#5ac8fa, #0a84ff); }",
-        ".ic-comunicaciones { background: linear-gradient(#ffb340, #ff7a00); }",
-        ".ic-trayectoria { background: linear-gradient(#bf5af2, #7d2fd3); }",
-        ".ic-energia { background: linear-gradient(#ffe066, #ff9f0a); }",
-        ".punto { width: 5px; height: 5px; border-radius: 50%; background: #3a3a3c; margin-top: 4px; opacity: 0; }",
-        ".dock-app.abierta .punto { opacity: 0.85; }",
-        "@media (max-width: 700px) { .fila { grid-template-columns: 1fr; gap: 4px; } .mando-fila { grid-template-columns: 1fr; } .escritorio { top: 26px; bottom: 96px; padding: 8px; } .icono-app { width: 44px; height: 44px; } .dock { gap: 8px; padding: 6px 8px; } .menubar .menu { display: none; } }",
+        ".bateria-tapa { width: 36px; height: 8px; margin: 0 auto; background: #9fb6cd; }",
+        ".bateria { width: 96px; height: 210px; border: 2px solid #6d8aa8; background: #eef4fa; overflow: hidden; display: flex; align-items: flex-end; margin: 0 auto; }",
+        ".bateria-nivel { width: 100%; background: repeating-linear-gradient(0deg, #3fbf3f 0 14px, transparent 14px 17px); }",
+        ".bateria-nivel.bajo { background: repeating-linear-gradient(0deg, #d9473a 0 14px, transparent 14px 17px); }",
+        ".flujos { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 12px; }",
+        ".fuentes { display: flex; flex-direction: column; gap: 8px; }",
+        ".fuente { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px; background: #f0f5fb; border: 1px solid #c5d6e8; }",
+        ".barra-tareas { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; display: flex; align-items: stretch; background: linear-gradient(rgba(120,170,220,0.85), rgba(40,90,150,0.9)); border-top: 1px solid #0e2a4a; box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); z-index: 10; }",
+        ".inicio-orbe { width: 52px; flex: none; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, #b6f0c0, #2fa84a 55%, #14602a); border-radius: 0 22px 22px 0; box-shadow: inset 0 0 6px rgba(255,255,255,0.5), 2px 0 6px rgba(0,0,0,0.3); margin-right: 6px; }",
+        ".tareas-apps { display: flex; align-items: stretch; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; padding: 3px 0; }",
+        ".tarea { display: flex; align-items: center; gap: 6px; padding: 0 10px; min-width: 120px; max-width: 170px; border: 1px solid transparent; border-radius: 4px; text-decoration: none; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); }",
+        ".tarea:hover { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.5); }",
+        ".tarea.actual { background: linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.2)); border-color: rgba(255,255,255,0.8); }",
+        ".tarea-icono { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 3px; flex: none; }",
+        ".tarea-icono svg { width: 18px; height: 18px; color: #fff; }",
+        ".tarea-nombre { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
+        ".bandeja { flex: none; display: flex; align-items: center; padding: 0 12px; margin-left: 6px; border-left: 1px solid rgba(0,0,0,0.3); background: rgba(0,0,0,0.12); color: #fff; font-size: 12px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); max-width: 380px; }",
+        ".bandeja-texto { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
+        ".ic-terminal { background: linear-gradient(#5a6b7d, #1f2a36); }",
+        ".ic-sensores { background: linear-gradient(#7fd66a, #2f8a22); }",
+        ".ic-gases { background: linear-gradient(#7cc4f5, #1f6fb8); }",
+        ".ic-comunicaciones { background: linear-gradient(#ffc766, #d97a12); }",
+        ".ic-trayectoria { background: linear-gradient(#c8a0ea, #6f3fb0); }",
+        ".ic-energia { background: linear-gradient(#ffe57a, #d9a20f); }",
+        "@media (max-width: 700px) { .fila { grid-template-columns: 1fr; gap: 4px; } .mando-fila { grid-template-columns: 1fr; } .tarea { min-width: 40px; } .tarea-nombre { display: none; } .bandeja { display: none; } }",
     ]
     return "<style>\n" + texto_unir(reglas, "\n") + "\n</style>"
 
 fn escritorio_html() -> str:
     cuerpo = ui_elemento("main", ["class", "escritorio-raiz"], [
-        escr_menubar(),
         ui_elemento("div", ["class", "escritorio"], [escr_ventana()]),
-        escr_dock()
+        ui_elemento("div", ["class", "barra-tareas"], [escr_menubar(), escr_dock(), escr_bandeja()])
     ])
     partes = [
         "<!doctype html>\n<html lang=\"es\">\n<head>\n<meta charset=\"utf-8\">\n",
