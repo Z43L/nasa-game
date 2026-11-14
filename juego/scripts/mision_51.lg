@@ -1,0 +1,14 @@
+# scripts/mision_51.lg: vigila la batería de la misión 51 (energía con avería de fuga eléctrica).
+import nave
+
+mut ciclos = 0
+mut ahorro = false
+while ciclos < 40:
+    nave_diagnostico("energia")
+    nave_reparar("energia")
+    if not ahorro and nave_valor("energia") < 35:
+        print(nave_apagar("oxigeno"))
+        ahorro = true
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia de energía terminada")

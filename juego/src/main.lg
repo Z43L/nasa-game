@@ -40,18 +40,22 @@ import misiones
 import partidas
 import consola
 import pantalla_misiones
+import estado
+import cookies
+import usuarios
+import sesion
+import cuenta
+import ranking
+import salas
+import pantalla_sala
 
-mut arrancado = false
-mut partidas_aviso = ""
 
 # Traducciones: se cargan una vez. Si falta el fichero, la interfaz sigue con las claves visibles.
 mut error_traducciones = i18n_cargar()
 if error_traducciones != "":
     print("traducciones:", error_traducciones)
 
-proceso_ejecutar("mkdir -p scripts run saves")
-log_agregar(tr("msg.bienvenida"))
-log_agregar(trc("msg.bienvenida2", [tr("cmd.misiones"), tr("cmd.ayuda")]))
+proceso_ejecutar("mkdir -p scripts run usuarios sesiones salas")
 
 # ---------- utilidades de página ----------
 
@@ -61,14 +65,24 @@ fn srv_pagina(titulo: str, cuerpo: Nodo) -> Respuesta:
 fn srv_envoltorio(nodos: List[Nodo]) -> Nodo:
     return ui_elemento("div", ["class", "pantalla-raiz"], nodos)
 
+# Páginas que no necesitan sesión: inicio de sesión, registro, cierre de sesión, idioma y fondo.
+fn srv_requiere_sesion(id: int) -> bool:
+    if id == 5 or id == 8:
+        return false
+    if id >= 26 and id <= 30:
+        return false
+    return true
+
 fn srv_menu_nodo() -> Nodo:
     items: List[Nodo] = [
         crt_opcion(1, tr("menu.nueva"), tr("menu.sub.nueva"), "/juego", true),
-        crt_opcion(2, tr("menu.cargar"), tr("menu.sub.cargar"), "/partidas", false),
+        crt_opcion(2, tr("menu.cargar"), tr("menu.sub.cargar"), "/partida", false),
         crt_opcion(3, tr("menu.misiones"), tr("menu.sub.misiones"), "/misiones", false),
         crt_opcion(4, tr("menu.consola"), tr("menu.sub.consola"), "/consola", false),
         crt_opcion(5, tr("menu.ajustes"), tr("menu.sub.ajustes"), "/ajustes", false),
-        crt_opcion(6, tr("menu.creditos"), tr("menu.sub.creditos"), "/creditos", false)
+        crt_opcion(6, tr("menu.creditos"), tr("menu.sub.creditos"), "/creditos", false),
+        crt_opcion(7, tr("menu.ranking"), tr("menu.sub.ranking"), "/ranking", false),
+        crt_opcion(8, tr("menu.sala"), tr("menu.sub.sala"), "/sala", false)
     ]
     entrada = ui_elemento("form", ["method", "post", "action", "/menu/cmd", "enctype", "text/plain", "class", "linea", "autocomplete", "off"], [
         ui_elemento("span", ["class", "prompt"], [ui_texto(tr("ui.prompt"))]),
@@ -78,8 +92,18 @@ fn srv_menu_nodo() -> Nodo:
         crt_titulo(tr("menu.titulo")),
         crt_menu(items),
         ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("menu.ayuda"))]),
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(trc("cuenta.sesion", [sesion_actual()])), ui_elemento("a", ["href", "/logout"], [ui_texto("  " + tr("cuenta.salir"))])]),
         entrada
     ])
+
+# Respuesta con el estado de la partida en cookies: se guarda el estado y se añaden los Set-Cookie.
+fn srv_responder(s: Solicitud, r: Respuesta) -> int:
+    estado_guardar()
+    mut out = r
+    cks = cookies_cabeceras()
+    for i in 0..len(cks):
+        out.cabeceras.append(cks[i])
+    return web_responder(s, out)
 
 fn srv_partidas_nodo() -> Nodo:
     mut filas: List[Nodo] = []
@@ -96,8 +120,6 @@ fn srv_partidas_nodo() -> Nodo:
             ui_elemento("div", ["class", "acciones"], acciones)
         ]))
     mut nodos: List[Nodo] = [crt_titulo(tr("partidas.titulo"))]
-    if partidas_aviso != "":
-        nodos.append(ui_elemento("p", ["class", "pista"], [ui_texto(partidas_aviso)]))
     nodos.append(ui_elemento("div", ["class", "save-slots"], filas))
     nodos.append(crt_volver("/menu", tr("crt.volver")))
     return srv_envoltorio(nodos)
@@ -124,7 +146,7 @@ fn srv_orden(linea: str):
     l = texto_recortar_espacios(linea)
     if l == "":
         return
-    log_agregar(tr("ui.prompt") + " " + l)
+    log_agregar(sala_etiqueta(sesion_actual()) + tr("ui.prompt") + " " + l)
     mut orden = shell_orden(shell_palabras(l)[0])
     if orden == "limpiar":
         log_limpiar()
@@ -139,7 +161,7 @@ fn srv_ruta_menu(linea: str) -> str:
     if l == "1":
         return "/juego"
     if l == "2":
-        return "/partidas"
+        return "/partida"
     if l == "3":
         return "/misiones"
     if l == "4":
@@ -148,6 +170,10 @@ fn srv_ruta_menu(linea: str) -> str:
         return "/ajustes"
     if l == "6":
         return "/creditos"
+    if l == "7":
+        return "/ranking"
+    if l == "8":
+        return "/sala"
     return ""
 
 fn srv_lanzar(valor: str):
@@ -174,12 +200,36 @@ fn partida_cargar_seguro(texto_n: str) -> str:
         return tr("msg.comando_no")
     return partida_cargar(n)
 
-# Mensaje de una operación de partida (vacío = correcta).
-fn srv_partida(msg: str):
-    if msg == "":
-        partidas_aviso = tr("partidas.aviso_ok")
+# Página con refresco automático cada 5 s (solo las pantallas de sala).
+fn srv_pagina_refresco(titulo: str, cuerpo: Nodo) -> Respuesta:
+    pagina = texto_reemplazar(crt_pagina(titulo, cuerpo), "</head>", "<meta http-equiv=\"refresh\" content=\"5\">\n</head>")
+    return web_respuesta_html(200, pagina)
+
+# Después de cada petición: si el jugador ha completado una misión, suma al ranking. En coop, a todos los
+# miembros; en 1 contra 1, la primera vez que se completa cada misión da una victoria.
+fn srv_tras_peticion(antes: int):
+    nombre = sesion_actual()
+    if nombre == "" or misiones_completadas_total() <= antes:
+        return
+    n = mision_numero()
+    pts = mision_puntos_final()
+    codigo = sala_activa(nombre)
+    if codigo == "":
+        ranking_sumar(nombre, 1, pts, 0, 0)
     else:
-        partidas_aviso = msg
+        if sala_modo(codigo) == "coop":
+            for m in sala_miembros(codigo):
+                if m != "":
+                    ranking_sumar(m, 1, pts, 0, 0)
+        else:
+            ranking_sumar(nombre, 1, pts, 0, 0)
+            if sala_primera_victoria(codigo, n, nombre):
+                ranking_sumar(nombre, 0, 0, 1, 0)
+
+# Resultado de una operación de partida: se anota en el registro (que también va en el estado).
+fn srv_partida(msg: str):
+    if msg != "":
+        log_agregar(msg)
 
 # ---------- servidor ----------
 
@@ -202,13 +252,23 @@ web_agregar(enrutador, "POST", "/mision/lanzar", 15)
 web_agregar(enrutador, "GET", "/consola", 16)
 web_agregar(enrutador, "GET", "/consola/plantilla/:id", 17)
 web_agregar(enrutador, "POST", "/consola/ejecutar", 18)
-web_agregar(enrutador, "GET", "/partidas", 19)
+web_agregar(enrutador, "GET", "/partida", 19)
 web_agregar(enrutador, "GET", "/partida/guardar/:n", 20)
 web_agregar(enrutador, "GET", "/partida/cargar/:n", 21)
 web_agregar(enrutador, "GET", "/ajustes", 22)
 web_agregar(enrutador, "GET", "/tema/:nombre", 23)
 web_agregar(enrutador, "GET", "/escanlineas", 24)
 web_agregar(enrutador, "GET", "/creditos", 25)
+web_agregar(enrutador, "GET", "/login", 26)
+web_agregar(enrutador, "POST", "/login", 27)
+web_agregar(enrutador, "GET", "/registro", 28)
+web_agregar(enrutador, "POST", "/registro", 29)
+web_agregar(enrutador, "GET", "/logout", 30)
+web_agregar(enrutador, "GET", "/sala", 31)
+web_agregar(enrutador, "POST", "/sala/unir", 32)
+web_agregar(enrutador, "GET", "/sala/crear/:modo", 33)
+web_agregar(enrutador, "GET", "/sala/salir", 34)
+web_agregar(enrutador, "GET", "/ranking", 35)
 
 servidor = escuchar(8080)
 if servidor < 0:
@@ -219,101 +279,152 @@ else:
         s = web_recibir(servidor, enrutador, 5000)
         if s.conexion < 0:
             continue
+        # Cada petición: sesión (cookie "sesion") -> usuario -> su partida y su carpeta de scripts.
+        cookies_cargar(http_cabecera(s.peticion, "Cookie").desempacar_o(""))
+        sesion_fijar_actual(sesion_usuario(cookies_leer("sesion")))
+        estado_fijar_ruta(sala_ruta_partida(sesion_actual()))
+        estado_inicio()
+        comp_antes = misiones_completadas_total()
+        if sesion_actual() != "":
+            shell_fijar_carpeta(usuario_carpeta(sesion_actual()) + "/scripts")
         if not s.peticion.valida:
-            web_responder(s, http_respuesta_texto(400, tr("msg.peticion") + "\n"))
+            srv_responder(s, http_respuesta_texto(400, tr("msg.peticion") + "\n"))
+        elif srv_requiere_sesion(s.id) and sesion_actual() == "":
+            srv_responder(s, web_respuesta_redireccion("/login"))
         elif s.id == 1:
             mision_avanzar()
-            if arrancado:
-                web_responder(s, srv_pagina(tr("menu.titulo"), srv_menu_nodo()))
+            if estado_arrancado_get():
+                srv_responder(s, srv_pagina(tr("menu.titulo"), srv_menu_nodo()))
             else:
-                web_responder(s, srv_pagina(tr("menu.titulo"), srv_arranque_nodo()))
+                srv_responder(s, srv_pagina(tr("menu.titulo"), srv_arranque_nodo()))
         elif s.id == 2:
             srv_orden(cuerpo_campo(s.peticion.cuerpo, "linea"))
-            web_responder(s, web_respuesta_redireccion("/juego"))
+            srv_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 3:
             nombre = s.parametros[0]
             if not shell_nombre_valido(nombre):
                 log_agregar(trc("msg.nombre_corto", [nombre]))
-                web_responder(s, web_respuesta_redireccion("/juego"))
+                srv_responder(s, web_respuesta_redireccion("/juego"))
             else:
                 mut contenido = ""
-                if shell_existe("scripts/" + nombre):
-                    contenido = leer_texto("scripts/" + nombre)
-                web_responder(s, web_respuesta_html(200, pantalla_editor(nombre, contenido)))
+                if shell_existe(shell_ruta_script(nombre)):
+                    contenido = leer_texto(shell_ruta_script(nombre))
+                srv_responder(s, web_respuesta_html(200, pantalla_editor(nombre, contenido)))
         elif s.id == 4:
             nombre = s.parametros[0]
             if not shell_nombre_valido(nombre):
                 log_agregar(trc("msg.nombre_corto", [nombre]))
             else:
-                escribir_texto("scripts/" + nombre, cuerpo_campo(s.peticion.cuerpo, "texto"))
+                escribir_texto(shell_ruta_script(nombre), cuerpo_campo(s.peticion.cuerpo, "texto"))
                 log_agregar(trc("msg.guardado", [nombre]))
-            web_responder(s, web_respuesta_redireccion("/juego"))
+            srv_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 5:
-            web_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
+            srv_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
         elif s.id == 6:
             escr_abrir(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/juego"))
+            srv_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 7:
             escr_cerrar(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/juego"))
+            srv_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 8:
             i18n_cambiar(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/menu"))
+            srv_responder(s, web_respuesta_redireccion("/menu"))
         elif s.id == 9:
-            arrancado = true
-            web_responder(s, srv_pagina(tr("menu.titulo"), srv_menu_nodo()))
+            estado_arrancado_fijar(true)
+            srv_responder(s, srv_pagina(tr("menu.titulo"), srv_menu_nodo()))
         elif s.id == 10:
             linea = cuerpo_campo(s.peticion.cuerpo, "linea")
             ruta = srv_ruta_menu(linea)
             if ruta != "":
-                web_responder(s, web_respuesta_redireccion(ruta))
+                srv_responder(s, web_respuesta_redireccion(ruta))
             else:
                 srv_orden(linea)
-                web_responder(s, web_respuesta_redireccion("/juego"))
+                srv_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 11:
-            web_responder(s, web_respuesta_html(200, escritorio_html()))
+            srv_responder(s, web_respuesta_html(200, escritorio_html()))
         elif s.id == 12:
-            web_responder(s, srv_pagina(tr("mis.titulo"), srv_misiones_nodo()))
+            srv_responder(s, srv_pagina(tr("mis.titulo"), srv_misiones_nodo()))
         elif s.id == 13:
             misiones_filtrar(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/misiones"))
+            srv_responder(s, web_respuesta_redireccion("/misiones"))
         elif s.id == 14:
             if shell_es_entero(s.parametros[0]):
                 misiones_seleccionar(int(s.parametros[0]) - 1)
-            web_responder(s, web_respuesta_redireccion("/misiones"))
+            srv_responder(s, web_respuesta_redireccion("/misiones"))
         elif s.id == 15:
             srv_lanzar(cuerpo_campo(s.peticion.cuerpo, "numero"))
-            web_responder(s, web_respuesta_redireccion("/juego"))
+            srv_responder(s, web_respuesta_redireccion("/juego"))
         elif s.id == 16:
             mut codigo = consola_ultimo_codigo()
             if codigo == "":
                 codigo = consola_plantilla("hola")
-            web_responder(s, srv_pagina(tr("lg.titulo"), srv_consola_nodo(codigo, consola_ultima_salida())))
+            srv_responder(s, srv_pagina(tr("lg.titulo"), srv_consola_nodo(codigo, consola_ultima_salida())))
         elif s.id == 17:
-            web_responder(s, srv_pagina(tr("lg.titulo"), srv_consola_nodo(consola_plantilla(s.parametros[0]), "")))
+            srv_responder(s, srv_pagina(tr("lg.titulo"), srv_consola_nodo(consola_plantilla(s.parametros[0]), "")))
         elif s.id == 18:
             codigo = cuerpo_campo(s.peticion.cuerpo, "texto")
             consola_guardar_codigo(codigo)
             consola_guardar_salida(consola_ejecutar(codigo))
-            web_responder(s, web_respuesta_redireccion("/consola"))
+            srv_responder(s, web_respuesta_redireccion("/consola"))
         elif s.id == 19:
-            web_responder(s, srv_pagina(tr("partidas.titulo"), srv_partidas_nodo()))
+            srv_responder(s, srv_pagina(tr("partidas.titulo"), srv_partidas_nodo()))
         elif s.id == 20:
             srv_partida(partida_guardar_seguro(s.parametros[0]))
-            web_responder(s, web_respuesta_redireccion("/partidas"))
+            srv_responder(s, web_respuesta_redireccion("/partida"))
         elif s.id == 21:
             srv_partida(partida_cargar_seguro(s.parametros[0]))
-            web_responder(s, web_respuesta_redireccion("/partidas"))
+            srv_responder(s, web_respuesta_redireccion("/partida"))
         elif s.id == 22:
-            web_responder(s, srv_pagina(tr("crt.ajustes.titulo"), srv_ajustes_nodo()))
+            srv_responder(s, srv_pagina(tr("crt.ajustes.titulo"), srv_ajustes_nodo()))
         elif s.id == 23:
             crt_cambiar_tema(s.parametros[0])
-            web_responder(s, web_respuesta_redireccion("/ajustes"))
+            srv_responder(s, web_respuesta_redireccion("/ajustes"))
         elif s.id == 24:
             crt_alternar_scanlines()
-            web_responder(s, web_respuesta_redireccion("/ajustes"))
+            srv_responder(s, web_respuesta_redireccion("/ajustes"))
         elif s.id == 25:
-            web_responder(s, srv_pagina(tr("crt.creditos.titulo"), srv_creditos_nodo()))
+            srv_responder(s, srv_pagina(tr("crt.creditos.titulo"), srv_creditos_nodo()))
+        elif s.id == 26:
+            srv_responder(s, srv_pagina(tr("cuenta.titulo_login"), cuenta_login_nodo("")))
+        elif s.id == 27:
+            nombre = cuenta_campo(s.peticion.cuerpo, "usuario")
+            err = usuario_entrar(nombre, cuenta_campo(s.peticion.cuerpo, "pw"))
+            if err == "":
+                cookies_poner("sesion", sesion_crear(nombre), "/")
+                estado_arrancado_fijar(true)
+                srv_responder(s, web_respuesta_redireccion("/menu"))
+            else:
+                srv_responder(s, srv_pagina(tr("cuenta.titulo_login"), cuenta_login_nodo(err)))
+        elif s.id == 28:
+            srv_responder(s, srv_pagina(tr("cuenta.titulo_registro"), cuenta_registro_nodo("")))
+        elif s.id == 29:
+            err = usuario_registrar(cuenta_campo(s.peticion.cuerpo, "usuario"), cuenta_campo(s.peticion.cuerpo, "pw"))
+            if err == "":
+                srv_responder(s, srv_pagina(tr("cuenta.titulo_login"), cuenta_login_nodo(tr("cuenta.creada"))))
+            else:
+                srv_responder(s, srv_pagina(tr("cuenta.titulo_registro"), cuenta_registro_nodo(err)))
+        elif s.id == 30:
+            sesion_cerrar(cookies_leer("sesion"))
+            cookies_poner("sesion", "", "/")
+            srv_responder(s, web_respuesta_redireccion("/login"))
+        elif s.id == 31:
+            web_responder(s, srv_pagina_refresco(tr("sala.titulo"), sala_nodo(sesion_actual(), "")))
+        elif s.id == 32:
+            err = sala_unir(texto_recortar_espacios(cuenta_campo(s.peticion.cuerpo, "codigo")), sesion_actual())
+            if err == "":
+                web_responder(s, web_respuesta_redireccion("/sala"))
+            else:
+                web_responder(s, srv_pagina_refresco(tr("sala.titulo"), sala_nodo(sesion_actual(), err)))
+        elif s.id == 33:
+            if s.parametros[0] == "coop" or s.parametros[0] == "duelo":
+                sala_crear(s.parametros[0], sesion_actual())
+            web_responder(s, web_respuesta_redireccion("/sala"))
+        elif s.id == 34:
+            sala_salir(sesion_actual())
+            web_responder(s, web_respuesta_redireccion("/sala"))
+        elif s.id == 35:
+            web_responder(s, srv_pagina(tr("rank.titulo"), ranking_nodo()))
         else:
-            web_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
+            srv_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
+        srv_tras_peticion(comp_antes)
     cerrar(servidor)

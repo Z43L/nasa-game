@@ -1,0 +1,9 @@
+24
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar refrigeracion 95
+

@@ -1,0 +1,18 @@
+import nave
+import texto
+
+# Vigila el enlace de comunicaciones: repara averías y sube el objetivo si la señal baja de 85.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        nave_reparar(sistema)
+
+mut ciclos = 0
+while ciclos < 50:
+    vigilar("comunicaciones")
+    if nave_valor("comunicaciones") < 85:
+        nave_ajustar("comunicaciones", 100)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("enlace vigilado")

@@ -1,0 +1,7 @@
+94
+0|diagnostico energia
+1|reparar energia
+2|diagnostico reactor
+3|reparar reactor
+4|apagar oxigeno
+5|apagar comunicaciones

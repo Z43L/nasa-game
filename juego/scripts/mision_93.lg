@@ -1,0 +1,14 @@
+# scripts/mision_93.lg: repara reactor y comunicaciones en cada ciclo y avisa si la energia baja de 50.
+import nave
+
+sistemas = ["reactor", "comunicaciones"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        print(nave_reparar(sistemas[i]))
+    if nave_valor("energia") < 50:
+        print("aviso: energia baja")
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

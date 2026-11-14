@@ -1,0 +1,70 @@
+# src/mis_g4.lg: misiones 67 a 86 (grupo 4: comunicaciones y trayectoria). Ver src/mision_modelo.lg.
+import mision_modelo
+
+fn mis_g4() -> List[MisionDato]:
+    mut l: List[MisionDato] = []
+    # Facil
+    l.append(mis_dato(67, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -3, 70)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 80)]))
+    l.append(mis_dato(68, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("comunicaciones", "av.g4.ruido", -1, 80)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 95)]))
+    l.append(mis_dato(69, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("energia", "av.g4.corte", -2, 20)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 30)]))
+    l.append(mis_dato(70, 200, 1, "dif.facil", "tipo.programar",
+        [mis_av("comunicaciones", "av.g4.enlace", -2, 75)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85)]))
+    l.append(mis_dato(71, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("refrigeracion", "av.bomba", 0, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 90)]))
+    # Media
+    l.append(mis_dato(72, 160, 1, "dif.media", "tipo.comando",
+        [mis_av("comunicaciones", "av.g4.interferencia", -4, 85)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 90)]))
+    l.append(mis_dato(73, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -3, 75), mis_av("energia", "av.g4.corte", -1, 40)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85), mis_cond("energia", 1, 0, 0)]))
+    l.append(mis_dato(74, 150, 1, "dif.media", "tipo.comando",
+        [mis_av("reactor", "av.inyector", 2, 540)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 480)]))
+    l.append(mis_dato(75, 180, 10, "dif.media", "tipo.ambas",
+        [mis_av("energia", "av.g4.corte", -1, 12), mis_av("comunicaciones", "av.g4.enlace", -1, 84)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85)]))
+    l.append(mis_dato(76, 170, 1, "dif.media", "tipo.programar",
+        [mis_av("reactor", "av.inyector", 3, 470)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 0, 400), mis_cond("reactor", 0, 1, 500)]))
+    l.append(mis_dato(77, 170, 3, "dif.media", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -2, 88)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 95)]))
+    # Dificil
+    l.append(mis_dato(78, 140, 5, "dif.dificil", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -4, 85)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 90)]))
+    l.append(mis_dato(79, 150, 5, "dif.dificil", "tipo.comando",
+        [mis_av("comunicaciones", "av.g4.interferencia", -3, 80), mis_av("energia", "av.g4.corte", -2, 25)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85), mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 20)]))
+    l.append(mis_dato(80, 140, 8, "dif.dificil", "tipo.programar",
+        [mis_av("comunicaciones", "av.g4.interferencia", -3, 80), mis_av("reactor", "av.inyector", 3, 500)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85), mis_cond("reactor", 1, 0, 0)]))
+    l.append(mis_dato(81, 130, 5, "dif.dificil", "tipo.ambas",
+        [mis_av("energia", "av.g4.corte", -3, 15)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 25)]))
+    l.append(mis_dato(82, 150, 6, "dif.dificil", "tipo.comando",
+        [mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("reactor", "av.inyector", 4, 520)],
+        [mis_cond("reactor", 0, 1, 480), mis_cond("reactor", 1, 0, 0), mis_cond("refrigeracion", 1, 0, 0)]))
+    # Extrema
+    l.append(mis_dato(83, 110, 5, "dif.extrema", "tipo.comando",
+        [mis_av("comunicaciones", "av.g4.interferencia", -4, 80), mis_av("energia", "av.g4.corte", -2, 18), mis_av("reactor", "av.inyector", 2, 500)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 88), mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 15), mis_cond("reactor", 1, 0, 0)]))
+    l.append(mis_dato(84, 110, 10, "dif.extrema", "tipo.comando",
+        [mis_av("comunicaciones", "av.antena", -3, 70), mis_av("co2", "av.co2", 1, 0)],
+        [mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 88), mis_cond("co2", 1, 0, 0), mis_cond("co2", 0, 1, 5)]))
+    l.append(mis_dato(85, 120, 12, "dif.extrema", "tipo.programar",
+        [mis_av("energia", "av.g4.corte", -2, 30), mis_av("comunicaciones", "av.g4.enlace", -2, 85), mis_av("co2", "av.co2", 1, 0)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("co2", 1, 0, 0)]))
+    l.append(mis_dato(86, 130, 10, "dif.extrema", "tipo.ambas",
+        [mis_av("reactor", "av.inyector", 5, 560), mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("comunicaciones", "av.g4.interferencia", -4, 80)],
+        [mis_cond("reactor", 0, 1, 500), mis_cond("reactor", 1, 0, 0), mis_cond("refrigeracion", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("comunicaciones", 0, 0, 85)]))
+    return l

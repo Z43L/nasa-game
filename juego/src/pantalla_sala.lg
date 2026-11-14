@@ -1,0 +1,77 @@
+# src/pantalla_sala.lg: pantallas de la sala multijugador y del ranking.
+#   sala_nodo(nombre, mensaje) -> Nodo     crear o unirse, o la sala activa (con el rival en duelo)
+#   ranking_nodo() -> Nodo                 tabla de jugadores
+
+import salas
+import ranking
+import crt
+import i18n
+import texto
+import cuenta
+
+fn sala_mensaje(m: str) -> Nodo:
+    if m == "":
+        return ui_texto("")
+    return ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(m)])
+
+fn sala_boton(href: str, etiqueta: str) -> Nodo:
+    return ui_elemento("a", ["href", href, "class", "launch-mission-btn"], [ui_texto(etiqueta)])
+
+fn sala_nodo(nombre: str, mensaje: str) -> Nodo:
+    codigo = sala_activa(nombre)
+    if codigo == "":
+        unir = ui_elemento("form", ["method", "post", "action", "/sala/unir", "enctype", "text/plain", "class", "cuenta-form"], [
+            ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("sala.codigo"))]),
+            ui_elemento("input", ["name", "codigo", "class", "campo"], []),
+            ui_elemento("button", ["type", "submit", "class", "launch-mission-btn"], [ui_texto(tr("sala.unir"))])
+        ])
+        return ui_elemento("div", ["class", "pantalla-raiz"], [
+            crt_titulo(tr("sala.titulo")),
+            sala_mensaje(mensaje),
+            ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("sala.ninguna"))]),
+            sala_boton("/sala/crear/coop", tr("sala.crear_coop")),
+            sala_boton("/sala/crear/duelo", tr("sala.crear_duelo")),
+            unir,
+            crt_volver("/menu", tr("crt.volver"))
+        ])
+    modo = sala_modo(codigo)
+    mut etiqueta_modo = tr("sala.modo_coop")
+    if modo == "duelo":
+        etiqueta_modo = tr("sala.modo_duelo")
+    mut nodos: List[Nodo] = [
+        crt_titulo(tr("sala.titulo")),
+        sala_mensaje(mensaje),
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("sala.codigo") + " " + codigo + "  ·  " + etiqueta_modo)]),
+        ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(trc("sala.miembros", [texto_unir(sala_miembros(codigo), ", ")]))])
+    ]
+    if modo == "duelo":
+        rival = sala_rival_resumen(codigo, nombre)
+        if rival != "":
+            nodos.append(ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(rival)]))
+    nodos.append(sala_boton("/juego", tr("sala.ir_juego")))
+    nodos.append(sala_boton("/sala/salir", tr("sala.salir")))
+    nodos.append(crt_volver("/menu", tr("crt.volver")))
+    return ui_elemento("div", ["class", "pantalla-raiz"], nodos)
+
+fn ranking_fila(f: str) -> Nodo:
+    c = texto_dividir(f, "|")
+    return ui_elemento("div", ["class", "fila"], [
+        ui_elemento("span", ["class", "fila-nombre"], [ui_texto(c[0])]),
+        ui_elemento("span", ["class", "fila-valor"], [ui_texto(c[2] + " pts")]),
+        ui_elemento("span", ["class", "chip ok"], [ui_texto(c[1] + " " + tr("rank.misiones"))]),
+        ui_elemento("span", ["class", "chip aviso"], [ui_texto(c[3] + " " + tr("rank.victorias"))]),
+        ui_elemento("span", ["class", "chip off"], [ui_texto(c[4] + " " + tr("rank.partidas"))])
+    ])
+
+fn ranking_nodo() -> Nodo:
+    filas = ranking_filas()
+    mut nodos: List[Nodo] = [crt_titulo(tr("rank.titulo"))]
+    if len(filas) == 0:
+        nodos.append(ui_elemento("p", ["class", "menu-ayuda"], [ui_texto(tr("rank.vacio"))]))
+    else:
+        mut items: List[Nodo] = []
+        for i in 0..len(filas):
+            items.append(ranking_fila(filas[i]))
+        nodos.append(ui_elemento("div", ["class", "tarjeta"], items))
+    nodos.append(crt_volver("/menu", tr("crt.volver")))
+    return ui_elemento("div", ["class", "pantalla-raiz"], nodos)

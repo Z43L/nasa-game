@@ -184,8 +184,9 @@ fn sim_recarga() -> int:
 # ---------- serialización ----------
 
 fn sim_sistema_a_valor(s: Sistema) -> JsonValor:
-    claves: List[str] = ["nombre", "valor", "objetivo", "minimo", "maximo", "activo", "averia", "deriva", "diagnosticado"]
-    valores: List[JsonValor] = [json_nuevo_cadena(s.nombre), json_nuevo_numero(float(s.valor)), json_nuevo_numero(float(s.objetivo)), json_nuevo_numero(float(s.minimo)), json_nuevo_numero(float(s.maximo)), json_nuevo_bool(s.activo), json_nuevo_cadena(s.averia), json_nuevo_numero(float(s.deriva)), json_nuevo_bool(s.diagnosticado)]
+    # Sin minimo/maximo: son constantes del modelo (sim_base_de) y así el estado cabe en la cookie.
+    claves: List[str] = ["nombre", "valor", "objetivo", "activo", "averia", "deriva", "diagnosticado"]
+    valores: List[JsonValor] = [json_nuevo_cadena(s.nombre), json_nuevo_numero(float(s.valor)), json_nuevo_numero(float(s.objetivo)), json_nuevo_bool(s.activo), json_nuevo_cadena(s.averia), json_nuevo_numero(float(s.deriva)), json_nuevo_bool(s.diagnosticado)]
     return json_nuevo_objeto(claves, valores)
 
 fn sim_a_json() -> str:
@@ -204,7 +205,7 @@ fn sim_campo_malo(e: JsonValor) -> str:
     for i in 0..len(cadenas):
         if json_tipo(json_obtener(e, cadenas[i])) != "cadena":
             return cadenas[i]
-    numeros = ["valor", "objetivo", "minimo", "maximo", "deriva"]
+    numeros = ["valor", "objetivo", "deriva"]
     for i in 0..len(numeros):
         if json_tipo(json_obtener(e, numeros[i])) != "numero":
             return numeros[i]
@@ -221,6 +222,14 @@ fn sim_en_lista(l: List[Sistema], nombre: str) -> bool:
     return false
 
 # Carga la nave desde el texto de sim_a_json. "" si va bien; si no, un mensaje traducido.
+# Definición base de un sistema (rangos fijos del modelo).
+fn sim_base_de(nombre: str) -> Sistema:
+    base = sim_nueva_nave()
+    for i in 0..len(base):
+        if base[i].nombre == nombre:
+            return base[i]
+    return base[0]
+
 fn sim_desde_json(texto: str) -> str:
     raiz = json_parsear(texto)
     if json_es_error(raiz):
@@ -242,6 +251,7 @@ fn sim_desde_json(texto: str) -> str:
         nombre = json_texto(json_obtener(e, "nombre"))
         if not sim_existe(nombre) or sim_en_lista(nueva, nombre):
             return trc("mis.err_sistema", [nombre])
-        nueva.append(Sistema(nombre: nombre, valor: int(json_numero(json_obtener(e, "valor"))), objetivo: int(json_numero(json_obtener(e, "objetivo"))), minimo: int(json_numero(json_obtener(e, "minimo"))), maximo: int(json_numero(json_obtener(e, "maximo"))), activo: json_booleano(json_obtener(e, "activo")), averia: json_texto(json_obtener(e, "averia")), deriva: int(json_numero(json_obtener(e, "deriva"))), diagnosticado: json_booleano(json_obtener(e, "diagnosticado"))))
+        base = sim_base_de(nombre)
+        nueva.append(Sistema(nombre: nombre, valor: int(json_numero(json_obtener(e, "valor"))), objetivo: int(json_numero(json_obtener(e, "objetivo"))), minimo: base.minimo, maximo: base.maximo, activo: json_booleano(json_obtener(e, "activo")), averia: json_texto(json_obtener(e, "averia")), deriva: int(json_numero(json_obtener(e, "deriva"))), diagnosticado: json_booleano(json_obtener(e, "diagnosticado"))))
     sim_cargar_lista(nueva)
     return ""

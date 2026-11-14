@@ -1,0 +1,4 @@
+56
+0|diagnostico reactor
+0|reparar reactor
+0|ajustar refrigeracion 0

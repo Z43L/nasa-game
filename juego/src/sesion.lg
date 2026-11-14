@@ -1,0 +1,54 @@
+# src/sesion.lg: sesiones de usuario. La cookie "sesion" lleva un token aleatorio; el servidor guarda
+# sesiones/<token>.txt con el nombre de usuario y la hora de inicio (caduca a los 30 días).
+#
+#   sesion_crear(nombre) -> str       token nuevo
+#   sesion_usuario(token) -> str      nombre de usuario, o "" si la sesión no vale
+#   sesion_cerrar(token)
+
+import archivo
+import cripto
+import tiempo
+import texto
+import proceso
+
+fn sesion_token_valido(token: str) -> bool:
+    if len(token) != 32:
+        return false
+    for i in 0..len(token):
+        c = recortar(token, i, i + 1)
+        if not texto_contiene("0123456789abcdef", c):
+            return false
+    return true
+
+fn sesion_ruta(token: str) -> str:
+    return "sesiones/" + token + ".txt"
+
+fn sesion_crear(nombre: str) -> str:
+    proceso_ejecutar("mkdir -p sesiones")
+    token = cripto_sal_hex()
+    archivo_escribir_todo(sesion_ruta(token), nombre + "|" + str(tiempo_pared_unix_s()))
+    return token
+
+fn sesion_usuario(token: str) -> str:
+    if not sesion_token_valido(token) or not archivo_existe(sesion_ruta(token)):
+        return ""
+    partes = texto_dividir(archivo_leer_todo(sesion_ruta(token)), "|")
+    if len(partes) != 2:
+        return ""
+    if tiempo_pared_unix_s() - int(partes[1]) > 30 * 24 * 3600:
+        sesion_cerrar(token)
+        return ""
+    return partes[0]
+
+fn sesion_cerrar(token: str):
+    if sesion_token_valido(token) and archivo_existe(sesion_ruta(token)):
+        archivo_borrar(sesion_ruta(token))
+
+# Usuario de la petición en curso ("" si no hay sesión válida). Lo fija main.lg en cada petición.
+mut sesion_usuario_en_curso = ""
+
+fn sesion_fijar_actual(nombre: str):
+    sesion_usuario_en_curso = nombre
+
+fn sesion_actual() -> str:
+    return sesion_usuario_en_curso

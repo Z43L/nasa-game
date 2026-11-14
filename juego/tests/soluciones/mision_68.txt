@@ -1,0 +1,5 @@
+68
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar comunicaciones 100
+

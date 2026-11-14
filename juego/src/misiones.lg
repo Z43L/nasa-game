@@ -23,6 +23,12 @@ import tiempo
 import sim
 import i18n
 import json
+import mision_modelo
+import mis_g1
+import mis_g2
+import mis_g3
+import mis_g4
+import mis_g5
 
 struct Mision:
     titulo: str
@@ -30,6 +36,28 @@ struct Mision:
     limite_s: int
     racha_necesaria: int
     dificultad: str
+
+# Misiones de datos (7 en adelante): se añaden de los grupos mis_g1..mis_g5, en ese orden.
+fn misiones_extra() -> List[MisionDato]:
+    mut l: List[MisionDato] = []
+    g1 = mis_g1()
+    for i in 0..len(g1):
+        l.append(g1[i])
+    g2 = mis_g2()
+    for i in 0..len(g2):
+        l.append(g2[i])
+    g3 = mis_g3()
+    for i in 0..len(g3):
+        l.append(g3[i])
+    g4 = mis_g4()
+    for i in 0..len(g4):
+        l.append(g4[i])
+    g5 = mis_g5()
+    for i in 0..len(g5):
+        l.append(g5[i])
+    return l
+
+mut extra_misiones: List[MisionDato] = misiones_extra()
 
 fn misiones_lista() -> List[Mision]:
     mut l: List[Mision] = []
@@ -39,6 +67,9 @@ fn misiones_lista() -> List[Mision]:
     l.append(Mision(titulo: "mision.4.titulo", briefing: "mision.4.briefing", limite_s: 180, racha_necesaria: 15, dificultad: "dif.dificil"))
     l.append(Mision(titulo: "mision.5.titulo", briefing: "mision.5.briefing", limite_s: 120, racha_necesaria: 10, dificultad: "dif.dificil"))
     l.append(Mision(titulo: "mision.6.titulo", briefing: "mision.6.briefing", limite_s: 200, racha_necesaria: 10, dificultad: "dif.extrema"))
+    for i in 0..len(extra_misiones):
+        d = extra_misiones[i]
+        l.append(Mision(titulo: d.titulo, briefing: d.briefing, limite_s: d.limite_s, racha_necesaria: d.racha, dificultad: d.dificultad))
     return l
 
 mut lista_misiones: List[Mision] = misiones_lista()
@@ -49,8 +80,8 @@ mut transcurrido_s = 0
 mut racha_s = 0
 mut motivo_fin = ""
 mut puntos = 0
-mut resto_ms = 0
-mut ultimo_ms = tiempo_monotonico_ms()
+# Último instante (segundos de reloj de pared) hasta el que se ha simulado. Va en el estado de la partida.
+mut ultimo_s = 0
 
 fn mision_en_curso() -> bool:
     return estado == 1
@@ -83,6 +114,18 @@ fn mision_limite(i: int) -> int:
     return lista_misiones[i].limite_s
 
 # Clave de dificultad: dif.facil, dif.media, dif.dificil o dif.extrema.
+# Tipo de la misión: tipo.comando, tipo.programar o tipo.ambas.
+fn mision_tipo(i: int) -> str:
+    if not mision_valida(i):
+        return ""
+    if i >= 6:
+        return extra_misiones[i - 6].tipo
+    if i == 3:
+        return "tipo.programar"
+    if i >= 4:
+        return "tipo.ambas"
+    return "tipo.comando"
+
 fn mision_dificultad(i: int) -> str:
     if not mision_valida(i):
         return ""
@@ -120,7 +163,26 @@ fn mision_restante_s() -> int:
     return lista_misiones[actual].limite_s - transcurrido_s
 
 # Objetivo de cada misión, comprobado cada segundo.
+# Una condición del objetivo genérico (misiones de datos).
+fn mis_cond_cumple(c: Condicion) -> bool:
+    s = sim_s(c.sistema)
+    if c.tipo == 1:
+        return sim_sano(s)
+    if c.tipo == 2:
+        return s.activo
+    if c.op == 0:
+        return s.valor >= c.valor
+    if c.op == 1:
+        return s.valor <= c.valor
+    return s.valor == c.valor
+
 fn mision_condicion(i: int) -> bool:
+    if i >= 6:
+        d = extra_misiones[i - 6]
+        for k in 0..len(d.objetivo):
+            if not mis_cond_cumple(d.objetivo[k]):
+                return false
+        return len(d.objetivo) > 0
     if i == 0:
         ref = sim_s("refrigeracion")
         return sim_sano(ref) and sim_s("reactor").valor <= 480
@@ -138,6 +200,48 @@ fn mision_condicion(i: int) -> bool:
     if i == 5:
         return sim_todos_sanos()
     return false
+
+# Racha necesaria de la misión actual (1 si el objetivo basta en un instante).
+fn mision_racha_necesaria() -> int:
+    return lista_misiones[actual].racha_necesaria
+
+# Comprueba el objetivo ahora mismo sin cambiar nada.
+fn mision_comprobar() -> str:
+    if estado != 1:
+        return tr("mision.no_en_curso")
+    m = lista_misiones[actual]
+    if mision_condicion(actual):
+        if racha_s + 1 >= m.racha_necesaria:
+            return trc("mision.comprobar_ok", [str(actual + 1)])
+        return trc("mision.racha", [str(racha_s + 1), str(m.racha_necesaria)])
+    return trc("mision.comprobar_no", [str(actual + 1), tr(m.briefing)])
+
+# Termina la misión ya: completada si el objetivo se cumple en este instante, si no fallida.
+fn mision_finalizar() -> str:
+    if estado != 1:
+        return tr("mision.no_en_curso")
+    m = lista_misiones[actual]
+    if mision_condicion(actual) and racha_s + 1 >= m.racha_necesaria:
+        mision_completar()
+        return trc("mision.finalizada_ok", [str(actual + 1), str(puntos)])
+    mision_fallar("fallo.objetivo")
+    return trc("mision.finalizada_fallo", [str(actual + 1)])
+
+fn mision_dos_digitos(n: int) -> str:
+    if n < 10:
+        return "0" + str(n)
+    return str(n)
+
+# Reloj de la cabecera: "M1 01:25" en curso, "M1 OK" completada, "M1 ERR" fallida, "--:--" sin misión.
+fn mision_reloj_texto() -> str:
+    if estado == 1:
+        r = mision_restante_s()
+        return "M" + str(actual + 1) + " " + mision_dos_digitos(r / 60) + ":" + mision_dos_digitos(r % 60)
+    if estado == 2:
+        return "M" + str(actual + 1) + " OK"
+    if estado == 3:
+        return "M" + str(actual + 1) + " ERR"
+    return "--:--"
 
 fn mision_completar():
     estado = 2
@@ -177,18 +281,39 @@ fn mision_segundo():
 
 # Avanza el reloj real: un paso por cada segundo transcurrido (como mucho 300 por llamada).
 fn mision_avanzar():
-    ahora = tiempo_monotonico_ms()
-    resto_ms = resto_ms + (ahora - ultimo_ms)
-    ultimo_ms = ahora
-    mut pasos = 0
-    while resto_ms >= 1000 and pasos < 300:
-        resto_ms = resto_ms - 1000
-        pasos = pasos + 1
+    ahora = tiempo_pared_unix_s()
+    if ultimo_s == 0:
+        ultimo_s = ahora
+    mut pasos = ahora - ultimo_s
+    if pasos > 300:
+        pasos = 300
+    ultimo_s = ahora
+    for k in 0..pasos:
         mision_segundo()
+
+# Estado inicial de misiones (sin partida): ninguna misión iniciada.
+fn misiones_reiniciar():
+    actual = -1
+    estado = 0
+    completadas = 0
+    transcurrido_s = 0
+    racha_s = 0
+    motivo_fin = ""
+    puntos = 0
+    ultimo_s = 0
 
 # Fallos iniciales de cada misión.
 fn mision_preparar(i: int):
     sim_reiniciar()
+    if i >= 6:
+        d = extra_misiones[i - 6]
+        for k in 0..len(d.averias):
+            a = d.averias[k]
+            sim_averiar(a.sistema, a.clave, a.deriva)
+            if a.valor != 0:
+                mut s = sim_s(a.sistema)
+                s.valor = a.valor
+        return
     if i == 0:
         mut rea0 = sim_s("reactor")
         rea0.valor = 500
@@ -221,8 +346,7 @@ fn mision_iniciar(n: int) -> str:
     transcurrido_s = 0
     racha_s = 0
     motivo_fin = ""
-    resto_ms = 0
-    ultimo_ms = tiempo_monotonico_ms()
+    ultimo_s = tiempo_pared_unix_s()
     return trc("mision.iniciada", [str(n), tr(lista_misiones[i].titulo), tr(lista_misiones[i].briefing), trc("mision.limite", [str(lista_misiones[i].limite_s)])])
 
 fn mision_info() -> str:
@@ -258,8 +382,8 @@ fn mis_num(v: int) -> JsonValor:
     return json_nuevo_numero(float(v))
 
 fn mision_a_json() -> str:
-    claves: List[str] = ["estado", "actual", "completadas", "transcurrido_s", "racha_s", "motivo_fin", "puntos"]
-    valores: List[JsonValor] = [mis_num(estado), mis_num(actual), mis_num(completadas), mis_num(transcurrido_s), mis_num(racha_s), json_nuevo_cadena(motivo_fin), mis_num(puntos)]
+    claves: List[str] = ["estado", "actual", "completadas", "transcurrido_s", "racha_s", "motivo_fin", "puntos", "ultimo"]
+    valores: List[JsonValor] = [mis_num(estado), mis_num(actual), mis_num(completadas), mis_num(transcurrido_s), mis_num(racha_s), json_nuevo_cadena(motivo_fin), mis_num(puntos), mis_num(ultimo_s)]
     return json_serializar(json_nuevo_objeto(claves, valores))
 
 # Restaura el estado de misiones desde el texto de mision_a_json. "" si va bien; si no, un mensaje.
@@ -299,6 +423,15 @@ fn mision_desde_json(texto: str) -> str:
     racha_s = n_racha
     motivo_fin = json_texto(json_obtener(raiz, "motivo_fin"))
     puntos = n_puntos
-    resto_ms = 0
-    ultimo_ms = tiempo_monotonico_ms()
+    ultimo_s = tiempo_pared_unix_s()
+    if json_tipo(json_obtener(raiz, "ultimo")) == "numero":
+        ultimo_s = int(json_numero(json_obtener(raiz, "ultimo")))
     return ""
+
+# Misiones completadas en total (cuenta de la partida). main.lg compara antes y después de cada petición.
+fn misiones_completadas_total() -> int:
+    return completadas
+
+# Puntos de la última misión completada.
+fn mision_puntos_final() -> int:
+    return puntos

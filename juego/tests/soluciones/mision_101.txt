@@ -1,0 +1,4 @@
+101
+0|ajustar refrigeracion 30
+1|diagnostico reactor
+2|reparar reactor

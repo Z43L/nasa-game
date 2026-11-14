@@ -1,0 +1,5 @@
+93
+0|diagnostico reactor
+1|reparar reactor
+2|diagnostico comunicaciones
+3|reparar comunicaciones

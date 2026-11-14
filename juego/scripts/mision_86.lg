@@ -1,0 +1,23 @@
+import nave
+import texto
+
+# Tormenta de navegación: repara reactor, refrigeración y comunicaciones, y sube la potencia
+# de refrigeración cuando el reactor pasa de 500 C.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        nave_reparar(sistema)
+
+mut ciclos = 0
+while ciclos < 50:
+    vigilar("refrigeracion")
+    vigilar("reactor")
+    vigilar("comunicaciones")
+    if nave_valor("reactor") > 500:
+        nave_ajustar("refrigeracion", 100)
+    if nave_valor("comunicaciones") < 85:
+        nave_ajustar("comunicaciones", 100)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("tormenta controlada")

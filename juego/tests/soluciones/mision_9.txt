@@ -1,0 +1,4 @@
+9
+0|diagnostico energia
+0|reparar energia
+

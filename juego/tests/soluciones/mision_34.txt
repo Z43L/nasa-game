@@ -1,0 +1,4 @@
+0|diagnostico energia
+0|reparar energia
+0|diagnostico reactor
+0|reparar reactor

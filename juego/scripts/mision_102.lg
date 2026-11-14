@@ -1,0 +1,14 @@
+# scripts/mision_102.lg: vigila refrigeracion, comunicaciones y co2; repara los tres en cada ciclo.
+import nave
+
+sistemas = ["co2", "refrigeracion", "comunicaciones"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        print(nave_reparar(sistemas[i]))
+    if nave_valor("co2") >= 6:
+        print("aviso: co2 alto")
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

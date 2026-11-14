@@ -1,0 +1,19 @@
+import nave
+import texto
+
+# Mantiene energía y comunicaciones sanas, y sube la señal si baja de 85.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        nave_reparar(sistema)
+
+mut ciclos = 0
+while ciclos < 40:
+    vigilar("energia")
+    vigilar("comunicaciones")
+    if nave_valor("comunicaciones") < 85:
+        nave_ajustar("comunicaciones", 100)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("enlace estable")

@@ -1,0 +1,4 @@
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico hidrogeno
+0|reparar hidrogeno

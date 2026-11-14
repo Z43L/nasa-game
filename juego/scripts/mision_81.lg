@@ -1,0 +1,18 @@
+import nave
+import texto
+
+# Vigila la energía: repara su avería y apaga comunicaciones si la carga baja de 25.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        nave_reparar(sistema)
+
+mut ciclos = 0
+while ciclos < 40:
+    vigilar("energia")
+    if nave_valor("energia") < 25:
+        nave_apagar("comunicaciones")
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("energia vigilada")

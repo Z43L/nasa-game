@@ -1,0 +1,22 @@
+# scripts/mision_11.lg: vigila refrigeracion y comunicaciones y repara cuando hay AVERIA.
+import nave
+import texto
+
+# Diagnostica y repara un sistema si su estado indica AVERIA.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        print(nave_reparar(sistema))
+
+sistemas: List[str] = ["refrigeracion", "comunicaciones"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        vigilar(sistemas[i])
+    # Si el reactor sube demasiado, pide más potencia a la refrigeración.
+    if nave_valor("reactor") > 470:
+        nave_ajustar("refrigeracion", 90)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

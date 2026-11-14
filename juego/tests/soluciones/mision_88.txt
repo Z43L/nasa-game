@@ -1,0 +1,5 @@
+88
+0|diagnostico co2
+1|reparar co2
+2|diagnostico comunicaciones
+3|reparar comunicaciones

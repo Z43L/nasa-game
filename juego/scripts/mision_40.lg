@@ -1,0 +1,17 @@
+import nave
+
+# Mision 40: repara reactor y refrigeracion, y ajusta la refrigeracion para mantener el reactor entre 380 y 480.
+mut ciclos = 0
+while ciclos < 40:
+    nave_diagnostico("reactor")
+    nave_reparar("reactor")
+    nave_diagnostico("refrigeracion")
+    nave_reparar("refrigeracion")
+    v = nave_valor("reactor")
+    if v > 480:
+        nave_ajustar("refrigeracion", 90)
+    elif v >= 0 and v < 380:
+        nave_ajustar("refrigeracion", 10)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("control terminado")

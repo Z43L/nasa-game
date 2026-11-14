@@ -1,0 +1,4 @@
+74
+0|diagnostico reactor
+0|reparar reactor
+

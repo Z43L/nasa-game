@@ -1,0 +1,170 @@
+# src/salas.lg: salas multijugador.
+#   Modo "coop": una partida compartida (salas/<codigo>_partida.json). Hasta 4 jugadores; el registro lleva
+#                el nombre de quien da cada orden.
+#   Modo "duelo": cada jugador tiene su nave (salas/<codigo>_<nombre>.json) y juegan la misma secuencia de
+#                misiones; la primera vez que alguien completa una misión gana esa misión.
+#   La sala activa de cada usuario está en usuarios/<nombre>/sala.txt (solo el código).
+#
+#   sala_activa(nombre) -> str            código de la sala del usuario, o ""
+#   sala_modo(codigo) -> str              "coop" o "duelo"
+#   sala_miembros(codigo) -> List[str]
+#   sala_ruta_partida(nombre) -> str      fichero de la partida activa del usuario ("" si no tiene sala)
+#   sala_crear(modo, nombre) -> str       código nuevo
+#   sala_unir(codigo, nombre) -> str      "" si va bien; si no, clave de mensaje
+#   sala_salir(nombre)
+#   sala_primera_victoria(codigo, n, nombre) -> bool
+
+import archivo
+import json
+import cripto
+import estado
+import usuarios
+import ranking
+import i18n
+import texto
+import proceso
+
+fn sala_ruta(codigo: str) -> str:
+    return "salas/" + codigo + ".json"
+
+fn sala_coop_partida(codigo: str) -> str:
+    return "salas/" + codigo + "_partida.json"
+
+fn sala_duelo_partida(codigo: str, nombre: str) -> str:
+    return "salas/" + codigo + "_" + nombre + ".json"
+
+fn sala_fichero_usuario(nombre: str) -> str:
+    return usuario_carpeta(nombre) + "/sala.txt"
+
+fn sala_valida(codigo: str) -> bool:
+    if len(codigo) != 6:
+        return false
+    for i in 0..len(codigo):
+        if not texto_contiene("0123456789abcdef", recortar(codigo, i, i + 1)):
+            return false
+    return true
+
+fn sala_leer(codigo: str) -> JsonValor:
+    if not sala_valida(codigo) or not archivo_existe(sala_ruta(codigo)):
+        return json_nuevo_error("no existe")
+    return json_parsear(archivo_leer_todo(sala_ruta(codigo)))
+
+fn sala_modo(codigo: str) -> str:
+    raiz = sala_leer(codigo)
+    if json_es_error(raiz):
+        return ""
+    return json_texto(json_obtener(raiz, "modo"))
+
+fn sala_miembros(codigo: str) -> List[str]:
+    raiz = sala_leer(codigo)
+    if json_es_error(raiz):
+        return []
+    return texto_dividir(json_texto(json_obtener(raiz, "miembros")), ",")
+
+fn sala_activa(nombre: str) -> str:
+    if nombre == "" or not archivo_existe(sala_fichero_usuario(nombre)):
+        return ""
+    codigo = texto_recortar_espacios(archivo_leer_todo(sala_fichero_usuario(nombre)))
+    if not archivo_existe(sala_ruta(codigo)):
+        return ""
+    return codigo
+
+fn sala_ruta_partida(nombre: str) -> str:
+    codigo = sala_activa(nombre)
+    if codigo == "":
+        return ""
+    if sala_modo(codigo) == "coop":
+        return sala_coop_partida(codigo)
+    return sala_duelo_partida(codigo, nombre)
+
+# Estado de una partida nueva (sin tocar la partida de la petición: quien llama no debe guardarla).
+fn sala_estado_nuevo() -> str:
+    estado_reiniciar()
+    return estado_serializar()
+
+fn sala_escribir(codigo: str, modo: str, miembros: List[str], primeras: str):
+    claves: List[str] = ["modo", "miembros", "primeras"]
+    valores: List[JsonValor] = [json_nuevo_cadena(modo), json_nuevo_cadena(texto_unir(miembros, ",")), json_nuevo_cadena(primeras)]
+    usuario_escribir(sala_ruta(codigo), json_serializar(json_nuevo_objeto(claves, valores)))
+
+fn sala_crear(modo: str, nombre: str) -> str:
+    proceso_ejecutar("mkdir -p salas")
+    codigo = recortar(cripto_sal_hex(), 0, 6)
+    sala_escribir(codigo, modo, [nombre], "")
+    if modo == "coop":
+        usuario_escribir(sala_coop_partida(codigo), sala_estado_nuevo())
+    else:
+        usuario_escribir(sala_duelo_partida(codigo, nombre), sala_estado_nuevo())
+    archivo_escribir_todo(sala_fichero_usuario(nombre), codigo)
+    ranking_sumar(nombre, 0, 0, 0, 1)
+    return codigo
+
+fn sala_unir(codigo: str, nombre: str) -> str:
+    if not sala_valida(codigo) or not archivo_existe(sala_ruta(codigo)):
+        return tr("sala.error_no_existe")
+    raiz = sala_leer(codigo)
+    modo = json_texto(json_obtener(raiz, "modo"))
+    mut miembros = texto_dividir(json_texto(json_obtener(raiz, "miembros")), ",")
+    for i in 0..len(miembros):
+        if miembros[i] == nombre:
+            return tr("sala.error_ya")
+    mut maximo = 4
+    if modo == "duelo":
+        maximo = 2
+    if len(miembros) >= maximo:
+        return tr("sala.error_llena")
+    miembros.append(nombre)
+    sala_escribir(codigo, modo, miembros, json_texto(json_obtener(raiz, "primeras")))
+    if modo != "coop":
+        usuario_escribir(sala_duelo_partida(codigo, nombre), sala_estado_nuevo())
+    archivo_escribir_todo(sala_fichero_usuario(nombre), codigo)
+    ranking_sumar(nombre, 0, 0, 0, 1)
+    return ""
+
+fn sala_salir(nombre: str):
+    codigo = sala_activa(nombre)
+    if codigo == "":
+        return
+    mut restantes: List[str] = []
+    for m in sala_miembros(codigo):
+        if m != nombre and m != "":
+            restantes.append(m)
+    raiz = sala_leer(codigo)
+    sala_escribir(codigo, json_texto(json_obtener(raiz, "modo")), restantes, json_texto(json_obtener(raiz, "primeras")))
+    proceso_ejecutar("rm -f " + sala_fichero_usuario(nombre))
+
+# Etiqueta de quien da una orden en una sala cooperativa ("[ana] " o "").
+fn sala_etiqueta(nombre: str) -> str:
+    codigo = sala_activa(nombre)
+    if codigo != "" and sala_modo(codigo) == "coop":
+        return "[" + nombre + "] "
+    return ""
+
+# Registra la primera victoria de una misión en un duelo. true si este jugador es el primero.
+fn sala_primera_victoria(codigo: str, n: int, nombre: str) -> bool:
+    raiz = sala_leer(codigo)
+    primeras = json_texto(json_obtener(raiz, "primeras"))
+    clave = str(n) + ":"
+    for p in texto_dividir(primeras, ","):
+        if texto_empieza_por(p, clave):
+            return false
+    mut nuevas = primeras
+    if nuevas != "":
+        nuevas = nuevas + ","
+    nuevas = nuevas + clave + nombre
+    sala_escribir(codigo, json_texto(json_obtener(raiz, "modo")), texto_dividir(json_texto(json_obtener(raiz, "miembros")), ","), nuevas)
+    return true
+
+# Resumen del rival en un duelo: misiones completadas y estado de su misión.
+fn sala_rival_resumen(codigo: str, nombre: str) -> str:
+    for m in sala_miembros(codigo):
+        if m != nombre and m != "" and archivo_existe(sala_duelo_partida(codigo, m)):
+            raiz = json_parsear(archivo_leer_todo(sala_duelo_partida(codigo, m)))
+            if json_es_error(raiz):
+                return ""
+            mision = json_parsear(json_texto(json_obtener(raiz, "mision")))
+            if json_es_error(mision):
+                return ""
+            completadas = int(json_numero(json_obtener(mision, "completadas")))
+            return trc("sala.rival", [m, str(completadas), str(int(json_numero(json_obtener(mision, "estado"))))])
+    return ""

@@ -1,0 +1,12 @@
+import nave
+
+# Mision 37: diagnostica y repara co2 y refrigeracion cada segundo.
+mut sistemas: List[str] = ["co2", "refrigeracion"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        nave_reparar(sistemas[i])
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

@@ -1,0 +1,24 @@
+# scripts/mision_21.lg: repara refrigeracion y reactor y ajusta la refrigeración para bajar la temperatura.
+import nave
+import texto
+
+# Diagnostica y repara un sistema si su estado indica AVERIA.
+fn vigilar(sistema: str):
+    e = nave_estado(sistema)
+    if texto_contiene(e, "AVERIA"):
+        nave_diagnostico(sistema)
+        print(nave_reparar(sistema))
+
+sistemas: List[str] = ["refrigeracion", "reactor"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        vigilar(sistemas[i])
+    # Por encima de 470 el reactor necesita más refrigeración; por debajo de 60 se sube la potencia.
+    if nave_valor("reactor") > 470:
+        nave_ajustar("refrigeracion", 100)
+    elif nave_valor("refrigeracion") < 60:
+        nave_ajustar("refrigeracion", 80)
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

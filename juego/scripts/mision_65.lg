@@ -1,0 +1,20 @@
+# scripts/mision_65.lg: guardia de tres averías: repara cada sistema, enfría si el reactor sube y ahorra energía.
+import nave
+
+mut ciclos = 0
+mut ahorro = false
+while ciclos < 40:
+    nave_diagnostico("reactor")
+    nave_reparar("reactor")
+    nave_diagnostico("energia")
+    nave_reparar("energia")
+    nave_diagnostico("comunicaciones")
+    nave_reparar("comunicaciones")
+    if nave_valor("reactor") > 550:
+        print(nave_ajustar("refrigeracion", 100))
+    if not ahorro and nave_valor("energia") < 45:
+        print(nave_apagar("oxigeno"))
+        ahorro = true
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("guardia terminada")

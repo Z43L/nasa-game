@@ -1,0 +1,50 @@
+# src/mision_modelo.lg: registro de datos de una misión (usado por src/mis_g1.lg ... mis_g5.lg).
+#
+#   Averia(sistema, clave, deriva, valor)   avería que se inyecta al empezar la misión.
+#       sistema: nombre interno (reactor, refrigeracion, energia, oxigeno, comunicaciones, co2, hidrogeno).
+#       clave:   clave de traducción de la avería (av.*), p. ej. "av.bomba".
+#       deriva:  cambio por segundo mientras la avería existe (0 = estática).
+#       valor:   valor inicial a fijar (0 = no cambia el valor del sistema).
+#   Condicion(sistema, tipo, op, valor)     condición del objetivo (todas deben cumplirse).
+#       tipo: 0 = valor numérico, 1 = sistema sano (activo, sin avería, dentro de rango), 2 = activo.
+#       op:   0 = mayor o igual (>=), 1 = menor o igual (<=), 2 = igual (==). Solo para tipo 0.
+#       Para tipo 1 y 2 el campo valor se ignora.
+#   MisionDato(numero, titulo, briefing, limite_s, racha, dificultad, tipo, averias, objetivo)
+#       numero:      número de misión (7 en adelante; las claves son mision.N.titulo y mision.N.briefing).
+#       racha:       segundos seguidos que debe cumplirse el objetivo (1 = en un instante).
+#       dificultad:  dif.facil, dif.media, dif.dificil o dif.extrema.
+#       tipo:        tipo.comando, tipo.programar o tipo.ambas.
+#
+# Funciones de ayuda: mis_av(...), mis_cond(...), mis_dato(...).
+
+struct Averia:
+    sistema: str
+    clave: str
+    deriva: int
+    valor: int
+
+struct Condicion:
+    sistema: str
+    tipo: int
+    op: int
+    valor: int
+
+struct MisionDato:
+    numero: int
+    titulo: str
+    briefing: str
+    limite_s: int
+    racha: int
+    dificultad: str
+    tipo: str
+    averias: List[Averia]
+    objetivo: List[Condicion]
+
+fn mis_av(sistema: str, clave: str, deriva: int, valor: int) -> Averia:
+    return Averia(sistema: sistema, clave: clave, deriva: deriva, valor: valor)
+
+fn mis_cond(sistema: str, tipo: int, op: int, valor: int) -> Condicion:
+    return Condicion(sistema: sistema, tipo: tipo, op: op, valor: valor)
+
+fn mis_dato(numero: int, limite_s: int, racha: int, dificultad: str, tipo: str, averias: List[Averia], objetivo: List[Condicion]) -> MisionDato:
+    return MisionDato(numero: numero, titulo: "mision." + str(numero) + ".titulo", briefing: "mision." + str(numero) + ".briefing", limite_s: limite_s, racha: racha, dificultad: dificultad, tipo: tipo, averias: averias, objetivo: objetivo)

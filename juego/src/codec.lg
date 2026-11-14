@@ -1,0 +1,10 @@
+# src/codec.lg: base64 de cadenas (guardar el estado de la partida en cookies). Nativos en
+# lenguaje/src/runtime/std/codec.c. codec_de_base64 devuelve "" si el texto no es base64 válido.
+extern "C" fn lg_std_codec_base64_codificar(s: str) -> str
+extern "C" fn lg_std_codec_base64_decodificar(s: str) -> str
+
+fn codec_a_base64(s: str) -> str:
+    return lg_std_codec_base64_codificar(s)
+
+fn codec_de_base64(s: str) -> str:
+    return lg_std_codec_base64_decodificar(s)

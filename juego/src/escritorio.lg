@@ -182,3 +182,11 @@ fn escritorio_html() -> str:
         crt_volver("/menu", tr("crt.volver"))
     ])
     return crt_pagina(tr("ui.juego"), cuerpo)
+
+fn escr_apps_lista() -> List[str]:
+    return apps_abiertas
+
+# Estado de escritorio de una partida nueva.
+fn escr_reiniciar():
+    app_actual = "terminal"
+    apps_abiertas = []

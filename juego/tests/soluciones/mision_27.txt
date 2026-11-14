@@ -1,0 +1,2 @@
+0|diagnostico oxigeno
+0|reparar oxigeno

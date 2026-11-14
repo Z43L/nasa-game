@@ -1,0 +1,20 @@
+# scripts/mision_66.lg: repara los cuatro sistemas y apaga la refrigeración para recuperar energía.
+import nave
+
+mut ciclos = 0
+mut apagado = false
+while ciclos < 40:
+    nave_diagnostico("reactor")
+    nave_reparar("reactor")
+    nave_diagnostico("energia")
+    nave_reparar("energia")
+    nave_diagnostico("comunicaciones")
+    nave_reparar("comunicaciones")
+    nave_diagnostico("oxigeno")
+    nave_reparar("oxigeno")
+    if not apagado and nave_valor("energia") < 40:
+        print(nave_apagar("refrigeracion"))
+        apagado = true
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("ultimo relevo terminado")

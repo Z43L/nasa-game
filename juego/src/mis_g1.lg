@@ -1,0 +1,87 @@
+# src/mis_g1.lg: misiones del grupo 1 (7 a 26): fallos térmicos del reactor y de la refrigeración.
+# Se rellena con mis_dato(...). Ver src/mision_modelo.lg.
+import mision_modelo
+
+fn mis_g1() -> List[MisionDato]:
+    mut l: List[MisionDato] = []
+    # 7 facil, comando
+    l.append(mis_dato(7, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0)],
+        [mis_cond("reactor", 0, 1, 480), mis_cond("refrigeracion", 1, 0, 0)]))
+    # 8 facil, comando
+    l.append(mis_dato(8, 200, 1, "dif.facil", "tipo.comando",
+        [mis_av("reactor", "av.g1.nucleo", 0, 560)],
+        [mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 520)]))
+    # 9 facil, comando
+    l.append(mis_dato(9, 220, 1, "dif.facil", "tipo.comando",
+        [mis_av("energia", "av.g1.derivacion", -2, 0)],
+        [mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 60)]))
+    # 10 facil, comando
+    l.append(mis_dato(10, 240, 1, "dif.facil", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("oxigeno", "av.fuga", -4, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("oxigeno", 1, 0, 0), mis_cond("reactor", 0, 1, 490)]))
+    # 11 facil, programar
+    l.append(mis_dato(11, 220, 1, "dif.facil", "tipo.programar",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("reactor", 0, 1, 480)]))
+    # 12 media, comando
+    l.append(mis_dato(12, 180, 1, "dif.media", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.nucleo", 0, 600)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 500)]))
+    # 13 media, comando
+    l.append(mis_dato(13, 170, 1, "dif.media", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.intercambiador", -3, 0), mis_av("reactor", "av.g1.termica", 2, 580)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 70), mis_cond("reactor", 0, 1, 510)]))
+    # 14 media, ambas
+    l.append(mis_dato(14, 170, 1, "dif.media", "tipo.ambas",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.nucleo", 0, 620)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 90), mis_cond("reactor", 0, 1, 500)]))
+    # 15 media, comando
+    l.append(mis_dato(15, 160, 1, "dif.media", "tipo.comando",
+        [mis_av("refrigeracion", "av.bomba", 0, 0), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("comunicaciones", 1, 0, 0), mis_cond("reactor", 0, 1, 490)]))
+    # 16 media, programar
+    l.append(mis_dato(16, 180, 1, "dif.media", "tipo.programar",
+        [mis_av("refrigeracion", "av.g1.valvula", -2, 0), mis_av("reactor", "av.g1.termica", 2, 560)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 500)]))
+    # 17 media, comando
+    l.append(mis_dato(17, 150, 1, "dif.media", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("energia", "av.g1.derivacion", -2, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("energia", 1, 0, 0), mis_cond("reactor", 0, 1, 490)]))
+    # 18 dificil, comando, racha 5
+    l.append(mis_dato(18, 140, 5, "dif.dificil", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.nucleo", 0, 540)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 500)]))
+    # 19 dificil, comando, racha 8
+    l.append(mis_dato(19, 130, 8, "dif.dificil", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.intercambiador", -3, 0), mis_av("oxigeno", "av.fuga", -4, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 70), mis_cond("oxigeno", 1, 0, 0), mis_cond("reactor", 0, 1, 470)]))
+    # 20 dificil, comando, racha 10
+    l.append(mis_dato(20, 150, 10, "dif.dificil", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.termica", 3, 600)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 480), mis_cond("energia", 0, 0, 50)]))
+    # 21 dificil, programar, racha 10
+    l.append(mis_dato(21, 140, 10, "dif.dificil", "tipo.programar",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.termica", 4, 580)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 60), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 470)]))
+    # 22 dificil, ambas, racha 8
+    l.append(mis_dato(22, 120, 8, "dif.dificil", "tipo.ambas",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.termica", 3, 600)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 90), mis_cond("reactor", 0, 1, 480)]))
+    # 23 extrema, comando, racha 12
+    l.append(mis_dato(23, 110, 12, "dif.extrema", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.termica", 2, 600), mis_av("oxigeno", "av.fuga", -4, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 480), mis_cond("oxigeno", 1, 0, 0)]))
+    # 24 extrema, ambas, racha 10
+    l.append(mis_dato(24, 100, 10, "dif.extrema", "tipo.ambas",
+        [mis_av("refrigeracion", "av.g1.intercambiador", -3, 0), mis_av("reactor", "av.g1.nucleo", 0, 600), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("refrigeracion", 0, 0, 90), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 490), mis_cond("comunicaciones", 1, 0, 0)]))
+    # 25 extrema, programar, racha 15
+    l.append(mis_dato(25, 120, 15, "dif.extrema", "tipo.programar",
+        [mis_av("refrigeracion", "av.g1.valvula", -2, 0), mis_av("reactor", "av.g1.termica", 3, 580), mis_av("energia", "av.g1.derivacion", -2, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 480), mis_cond("energia", 1, 0, 0), mis_cond("energia", 0, 0, 40)]))
+    # 26 extrema, comando, racha 10
+    l.append(mis_dato(26, 90, 10, "dif.extrema", "tipo.comando",
+        [mis_av("refrigeracion", "av.g1.valvula", 0, 0), mis_av("reactor", "av.g1.termica", 2, 600), mis_av("comunicaciones", "av.antena", -3, 0)],
+        [mis_cond("refrigeracion", 1, 0, 0), mis_cond("reactor", 1, 0, 0), mis_cond("reactor", 0, 1, 500), mis_cond("comunicaciones", 1, 0, 0)]))
+    return l

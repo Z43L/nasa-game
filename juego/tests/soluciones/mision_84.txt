@@ -1,0 +1,7 @@
+84
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+0|ajustar comunicaciones 100
+0|diagnostico co2
+0|reparar co2
+

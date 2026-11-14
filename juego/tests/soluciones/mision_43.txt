@@ -1,0 +1,6 @@
+0|diagnostico oxigeno
+0|reparar oxigeno
+0|diagnostico co2
+0|reparar co2
+0|diagnostico hidrogeno
+0|reparar hidrogeno

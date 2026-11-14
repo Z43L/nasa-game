@@ -1,0 +1,12 @@
+# scripts/mision_89.lg: vigila oxigeno y comunicaciones y repara cada averia en cuanto aparece.
+import nave
+
+sistemas = ["oxigeno", "comunicaciones"]
+mut ciclos = 0
+while ciclos < 40:
+    for i in 0..len(sistemas):
+        nave_diagnostico(sistemas[i])
+        print(nave_reparar(sistemas[i]))
+    nave_esperar(1)
+    ciclos = ciclos + 1
+print("vigilancia terminada")

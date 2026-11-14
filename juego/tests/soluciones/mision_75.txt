@@ -1,0 +1,6 @@
+75
+0|diagnostico energia
+0|reparar energia
+0|diagnostico comunicaciones
+0|reparar comunicaciones
+

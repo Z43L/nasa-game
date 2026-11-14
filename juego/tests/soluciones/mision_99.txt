@@ -1,0 +1,5 @@
+99
+0|diagnostico oxigeno
+1|reparar oxigeno
+2|diagnostico comunicaciones
+3|reparar comunicaciones

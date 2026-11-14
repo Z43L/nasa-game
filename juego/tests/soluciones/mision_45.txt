@@ -1,0 +1,6 @@
+0|diagnostico refrigeracion
+0|reparar refrigeracion
+0|diagnostico reactor
+0|reparar reactor
+0|diagnostico oxigeno
+0|reparar oxigeno
