@@ -13,6 +13,12 @@
 },
 {
   "directory": "/Users/david/Desktop/nasa/lenguaje/build",
+  "command": "/opt/homebrew/opt/llvm/bin/clang -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/archivo.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/archivo.c",
+  "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/archivo.c",
+  "output": "/Users/david/Desktop/nasa/lenguaje/build/CMakeFiles/lg_runtime.dir/src/runtime/std/archivo.c.o"
+},
+{
+  "directory": "/Users/david/Desktop/nasa/lenguaje/build",
   "command": "/opt/homebrew/opt/llvm/bin/clang -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/opt/homebrew/Cellar/llvm/23.1.5_1/include -I/Users/david/Desktop/nasa/lenguaje/src/runtime -O2 -g -DNDEBUG -std=gnu11 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -fPIC -Wall -Wextra -o CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o -c /Users/david/Desktop/nasa/lenguaje/src/runtime/std/cadena.c",
   "file": "/Users/david/Desktop/nasa/lenguaje/src/runtime/std/cadena.c",
   "output": "/Users/david/Desktop/nasa/lenguaje/build/CMakeFiles/lg_runtime.dir/src/runtime/std/cadena.c.o"

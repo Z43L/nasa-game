@@ -1,3 +1,5 @@
+import i18n
+
 # src/sim.lg: modelo de la nave y su simulación. Cada segundo de misión llama a sim_paso().
 #
 # Sistemas: reactor (temperatura), refrigeracion (potencia %), energia (carga %),
@@ -68,14 +70,29 @@ fn sim_todos_sanos() -> bool:
             return false
     return true
 
-fn sim_estado(s: Sistema) -> str:
+# 0 OK, 1 avería, 2 apagado, 3 fuera de rango.
+fn sim_estado_id(s: Sistema) -> int:
     if not s.activo:
-        return "APAGADO"
+        return 2
     if s.averia != "":
-        return "AVERIA: " + s.averia
+        return 1
     if s.valor < s.minimo or s.valor > s.maximo:
-        return "FUERA DE RANGO"
-    return "OK"
+        return 3
+    return 0
+
+fn sim_estado(s: Sistema) -> str:
+    id = sim_estado_id(s)
+    if id == 0:
+        return tr("estado.ok")
+    if id == 1:
+        return trc("estado.averia", [tr(s.averia)])
+    if id == 2:
+        return tr("estado.apagado")
+    return tr("estado.fuera")
+
+# Nombre traducido de un sistema.
+fn sim_nombre(s: Sistema) -> str:
+    return tr("sys." + s.nombre)
 
 # Inyecta una avería (la usan las misiones al empezar).
 fn sim_averiar(nombre: str, motivo: str, deriva: int):

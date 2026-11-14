@@ -1,0 +1,15 @@
+import traduccion
+import archivo
+
+json = "{\"es\": {\"saludo\": \"Hola\", \"menu\": {\"archivo\": \"Archivo\"}, \"bienvenida\": \"Hola, {0}\"}, \"en\": {\"saludo\": \"Hello\", \"menu\": {\"archivo\": \"File\"}, \"bienvenida\": \"Hello, {0}\"}}"
+archivo_escribir_todo("lib_traduccion_tmp.json", json)
+t = traduccion_nueva()
+print("carga", "[" + traduccion_cargar(t, "lib_traduccion_tmp.json") + "]")
+print("idiomas", traduccion_idiomas(t))
+print(traduccion_t(t, "menu.archivo"), traduccion_idioma(t, "en"), traduccion_t(t, "menu.archivo"))
+print(traduccion_con(t, "bienvenida", ["Ana"]))
+print("fr", traduccion_idioma(t, "fr"), traduccion_t(t, "saludo"), traduccion_t(t, "falta"))
+print("faltan", len(traduccion_faltantes(t, "en")))
+print("no existe", traduccion_cargar(traduccion_nueva(), "no_existe_traduccion.json"))
+print("json malo", traduccion_cargar_texto(traduccion_nueva(), "{\"es\": {\"x\": 3}}"))
+archivo_borrar("lib_traduccion_tmp.json")

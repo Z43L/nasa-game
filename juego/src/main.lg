@@ -1,15 +1,16 @@
 # src/main.lg: servidor de la terminal web de la nave (framework web de Lenguaje: lib/web + lib/ui).
 #
 # Rutas:
-#   GET  /                    terminal (registro de salida, barra de misión y línea de órdenes)
+#   GET  /                    escritorio: barra de tareas, ventana con la terminal y las aplicaciones
 #   POST /cmd                 envía una orden (formulario text/plain, campo "linea")
+#   GET  /app/:id             abre una aplicación o la terminal ("terminal", "sensores", "gases"...)
+#   GET  /cerrar/:id          cierra una aplicación
+#   GET  /idioma/:codigo      cambia el idioma (es, en, fr, ja)
 #   GET  /editar/:nombre      editor de scripts/NOMBRE
 #   POST /guardar/:nombre     guarda el script (campo "texto")
+#   GET  /fondo.jpg           imagen de fondo (fondo.jpg en juego/)
 #
-# Compilar y ejecutar desde juego/ (ver README.md):
-#   ../lenguaje/build/bin/lgc src/main.lg -I src -I lib -I ../lenguaje/lib/web -I ../lenguaje/lib/red \
-#       -I ../lenguaje/lib/ui -I ../lenguaje/lib/nucleo -I ../lenguaje/stdlib -o build/nave
-#   ./build/nave            (escucha en http://localhost:8080)
+# Compilar y ejecutar desde juego/ (ver README.md): lgpm construir && lgpm ejecutar
 
 import app
 import router
@@ -18,24 +19,28 @@ import http
 import tcp
 import datos
 import texto
+import i18n
 import pantalla
 import escritorio
 import apps
 import shell
 import misiones
 
-fn nombre_de_editar(linea: str) -> str:
-    return texto_recortar_espacios(recortar(linea, 7, len(linea)))
+fn primera_palabra_despues_de_orden(linea: str) -> str:
+    p = shell_palabras(linea)
+    if len(p) < 2:
+        return ""
+    return p[1]
 
 fn procesar_orden(linea: str):
     l = texto_recortar_espacios(linea)
     if l == "":
         return
-    log_agregar("nave$ " + l)
-    if l == "limpiar":
+    log_agregar(tr("ui.prompt") + " " + l)
+    if shell_orden(shell_palabras(l)[0]) == "limpiar":
         log_limpiar()
         return
-    if texto_empieza_por(l, "editar "):
+    if shell_orden(shell_palabras(l)[0]) == "editar":
         return
     log_agregar(shell_ejecutar(l))
 
@@ -51,9 +56,14 @@ fn respuesta_fondo() -> Respuesta:
     cabeceras = [HttpCabecera(nombre: "Content-Type", valor: "image/jpeg"), HttpCabecera(nombre: "Cache-Control", valor: "max-age=86400")]
     return Respuesta(estado: 200, motivo: "OK", cabeceras: cabeceras, cuerpo: fondo_jpg)
 
+# Traducciones: se cargan una vez. Si falta el fichero, la interfaz sigue en español con claves visibles.
+mut error_traducciones = i18n_cargar()
+if error_traducciones != "":
+    print("traducciones:", error_traducciones)
+
 proceso_ejecutar("mkdir -p scripts run")
-log_agregar("Bienvenido a la terminal de la nave. Tu misión: mantener los sistemas en rango.")
-log_agregar("Escribe 'misiones' para ver las misiones o 'ayuda' para las órdenes.")
+log_agregar(tr("msg.bienvenida"))
+log_agregar(trc("msg.bienvenida2", [tr("cmd.misiones"), tr("cmd.ayuda")]))
 
 enrutador = web_nuevo_enrutador()
 web_agregar(enrutador, "GET", "/", 1)
@@ -63,6 +73,7 @@ web_agregar(enrutador, "POST", "/guardar/:nombre", 4)
 web_agregar(enrutador, "GET", "/fondo.jpg", 5)
 web_agregar(enrutador, "GET", "/app/:id", 6)
 web_agregar(enrutador, "GET", "/cerrar/:id", 7)
+web_agregar(enrutador, "GET", "/idioma/:codigo", 8)
 
 servidor = escuchar(8080)
 if servidor < 0:
@@ -74,22 +85,21 @@ else:
         if s.conexion < 0:
             continue
         if not s.peticion.valida:
-            web_responder(s, http_respuesta_texto(400, "petición no válida\n"))
+            web_responder(s, http_respuesta_texto(400, tr("msg.peticion") + "\n"))
         elif s.id == 1:
             mision_avanzar()
             web_responder(s, respuesta_pagina(escritorio_html()))
         elif s.id == 2:
             linea = cuerpo_campo(s.peticion.cuerpo, "linea")
-            if texto_empieza_por(texto_recortar_espacios(linea), "editar "):
-                nombre = nombre_de_editar(linea)
-                web_responder(s, web_respuesta_redireccion("/editar/" + nombre))
+            if shell_orden(shell_palabras(texto_recortar_espacios(linea))[0]) == "editar" and len(shell_palabras(linea)) > 1:
+                web_responder(s, web_respuesta_redireccion("/editar/" + primera_palabra_despues_de_orden(linea)))
             else:
                 procesar_orden(linea)
                 web_responder(s, web_respuesta_redireccion("/"))
         elif s.id == 3:
             nombre = s.parametros[0]
             if not shell_nombre_valido(nombre):
-                log_agregar("nombre no válido: " + nombre)
+                log_agregar(trc("msg.nombre_corto", [nombre]))
                 web_responder(s, web_respuesta_redireccion("/"))
             else:
                 mut contenido = ""
@@ -99,14 +109,14 @@ else:
         elif s.id == 4:
             nombre = s.parametros[0]
             if not shell_nombre_valido(nombre):
-                log_agregar("nombre no válido: " + nombre)
+                log_agregar(trc("msg.nombre_corto", [nombre]))
             else:
                 escribir_texto("scripts/" + nombre, cuerpo_campo(s.peticion.cuerpo, "texto"))
-                log_agregar("guardado scripts/" + nombre)
+                log_agregar(trc("msg.guardado", [nombre]))
             web_responder(s, web_respuesta_redireccion("/"))
         elif s.id == 5:
             if fondo_jpg == "":
-                web_responder(s, http_respuesta_texto(404, "falta fondo.jpg\n"))
+                web_responder(s, http_respuesta_texto(404, tr("msg.sin_fondo") + "\n"))
             else:
                 web_responder(s, respuesta_fondo())
         elif s.id == 6:
@@ -115,6 +125,9 @@ else:
         elif s.id == 7:
             escr_cerrar(s.parametros[0])
             web_responder(s, web_respuesta_redireccion("/"))
+        elif s.id == 8:
+            i18n_cambiar(s.parametros[0])
+            web_responder(s, web_respuesta_redireccion("/"))
         else:
-            web_responder(s, http_respuesta_texto(404, "no encontrado\n"))
+            web_responder(s, http_respuesta_texto(404, tr("msg.no_encontrado") + "\n"))
     cerrar(servidor)

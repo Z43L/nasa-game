@@ -1,0 +1,8 @@
+carga []
+idiomas ["es", "en"]
+Archivo true File
+Hello, Ana
+fr false Hola [falta]
+faltan 0
+no existe no existe el fichero de traducciones: no_existe_traduccion.json
+json malo la clave 'x' de 'es' debe ser texto u objeto

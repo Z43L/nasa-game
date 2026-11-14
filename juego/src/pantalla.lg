@@ -11,6 +11,7 @@ import cadena
 import render
 import html
 import misiones
+import i18n
 
 mut log_lineas: List[str] = []
 
@@ -41,12 +42,12 @@ fn cuerpo_campo(cuerpo: str, campo: str) -> str:
 
 fn estado_barra() -> str:
     if mision_en_curso():
-        return "MISIÓN " + str(mision_numero()) + " · tiempo restante: " + str(mision_restante_s()) + " s"
+        return trc("ui.barra_en_curso", [str(mision_numero()), str(mision_restante_s())])
     if mision_estado_actual() == 2:
-        return "MISIÓN " + str(mision_numero()) + " COMPLETADA · escribe 'misiones' para seguir"
+        return trc("ui.barra_completada", [str(mision_numero()), tr("cmd.misiones")])
     if mision_estado_actual() == 3:
-        return "MISIÓN " + str(mision_numero()) + " FALLIDA · escribe 'iniciar " + str(mision_numero()) + "' para reintentar"
-    return "SIN MISIÓN · escribe 'misiones' para ver las misiones y 'iniciar N' para empezar"
+        return trc("ui.barra_fallida", [str(mision_numero()), tr("cmd.iniciar")])
+    return trc("ui.barra_sin_mision", [tr("cmd.misiones"), tr("cmd.iniciar")])
 
 fn pantalla_css() -> str:
     reglas = [
@@ -68,9 +69,9 @@ fn pantalla_css() -> str:
 
 fn pantalla_html(cuerpo: Nodo) -> str:
     partes = [
-        "<!doctype html>\n<html lang=\"es\">\n<head>\n<meta charset=\"utf-8\">\n",
+        "<!doctype html>\n<html lang=\"" + i18n_idioma_actual() + "\">\n<head>\n<meta charset=\"utf-8\">\n",
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n",
-        "<title>Nave · control de errores</title>\n",
+        "<title>" + tr("ui.html_titulo") + "</title>\n",
         pantalla_css(),
         "\n</head>\n<body>\n",
         ui_render(cuerpo),
@@ -82,7 +83,7 @@ fn pantalla_editor(nombre: str, contenido: str) -> str:
     formulario = ui_elemento("form", ["method", "post", "action", "/guardar/" + nombre, "enctype", "text/plain", "class", "editor"], [
         ui_elemento("p", ["class", "pista"], [ui_texto("Editando scripts/" + nombre + ". Escribe el script en Lenguaje (man-code sintaxis).")]),
         ui_elemento("textarea", ["name", "texto", "class", "area", "spellcheck", "false"], [ui_texto(contenido)]),
-        ui_elemento("button", ["type", "submit", "class", "boton"], [ui_texto("Guardar")]),
-        ui_elemento("a", ["href", "/", "class", "volver"], [ui_texto("Volver a la terminal")])
+        ui_elemento("button", ["type", "submit", "class", "boton"], [ui_texto(tr("pant.guardar"))]),
+        ui_elemento("a", ["href", "/", "class", "volver"], [ui_texto(tr("pant.volver"))])
     ])
     return pantalla_html(ui_elemento("main", ["class", "terminal"], [formulario]))

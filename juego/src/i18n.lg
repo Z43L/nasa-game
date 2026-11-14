@@ -1,0 +1,56 @@
+# src/i18n.lg: idioma de la interfaz y de la terminal. Textos en traducciones.json (es, en, fr, ja).
+#
+#   i18n_cargar() -> str            carga traducciones.json; "" si va bien
+#   tr(clave) -> str                texto en el idioma activo (respaldo: español; si falta, "[clave]")
+#   trc(clave, args) -> str         igual, con {0}, {1}, ...
+#   i18n_cambiar(codigo) -> bool    cambia el idioma; false si no existe
+#   i18n_idioma_actual() -> str
+#   i18n_disponibles() -> str       "es, en, fr, ja"
+#   i18n_canonico(prefijo, ids, palabra) -> str   id interno de una palabra escrita en cualquier idioma
+
+import traduccion
+
+mut tr_tabla = traduccion_nueva()
+mut tr_codigo = "es"
+
+fn i18n_cargar() -> str:
+    err = traduccion_cargar(tr_tabla, "traducciones.json")
+    traduccion_respaldo(tr_tabla, "es")
+    traduccion_idioma(tr_tabla, "es")
+    return err
+
+fn tr(clave: str) -> str:
+    return traduccion_t(tr_tabla, clave)
+
+fn trc(clave: str, args: List[str]) -> str:
+    return traduccion_con(tr_tabla, clave, args)
+
+fn i18n_idioma_actual() -> str:
+    return tr_codigo
+
+fn i18n_cambiar(codigo: str) -> bool:
+    if not traduccion_idioma(tr_tabla, codigo):
+        traduccion_idioma(tr_tabla, tr_codigo)
+        return false
+    tr_codigo = codigo
+    return true
+
+fn i18n_disponibles() -> str:
+    return texto_unir(traduccion_idiomas(tr_tabla), ", ")
+
+# Id interno de una palabra: acepta el id tal cual o el nombre traducido en CUALQUIER idioma
+# (prefijo + id). Así "status" o "estado" sirven en cualquier idioma del juego.
+fn i18n_canonico(prefijo: str, ids: List[str], palabra: str) -> str:
+    for i in 0..len(ids):
+        if ids[i] == palabra:
+            return ids[i]
+    actual = tr_codigo
+    codigos = ["es", "en", "fr", "ja"]
+    for c in codigos:
+        traduccion_idioma(tr_tabla, c)
+        for i in 0..len(ids):
+            if traduccion_t(tr_tabla, prefijo + ids[i]) == palabra:
+                traduccion_idioma(tr_tabla, actual)
+                return ids[i]
+    traduccion_idioma(tr_tabla, actual)
+    return palabra

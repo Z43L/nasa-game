@@ -9,6 +9,7 @@
 
 import pantalla
 import apps
+import i18n
 
 mut app_actual = "terminal"
 mut apps_abiertas: List[str] = []
@@ -24,19 +25,9 @@ fn escr_valida(id: str) -> bool:
     return false
 
 fn escr_nombre(id: str) -> str:
-    if id == "terminal":
-        return "Terminal"
-    if id == "sensores":
-        return "Sensores"
-    if id == "gases":
-        return "Gases"
     if id == "comunicaciones":
-        return "Comunicación"
-    if id == "trayectoria":
-        return "Trayectoria"
-    if id == "energia":
-        return "Energía"
-    return id
+        return tr("ui.comunicacion")
+    return tr("ui." + id)
 
 fn escr_abrir(id: str):
     if not escr_valida(id):
@@ -96,11 +87,22 @@ fn escr_icono(id: str) -> Nodo:
 # ---------- partes de la página ----------
 
 fn escr_menubar() -> Nodo:
-    return ui_elemento("div", ["class", "inicio-orbe", "title", "Inicio"], [ui_texto("")])
+    return ui_elemento("div", ["class", "inicio-orbe", "title", tr("ui.inicio")], [ui_texto("")])
+
+fn escr_idiomas() -> Nodo:
+    codigos = ["es", "en", "fr", "ja"]
+    mut enlaces: List[Nodo] = []
+    for i in 0..len(codigos):
+        mut clase = "idioma"
+        if codigos[i] == i18n_idioma_actual():
+            clase = "idioma actual"
+        enlaces.append(ui_elemento("a", ["href", "/idioma/" + codigos[i], "class", clase, "title", tr("ui.idioma")], [ui_texto(texto_a_mayusculas(codigos[i]))]))
+    return ui_elemento("span", ["class", "idiomas"], enlaces)
 
 fn escr_bandeja() -> Nodo:
     return ui_elemento("div", ["class", "bandeja"], [
-        ui_elemento("span", ["class", "bandeja-texto"], [ui_texto(estado_barra())])
+        ui_elemento("span", ["class", "bandeja-texto"], [ui_texto(estado_barra())]),
+        escr_idiomas()
     ])
 
 fn escr_pestana(id: str) -> Nodo:
@@ -109,7 +111,7 @@ fn escr_pestana(id: str) -> Nodo:
         clase = "pestana activa"
     mut hijos: List[Nodo] = [ui_elemento("a", ["href", "/app/" + id, "class", clase], [ui_texto(escr_nombre(id))])]
     if id != "terminal":
-        hijos.append(ui_elemento("a", ["href", "/cerrar/" + id, "class", "x", "title", "Cerrar"], [ui_texto("×")]))
+        hijos.append(ui_elemento("a", ["href", "/cerrar/" + id, "class", "x", "title", tr("ui.cerrar")], [ui_texto("×")]))
     return ui_elemento("div", ["class", "pestana-caja"], hijos)
 
 fn escr_pestanas() -> Nodo:
@@ -141,16 +143,16 @@ fn escr_semaforos() -> Nodo:
     return ui_elemento("div", ["class", "w7-botones"], [
         ui_elemento("span", ["class", "w7-btn"], [ui_texto("–")]),
         ui_elemento("span", ["class", "w7-btn"], [ui_texto("□")]),
-        ui_elemento("a", ["href", "/cerrar/" + app_actual, "class", "w7-btn cerrar", "title", "Cerrar"], [ui_texto("✕")])
+        ui_elemento("a", ["href", "/cerrar/" + app_actual, "class", "w7-btn cerrar", "title", tr("ui.cerrar")], [ui_texto("✕")])
     ])
 
 fn escr_ventana() -> Nodo:
     barra = ui_elemento("div", ["class", "titulo-barra"], [
-        ui_elemento("span", ["class", "titulo"], [ui_texto(escr_nombre(app_actual) + " — Nave")]),
+        ui_elemento("span", ["class", "titulo"], [ui_texto(trc("ui.titulo_app", [escr_nombre(app_actual)]))]),
         escr_semaforos()
     ])
     linea = ui_elemento("form", ["method", "post", "action", "/cmd", "enctype", "text/plain", "class", "linea", "autocomplete", "off"], [
-        ui_elemento("span", ["class", "prompt"], [ui_texto("nave$")]),
+        ui_elemento("span", ["class", "prompt"], [ui_texto(tr("ui.prompt"))]),
         ui_elemento("input", ["name", "linea", "class", "campo", "autofocus"], [])
     ])
     return ui_elemento("div", ["class", "ventana"], [barra, escr_pestanas(), ui_elemento("div", ["class", "contenido"], [escr_contenido()]), linea])
@@ -249,13 +251,13 @@ fn escr_css() -> str:
         ".barra-tareas { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; display: flex; align-items: stretch; background: linear-gradient(rgba(120,170,220,0.85), rgba(40,90,150,0.9)); border-top: 1px solid #0e2a4a; box-shadow: inset 0 1px 0 rgba(255,255,255,0.35); z-index: 10; }",
         ".inicio-orbe { width: 52px; flex: none; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, #b6f0c0, #2fa84a 55%, #14602a); border-radius: 0 22px 22px 0; box-shadow: inset 0 0 6px rgba(255,255,255,0.5), 2px 0 6px rgba(0,0,0,0.3); margin-right: 6px; }",
         ".tareas-apps { display: flex; align-items: stretch; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; padding: 3px 0; }",
-        ".tarea { display: flex; align-items: center; gap: 6px; padding: 0 10px; min-width: 120px; max-width: 170px; border: 1px solid transparent; border-radius: 4px; text-decoration: none; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); }",
+        ".tarea { display: flex; align-items: center; gap: 6px; padding: 0 10px; min-width: 40px; flex: 0 1 150px; overflow: hidden; border: 1px solid transparent; border-radius: 4px; text-decoration: none; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.5); background: rgba(255,255,255,0.1); }",
         ".tarea:hover { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.5); }",
         ".tarea.actual { background: linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.2)); border-color: rgba(255,255,255,0.8); }",
         ".tarea-icono { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 3px; flex: none; }",
         ".tarea-icono svg { width: 18px; height: 18px; color: #fff; }",
         ".tarea-nombre { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
-        ".bandeja { flex: none; display: flex; align-items: center; padding: 0 12px; margin-left: 6px; border-left: 1px solid rgba(0,0,0,0.3); background: rgba(0,0,0,0.12); color: #fff; font-size: 12px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); max-width: 380px; }",
+        ".bandeja { flex: none; display: flex; flex-shrink: 0; align-items: center; padding: 0 12px; margin-left: 6px; border-left: 1px solid rgba(0,0,0,0.3); background: rgba(0,0,0,0.12); color: #fff; font-size: 12px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); max-width: 380px; }",
         ".bandeja-texto { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }",
         ".ic-terminal { background: linear-gradient(#5a6b7d, #1f2a36); }",
         ".ic-sensores { background: linear-gradient(#7fd66a, #2f8a22); }",
@@ -263,7 +265,11 @@ fn escr_css() -> str:
         ".ic-comunicaciones { background: linear-gradient(#ffc766, #d97a12); }",
         ".ic-trayectoria { background: linear-gradient(#c8a0ea, #6f3fb0); }",
         ".ic-energia { background: linear-gradient(#ffe57a, #d9a20f); }",
-        "@media (max-width: 700px) { .fila { grid-template-columns: 1fr; gap: 4px; } .mando-fila { grid-template-columns: 1fr; } .tarea { min-width: 40px; } .tarea-nombre { display: none; } .bandeja { display: none; } }",
+        ".idiomas { display: inline-flex; gap: 2px; margin-left: 10px; }",
+        ".idioma { color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; padding: 1px 5px; border: 1px solid transparent; border-radius: 3px; text-shadow: 0 1px 1px rgba(0,0,0,0.5); }",
+        ".idioma:hover { border-color: rgba(255,255,255,0.6); }",
+        ".idioma.actual { background: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.8); }",
+        "@media (max-width: 700px) { .fila { grid-template-columns: 1fr; gap: 4px; } .mando-fila { grid-template-columns: 1fr; } .tarea { min-width: 40px; } .tarea-nombre { display: none; } .bandeja-texto { display: none; } }",
     ]
     return "<style>\n" + texto_unir(reglas, "\n") + "\n</style>"
 
@@ -273,9 +279,9 @@ fn escritorio_html() -> str:
         ui_elemento("div", ["class", "barra-tareas"], [escr_menubar(), escr_dock(), escr_bandeja()])
     ])
     partes = [
-        "<!doctype html>\n<html lang=\"es\">\n<head>\n<meta charset=\"utf-8\">\n",
+        "<!doctype html>\n<html lang=\"" + i18n_idioma_actual() + "\">\n<head>\n<meta charset=\"utf-8\">\n",
         "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n",
-        "<title>Nave · control de errores</title>\n",
+        "<title>" + tr("ui.html_titulo") + "</title>\n",
         escr_css(),
         "\n</head>\n<body>\n",
         ui_render(cuerpo),
