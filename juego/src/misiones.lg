@@ -10,23 +10,35 @@
 #   mision_listar() -> str         todas las misiones con su estado
 #   mision_en_curso() -> bool
 #   mision_restante_s() -> int     segundos que quedan (0 si no hay misión en curso)
+#
+# Getters para la interfaz (índice i 0-based):
+#   mision_total() -> int, mision_titulo(i) -> str, mision_briefing(i) -> str (traducidos),
+#   mision_limite(i) -> int, mision_dificultad(i) -> str (clave dif.*),
+#   mision_estado_de(i) -> int (0 bloqueada, 1 disponible, 2 en curso, 3 completada, 4 fallida),
+#   mision_seleccionable(i) -> bool (disponible, en curso, completada o fallida).
+#
+# Serialización: mision_a_json() -> str, mision_desde_json(texto) -> str ("" si va bien).
 
 import tiempo
 import sim
 import i18n
+import json
 
 struct Mision:
     titulo: str
     briefing: str
     limite_s: int
     racha_necesaria: int
+    dificultad: str
 
 fn misiones_lista() -> List[Mision]:
     mut l: List[Mision] = []
-    l.append(Mision(titulo: "mision.1.titulo", briefing: "mision.1.briefing", limite_s: 120, racha_necesaria: 1))
-    l.append(Mision(titulo: "mision.2.titulo", briefing: "mision.2.briefing", limite_s: 90, racha_necesaria: 1))
-    l.append(Mision(titulo: "mision.3.titulo", briefing: "mision.3.briefing", limite_s: 150, racha_necesaria: 1))
-    l.append(Mision(titulo: "mision.4.titulo", briefing: "mision.4.briefing", limite_s: 180, racha_necesaria: 15))
+    l.append(Mision(titulo: "mision.1.titulo", briefing: "mision.1.briefing", limite_s: 120, racha_necesaria: 1, dificultad: "dif.facil"))
+    l.append(Mision(titulo: "mision.2.titulo", briefing: "mision.2.briefing", limite_s: 90, racha_necesaria: 1, dificultad: "dif.facil"))
+    l.append(Mision(titulo: "mision.3.titulo", briefing: "mision.3.briefing", limite_s: 150, racha_necesaria: 1, dificultad: "dif.media"))
+    l.append(Mision(titulo: "mision.4.titulo", briefing: "mision.4.briefing", limite_s: 180, racha_necesaria: 15, dificultad: "dif.dificil"))
+    l.append(Mision(titulo: "mision.5.titulo", briefing: "mision.5.briefing", limite_s: 120, racha_necesaria: 10, dificultad: "dif.dificil"))
+    l.append(Mision(titulo: "mision.6.titulo", briefing: "mision.6.briefing", limite_s: 200, racha_necesaria: 10, dificultad: "dif.extrema"))
     return l
 
 mut lista_misiones: List[Mision] = misiones_lista()
@@ -48,6 +60,51 @@ fn mision_numero() -> int:
 
 fn mision_estado_actual() -> int:
     return estado
+
+fn mision_valida(i: int) -> bool:
+    return i >= 0 and i < len(lista_misiones)
+
+fn mision_total() -> int:
+    return len(lista_misiones)
+
+fn mision_titulo(i: int) -> str:
+    if not mision_valida(i):
+        return ""
+    return tr(lista_misiones[i].titulo)
+
+fn mision_briefing(i: int) -> str:
+    if not mision_valida(i):
+        return ""
+    return tr(lista_misiones[i].briefing)
+
+fn mision_limite(i: int) -> int:
+    if not mision_valida(i):
+        return 0
+    return lista_misiones[i].limite_s
+
+# Clave de dificultad: dif.facil, dif.media, dif.dificil o dif.extrema.
+fn mision_dificultad(i: int) -> str:
+    if not mision_valida(i):
+        return ""
+    return lista_misiones[i].dificultad
+
+# 0 bloqueada, 1 disponible, 2 en curso, 3 completada, 4 fallida.
+fn mision_estado_de(i: int) -> int:
+    if not mision_valida(i):
+        return 0
+    if i < completadas:
+        return 3
+    if i > completadas:
+        return 0
+    if estado == 1 and actual == i:
+        return 2
+    if estado == 3 and actual == i:
+        return 4
+    return 1
+
+# Se puede abrir su briefing: disponible, en curso, completada o fallida (no bloqueada).
+fn mision_seleccionable(i: int) -> bool:
+    return mision_estado_de(i) != 0
 
 # Progreso de la misión actual en %: 0 sin misión, 100 completada.
 fn mision_progreso_pct() -> int:
@@ -75,6 +132,11 @@ fn mision_condicion(i: int) -> bool:
         return sim_sano(rea) and sim_s("energia").valor >= 30
     if i == 3:
         return sim_todos_sanos()
+    if i == 4:
+        co2 = sim_s("co2")
+        return sim_sano(co2) and co2.valor <= 5
+    if i == 5:
+        return sim_todos_sanos()
     return false
 
 fn mision_completar():
@@ -101,12 +163,15 @@ fn mision_segundo():
         racha_s = 0
     rea = sim_s("reactor")
     ene = sim_s("energia")
+    co2 = sim_s("co2")
     if racha_s >= lista_misiones[actual].racha_necesaria:
         mision_completar()
     elif rea.valor > rea.maximo:
         mision_fallar("fallo.reactor")
     elif ene.valor <= 0:
         mision_fallar("fallo.energia")
+    elif co2.valor > co2.maximo:
+        mision_fallar("fallo.co2")
     elif transcurrido_s >= lista_misiones[actual].limite_s:
         mision_fallar("fallo.tiempo")
 
@@ -136,6 +201,11 @@ fn mision_preparar(i: int):
         ene.valor = 60
     elif i == 3:
         sim_averiar("comunicaciones", "av.antena", -3)
+    elif i == 4:
+        sim_averiar("co2", "av.co2", 1)
+    elif i == 5:
+        sim_averiar("comunicaciones", "av.tormenta", -3)
+        sim_averiar("energia", "av.tormenta", -2)
 
 fn mision_iniciar(n: int) -> str:
     if estado == 1:
@@ -169,12 +239,66 @@ fn mision_info() -> str:
 fn mision_listar() -> str:
     mut partes: List[str] = []
     for i in 0..len(lista_misiones):
+        k = mision_estado_de(i)
         mut e = tr("mision.estado.bloqueada")
-        if i < completadas:
-            e = tr("mision.estado.completada")
-        elif i == completadas and not (estado == 1 and actual == i):
+        if k == 1:
             e = tr("mision.estado.disponible")
-        if estado == 1 and actual == i:
+        elif k == 2:
             e = tr("mision.estado.en_curso")
+        elif k == 3:
+            e = tr("mision.estado.completada")
+        elif k == 4:
+            e = tr("mision.estado.fallida")
         partes.append(trc("mision.linea", [str(i + 1), tr(lista_misiones[i].titulo), e, str(lista_misiones[i].limite_s)]))
     return texto_unir(partes, "\n")
+
+# ---------- serialización ----------
+
+fn mis_num(v: int) -> JsonValor:
+    return json_nuevo_numero(float(v))
+
+fn mision_a_json() -> str:
+    claves: List[str] = ["estado", "actual", "completadas", "transcurrido_s", "racha_s", "motivo_fin", "puntos"]
+    valores: List[JsonValor] = [mis_num(estado), mis_num(actual), mis_num(completadas), mis_num(transcurrido_s), mis_num(racha_s), json_nuevo_cadena(motivo_fin), mis_num(puntos)]
+    return json_serializar(json_nuevo_objeto(claves, valores))
+
+# Restaura el estado de misiones desde el texto de mision_a_json. "" si va bien; si no, un mensaje.
+# El reloj se reinicia: resto_ms = 0 y ultimo_ms = ahora. La nave se carga aparte con sim_desde_json.
+fn mision_desde_json(texto: str) -> str:
+    raiz = json_parsear(texto)
+    if json_es_error(raiz):
+        return trc("mis.err_json", [json_texto(raiz)])
+    if json_tipo(raiz) != "objeto":
+        return trc("mis.err_forma", ["mision"])
+    numeros = ["estado", "actual", "completadas", "transcurrido_s", "racha_s", "puntos"]
+    for k in 0..len(numeros):
+        if json_tipo(json_obtener(raiz, numeros[k])) != "numero":
+            return trc("mis.err_forma", [numeros[k]])
+    if json_tipo(json_obtener(raiz, "motivo_fin")) != "cadena":
+        return trc("mis.err_forma", ["motivo_fin"])
+    n_estado = int(json_numero(json_obtener(raiz, "estado")))
+    n_actual = int(json_numero(json_obtener(raiz, "actual")))
+    n_completadas = int(json_numero(json_obtener(raiz, "completadas")))
+    n_transcurrido = int(json_numero(json_obtener(raiz, "transcurrido_s")))
+    n_racha = int(json_numero(json_obtener(raiz, "racha_s")))
+    n_puntos = int(json_numero(json_obtener(raiz, "puntos")))
+    if n_estado < 0 or n_estado > 3:
+        return trc("mis.err_rango", ["estado"])
+    if n_actual < -1 or n_actual >= len(lista_misiones):
+        return trc("mis.err_rango", ["actual"])
+    if n_completadas < 0 or n_completadas > len(lista_misiones):
+        return trc("mis.err_rango", ["completadas"])
+    if n_estado != 0 and n_actual < 0:
+        return trc("mis.err_rango", ["actual"])
+    if n_transcurrido < 0 or n_racha < 0:
+        return trc("mis.err_rango", ["transcurrido_s"])
+    estado = n_estado
+    actual = n_actual
+    completadas = n_completadas
+    transcurrido_s = n_transcurrido
+    racha_s = n_racha
+    motivo_fin = json_texto(json_obtener(raiz, "motivo_fin"))
+    puntos = n_puntos
+    resto_ms = 0
+    ultimo_ms = tiempo_monotonico_ms()
+    return ""

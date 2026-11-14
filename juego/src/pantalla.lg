@@ -12,6 +12,7 @@ import render
 import html
 import misiones
 import i18n
+import crt
 
 mut log_lineas: List[str] = []
 
@@ -49,35 +50,9 @@ fn estado_barra() -> str:
         return trc("ui.barra_fallida", [str(mision_numero()), tr("cmd.iniciar")])
     return trc("ui.barra_sin_mision", [tr("cmd.misiones"), tr("cmd.iniciar")])
 
-fn pantalla_css() -> str:
-    reglas = [
-        "html, body { margin: 0; min-height: 100%; color: #c8f7c5; font-family: ui-monospace, Menlo, Consolas, monospace; background: #05070a url('/fondo.jpg') center / cover fixed no-repeat; }",
-        "main.terminal { max-width: 960px; margin: 0 auto; padding: 12px; box-sizing: border-box; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; }",
-        ".barra { background: rgba(8, 22, 16, 0.78); color: #7CFC9A; padding: 6px 10px; border: 1px solid #2a8a55; border-radius: 4px; font-size: 14px; backdrop-filter: blur(3px); }",
-        "pre.salida { white-space: pre-wrap; word-break: break-word; min-height: 50vh; max-height: 65vh; overflow-y: auto; background: rgba(4, 10, 8, 0.72); border: 1px solid #2a8a55; border-radius: 4px; padding: 10px; margin: 10px 0; font-size: 14px; line-height: 1.4; backdrop-filter: blur(3px); }",
-        "form.entrada { display: flex; align-items: center; gap: 6px; background: rgba(4, 10, 8, 0.72); border: 1px solid #2a8a55; border-radius: 4px; padding: 0 10px; }",
-        ".prompt { color: #7CFC9A; white-space: nowrap; }",
-        "input.campo { flex: 1; background: transparent; color: #c8f7c5; border: 0; border: 0; font: inherit; font-size: 16px; padding: 8px 0; outline: none; min-width: 0; }",
-        ".pista { color: #9be7b3; font-size: 13px; background: rgba(4, 10, 8, 0.72); padding: 4px 8px; border-radius: 4px; align-self: flex-start; }",
-        "form.editor { display: flex; flex-direction: column; gap: 8px; }",
-        "textarea.area { min-height: 65vh; background: #0a0f0c; color: #c8f7c5; border: 1px solid #1d5a36; font: inherit; font-size: 15px; padding: 10px; box-sizing: border-box; width: 100%; }",
-        "button.boton { background: #1d5a36; color: #fff; border: 0; padding: 10px 16px; font: inherit; border-radius: 4px; cursor: pointer; align-self: flex-start; }",
-        "a.volver { color: #7CFC9A; }",
-        "@media (max-width: 600px) { pre.salida { font-size: 13px; } }",
-    ]
-    return "<style>\n" + texto_unir(reglas, "\n") + "\n</style>"
-
+# Página de un módulo que no es el juego (editor de scripts): misma base CRT.
 fn pantalla_html(cuerpo: Nodo) -> str:
-    partes = [
-        "<!doctype html>\n<html lang=\"" + i18n_idioma_actual() + "\">\n<head>\n<meta charset=\"utf-8\">\n",
-        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n",
-        "<title>" + tr("ui.html_titulo") + "</title>\n",
-        pantalla_css(),
-        "\n</head>\n<body>\n",
-        ui_render(cuerpo),
-        "\n</body>\n</html>\n",
-    ]
-    return texto_unir(partes, "")
+    return crt_pagina(tr("ui.html_titulo"), cuerpo)
 
 fn pantalla_editor(nombre: str, contenido: str) -> str:
     formulario = ui_elemento("form", ["method", "post", "action", "/guardar/" + nombre, "enctype", "text/plain", "class", "editor"], [
@@ -86,4 +61,4 @@ fn pantalla_editor(nombre: str, contenido: str) -> str:
         ui_elemento("button", ["type", "submit", "class", "boton"], [ui_texto(tr("pant.guardar"))]),
         ui_elemento("a", ["href", "/", "class", "volver"], [ui_texto(tr("pant.volver"))])
     ])
-    return pantalla_html(ui_elemento("main", ["class", "terminal"], [formulario]))
+    return pantalla_html(ui_elemento("div", ["class", "editor-raiz"], [formulario]))
