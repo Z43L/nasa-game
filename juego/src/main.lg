@@ -19,6 +19,8 @@ import tcp
 import datos
 import texto
 import pantalla
+import escritorio
+import apps
 import shell
 import misiones
 
@@ -59,6 +61,8 @@ web_agregar(enrutador, "POST", "/cmd", 2)
 web_agregar(enrutador, "GET", "/editar/:nombre", 3)
 web_agregar(enrutador, "POST", "/guardar/:nombre", 4)
 web_agregar(enrutador, "GET", "/fondo.jpg", 5)
+web_agregar(enrutador, "GET", "/app/:id", 6)
+web_agregar(enrutador, "GET", "/cerrar/:id", 7)
 
 servidor = escuchar(8080)
 if servidor < 0:
@@ -73,7 +77,7 @@ else:
             web_responder(s, http_respuesta_texto(400, "petición no válida\n"))
         elif s.id == 1:
             mision_avanzar()
-            web_responder(s, respuesta_pagina(pantalla_terminal()))
+            web_responder(s, respuesta_pagina(escritorio_html()))
         elif s.id == 2:
             linea = cuerpo_campo(s.peticion.cuerpo, "linea")
             if texto_empieza_por(texto_recortar_espacios(linea), "editar "):
@@ -105,6 +109,12 @@ else:
                 web_responder(s, http_respuesta_texto(404, "falta fondo.jpg\n"))
             else:
                 web_responder(s, respuesta_fondo())
+        elif s.id == 6:
+            escr_abrir(s.parametros[0])
+            web_responder(s, web_respuesta_redireccion("/"))
+        elif s.id == 7:
+            escr_cerrar(s.parametros[0])
+            web_responder(s, web_respuesta_redireccion("/"))
         else:
             web_responder(s, http_respuesta_texto(404, "no encontrado\n"))
     cerrar(servidor)

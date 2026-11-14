@@ -65,9 +65,9 @@ fn shell_linea_sistema(s: Sistema) -> str:
 fn shell_estado(args: List[str]) -> str:
     if len(args) == 0:
         mut lineas: List[str] = [shell_relleno("SISTEMA", 17) + shell_relleno("VALOR", 6) + shell_relleno("RANGO", 12) + "ESTADO"]
-        nombres = ["reactor", "refrigeracion", "energia", "oxigeno", "comunicaciones"]
-        for i in 0..len(nombres):
-            lineas.append(shell_linea_sistema(sim_s(nombres[i])))
+        todos = sim_lista()
+        for i in 0..len(todos):
+            lineas.append(shell_linea_sistema(todos[i]))
         return texto_unir(lineas, "\n")
     if not sim_existe(args[0]):
         return "sistema desconocido: " + args[0]

@@ -25,6 +25,8 @@ fn sim_nueva_nave() -> List[Sistema]:
     l.append(Sistema(nombre: "energia", valor: 80, objetivo: 80, minimo: 0, maximo: 100, activo: true, averia: "", deriva: 0, diagnosticado: false))
     l.append(Sistema(nombre: "oxigeno", valor: 101, objetivo: 101, minimo: 95, maximo: 110, activo: true, averia: "", deriva: 0, diagnosticado: false))
     l.append(Sistema(nombre: "comunicaciones", valor: 90, objetivo: 90, minimo: 60, maximo: 100, activo: true, averia: "", deriva: 0, diagnosticado: false))
+    l.append(Sistema(nombre: "co2", valor: 3, objetivo: 3, minimo: 0, maximo: 8, activo: true, averia: "", deriva: 0, diagnosticado: false))
+    l.append(Sistema(nombre: "hidrogeno", valor: 70, objetivo: 70, minimo: 20, maximo: 100, activo: true, averia: "", deriva: 0, diagnosticado: false))
     return l
 
 mut sistemas: List[Sistema] = sim_nueva_nave()
@@ -126,3 +128,24 @@ fn sim_paso():
 # Estado inicial de la nave (al empezar cada misión).
 fn sim_reiniciar():
     sistemas = sim_nueva_nave()
+
+# Todos los sistemas, para recorrerlos desde otros módulos (aplicaciones y terminal).
+fn sim_lista() -> List[Sistema]:
+    return sistemas
+
+# Sistemas que consumen energía cuando están activos.
+fn sim_consumo() -> int:
+    mut n = 0
+    consumidores = ["refrigeracion", "oxigeno", "comunicaciones"]
+    for i in 0..len(consumidores):
+        if sim_s(consumidores[i]).activo:
+            n = n + 1
+    return n
+
+# Recarga de la batería: solo con el reactor sano.
+fn sim_recarga() -> int:
+    rea = sim_s("reactor")
+    if rea.activo and rea.averia == "":
+        return 3
+    return 0
+

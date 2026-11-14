@@ -1,0 +1,183 @@
+# src/apps.lg: aplicaciones gráficas del escritorio. Cada una dibuja datos reales de la simulación.
+#
+#   app_sensores()        lectura de todos los sistemas
+#   app_gases()           depósitos de O2, CO2 e H2 y manómetro de oxígeno
+#   app_comunicaciones()  antena y barras de señal
+#   app_trayectoria()     órbita con la nave según el progreso de la misión, y mandos regulados
+#   app_energia()         batería, recarga y consumo
+#
+# Todo se dibuja con HTML y CSS (estilos en línea para los porcentajes). Sin JavaScript.
+
+extern "C" fn cos(x: float) -> float
+extern "C" fn sin(x: float) -> float
+
+fn ap_el(etiqueta: str, clase: str, hijos: List[Nodo]) -> Nodo:
+    return ui_elemento(etiqueta, ["class", clase], hijos)
+
+fn ap_st(etiqueta: str, clase: str, estilo: str, hijos: List[Nodo]) -> Nodo:
+    return ui_elemento(etiqueta, ["class", clase, "style", estilo], hijos)
+
+fn ap_t(s: str) -> Nodo:
+    return ui_texto(s)
+
+# Porcentaje de v dentro de [lo, hi], acotado a 0..100.
+fn ap_pct(v: int, lo: int, hi: int) -> int:
+    if hi <= lo:
+        return 0
+    return sim_acotar((v - lo) * 100 / (hi - lo), 0, 100)
+
+fn ap_cabecera(titulo: str, subtitulo: str) -> Nodo:
+    return ap_el("header", "app-cab", [ap_el("h2", "", [ap_t(titulo)]), ap_el("p", "sub", [ap_t(subtitulo)])])
+
+fn ap_chip(s: Sistema) -> Nodo:
+    e = sim_estado(s)
+    mut clase = "chip aviso"
+    if texto_empieza_por(e, "OK"):
+        clase = "chip ok"
+    elif texto_empieza_por(e, "AVERIA"):
+        clase = "chip mal"
+    elif e == "APAGADO":
+        clase = "chip off"
+    return ap_el("span", clase, [ap_t(e)])
+
+fn app_sensores() -> Nodo:
+    mut filas: List[Nodo] = []
+    todos = sim_lista()
+    for i in 0..len(todos):
+        s = todos[i]
+        p = ap_pct(s.valor, s.minimo, s.maximo)
+        filas.append(ap_el("div", "fila", [
+            ap_el("span", "fila-nombre", [ap_t(s.nombre)]),
+            ap_st("div", "barra-fondo", "", [ap_st("div", "barra-valor", "width: " + str(p) + "%", [])]),
+            ap_el("span", "fila-valor", [ap_t(str(s.valor))]),
+            ap_chip(s)
+        ]))
+    return ap_el("section", "app-contenido", [ap_cabecera("Sensores", "Lectura de todos los sistemas de la nave"), ap_el("div", "tarjeta", filas)])
+
+fn app_gases() -> Nodo:
+    nombres = ["oxigeno", "co2", "hidrogeno"]
+    colores = ["#0a84ff", "#ff9f0a", "#bf5af2"]
+    mut depositos: List[Nodo] = []
+    mut p_oxi = 0
+    for i in 0..len(nombres):
+        s = sim_s(nombres[i])
+        p = ap_pct(s.valor, s.minimo, s.maximo)
+        mut color = colores[i]
+        if sim_estado(s) != "OK":
+            color = "#ff453a"
+        if i == 0:
+            p_oxi = p
+        depositos.append(ap_el("div", "deposito", [
+            ap_st("div", "tanque", "", [ap_st("div", "nivel", "height: " + str(p) + "%; background: " + color, [])]),
+            ap_el("span", "etiqueta", [ap_t(nombres[i])]),
+            ap_el("span", "cifra", [ap_t(str(s.valor) + " · " + sim_estado(s))])
+        ]))
+    manometro = ap_el("div", "manometro-caja", [
+        ap_st("div", "manometro", "background: conic-gradient(#0a84ff " + str(p_oxi) + "%, #e5e5ea 0)", [ap_el("div", "manometro-centro", [ap_t(str(p_oxi) + "%")])]),
+        ap_el("p", "sub", [ap_t("Presión de oxígeno")])
+    ])
+    return ap_el("section", "app-contenido", [
+        ap_cabecera("Gases", "Depósitos de oxígeno, dióxido de carbono e hidrógeno"),
+        ap_el("div", "tarjeta gases", [ap_el("div", "fila-tanques", depositos), manometro])
+    ])
+
+fn app_comunicaciones() -> Nodo:
+    s = sim_s("comunicaciones")
+    n = sim_acotar(s.valor / 20, 0, 5)
+    mut barras: List[Nodo] = []
+    for i in 0..5:
+        mut clase = "barra-senal"
+        if i < n:
+            clase = "barra-senal on"
+        barras.append(ap_st("div", clase, "height: " + str((i + 1) * 20) + "%", []))
+    antena = ui_elemento("svg", ["viewBox", "0 0 120 120", "class", "antena", "fill", "none", "stroke", "currentColor", "stroke-width", "4", "stroke-linecap", "round"], [
+        ui_elemento("path", ["d", "M60 112 L60 58"], []),
+        ui_elemento("path", ["d", "M44 112 L60 58 L76 112"], []),
+        ui_elemento("circle", ["cx", "60", "cy", "46", "r", "7", "fill", "currentColor"], []),
+        ui_elemento("path", ["d", "M38 24 A32 32 0 0 0 38 68"], []),
+        ui_elemento("path", ["d", "M82 24 A32 32 0 0 1 82 68"], []),
+        ui_elemento("path", ["d", "M26 12 A50 50 0 0 0 26 80"], []),
+        ui_elemento("path", ["d", "M94 12 A50 50 0 0 1 94 80"], [])
+    ])
+    return ap_el("section", "app-contenido", [
+        ap_cabecera("Comunicación", "Señal con la base"),
+        ap_el("div", "tarjeta comunicacion", [
+            ap_el("div", "antena-caja", [antena]),
+            ap_el("div", "senal", barras),
+            ap_el("p", "cifra-grande", [ap_t(str(s.valor) + " %")]),
+            ap_el("p", "sub", [ap_t("Estado: " + sim_estado(s))])
+        ])
+    ])
+
+fn app_trayectoria() -> Nodo:
+    prog = mision_progreso_pct()
+    ang = 3.14159265 * (1.0 - float(prog) / 100.0)
+    x = int(50.0 + 40.0 * cos(ang))
+    y = int(62.0 - 40.0 * sin(ang))
+    mut mandos: List[Nodo] = []
+    reguladas = ["refrigeracion", "oxigeno", "comunicaciones"]
+    for i in 0..len(reguladas):
+        s = sim_s(reguladas[i])
+        pv = ap_pct(s.valor, s.minimo, s.maximo)
+        po = ap_pct(s.objetivo, s.minimo, s.maximo)
+        mandos.append(ap_el("div", "mando-fila", [
+            ap_el("span", "fila-nombre", [ap_t(s.nombre)]),
+            ap_st("div", "pista", "", [
+                ap_st("div", "pista-relleno", "width: " + str(pv) + "%", []),
+                ap_st("div", "mando", "left: " + str(po) + "%", [])
+            ]),
+            ap_el("span", "fila-valor", [ap_t(str(s.valor) + " / " + str(s.objetivo))])
+        ]))
+    vista = ap_el("div", "orbita-caja", [
+        ap_el("div", "orbita", []),
+        ap_el("div", "planeta", []),
+        ap_st("div", "nave", "left: " + str(x) + "%; top: " + str(y) + "%", []),
+        ap_el("span", "orbita-texto", [ap_t("Progreso de la misión: " + str(prog) + " %")])
+    ])
+    return ap_el("section", "app-contenido", [
+        ap_cabecera("Trayectoria", "Recorrido de la misión y mandos regulados"),
+        ap_el("div", "tarjeta", [vista, ap_el("div", "mandos", mandos)])
+    ])
+
+fn app_energia() -> Nodo:
+    e = sim_s("energia")
+    p = ap_pct(e.valor, 0, 100)
+    rec = sim_recarga()
+    con = sim_consumo()
+    rea = sim_s("reactor")
+    mut clase_bat = "bateria-nivel"
+    if p <= 30:
+        clase_bat = "bateria-nivel bajo"
+    mut estado_rea = "ACTIVO · recarga la batería"
+    mut clase_rea = "chip ok"
+    if rea.averia != "":
+        estado_rea = "AVERIADO · sin recarga"
+        clase_rea = "chip mal"
+    elif not rea.activo:
+        estado_rea = "APAGADO"
+        clase_rea = "chip off"
+    bateria = ap_el("div", "bateria-caja", [
+        ap_el("div", "bateria-tapa", []),
+        ap_el("div", "bateria", [ap_st("div", clase_bat, "height: " + str(p) + "%", [])]),
+        ap_el("p", "cifra-grande", [ap_t(str(e.valor) + " %")])
+    ])
+    flujos = ap_el("div", "flujos", [
+        ap_el("div", "mando-fila", [
+            ap_el("span", "fila-nombre", [ap_t("Recarga")]),
+            ap_st("div", "pista", "", [ap_st("div", "pista-relleno recarga", "width: " + str(rec * 100 / 3) + "%", [])]),
+            ap_el("span", "fila-valor", [ap_t("+" + str(rec) + " /s")])
+        ]),
+        ap_el("div", "mando-fila", [
+            ap_el("span", "fila-nombre", [ap_t("Consumo")]),
+            ap_st("div", "pista", "", [ap_st("div", "pista-relleno consumo", "width: " + str(con * 100 / 3) + "%", [])]),
+            ap_el("span", "fila-valor", [ap_t("-" + str(con) + " /s")])
+        ]),
+        ap_el("div", "fuentes", [
+            ap_el("div", "fuente", [ap_el("span", "fila-nombre", [ap_t("Reactor (principal)")]), ap_el("span", clase_rea, [ap_t(estado_rea)])]),
+            ap_el("div", "fuente", [ap_el("span", "fila-nombre", [ap_t("Batería (respaldo)")]), ap_el("span", "chip ok", [ap_t(str(p) + " %")])])
+        ])
+    ])
+    return ap_el("section", "app-contenido", [
+        ap_cabecera("Energía", "Sistema de potencia: batería, recarga y consumo"),
+        ap_el("div", "tarjeta energia", [bateria, flujos])
+    ])

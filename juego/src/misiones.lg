@@ -48,6 +48,14 @@ fn mision_numero() -> int:
 fn mision_estado_actual() -> int:
     return estado
 
+# Progreso de la misión actual en %: 0 sin misión, 100 completada.
+fn mision_progreso_pct() -> int:
+    if estado == 1:
+        return transcurrido_s * 100 / lista_misiones[actual].limite_s
+    if estado == 2:
+        return 100
+    return 0
+
 fn mision_restante_s() -> int:
     if estado != 1:
         return 0

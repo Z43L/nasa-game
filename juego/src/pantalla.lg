@@ -78,16 +78,6 @@ fn pantalla_html(cuerpo: Nodo) -> str:
     ]
     return texto_unir(partes, "")
 
-fn pantalla_terminal() -> str:
-    barra = ui_elemento("div", ["class", "barra"], [ui_texto(estado_barra())])
-    salida = ui_elemento("pre", ["class", "salida"], [ui_texto(log_texto())])
-    entrada = ui_elemento("form", ["method", "post", "action", "/cmd", "enctype", "text/plain", "class", "entrada", "autocomplete", "off"], [
-        ui_elemento("span", ["class", "prompt"], [ui_texto("nave$")]),
-        ui_elemento("input", ["name", "linea", "class", "campo", "autofocus"], [])
-    ])
-    pista = ui_elemento("p", ["class", "pista"], [ui_texto("ayuda · man ORDEN · man-code TEMA · editar FICHERO.lg · ejecutar FICHERO.lg")])
-    return pantalla_html(ui_elemento("main", ["class", "terminal"], [barra, salida, entrada, pista]))
-
 fn pantalla_editor(nombre: str, contenido: str) -> str:
     formulario = ui_elemento("form", ["method", "post", "action", "/guardar/" + nombre, "enctype", "text/plain", "class", "editor"], [
         ui_elemento("p", ["class", "pista"], [ui_texto("Editando scripts/" + nombre + ". Escribe el script en Lenguaje (man-code sintaxis).")]),
